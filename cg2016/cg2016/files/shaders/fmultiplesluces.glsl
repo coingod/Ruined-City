@@ -1,5 +1,6 @@
 ﻿// FRAGMENT SHADER.
 #version 330
+#define maxLights 5
 
 struct Material {
 	vec3 Ka;
@@ -20,10 +21,12 @@ struct Light {
 in vec3 fragPos;
 in vec3 fragNormal;
 
+uniform int numLights;
+
 uniform mat4 modelMatrix;
 uniform mat3 normalMatrix;
 uniform vec3 cameraPosition; //In World Space.
-uniform Light myLight;
+uniform Light allLights[maxLights];
 uniform Material material;
 uniform float A;
 uniform float B;
@@ -73,7 +76,9 @@ void main() {
 	vec3 surfaceNormal = normalize(normalMatrix * fragNormal);
 	vec3 surfaceToCamera = normalize(cameraPosition - surfacePos);
 	
-	vec3 linearColor = applyLight(myLight, material, surfacePos, surfaceNormal, surfaceToCamera);
+	vec3 linearColor=vec3(0);
+	for(int i=0; i<numLights; i++)
+		linearColor += applyLight(allLights[i], material, surfacePos, surfaceNormal, surfaceToCamera);
 
 	fragColor = vec4(linearColor, 1.0);
 }

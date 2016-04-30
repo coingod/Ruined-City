@@ -66,8 +66,46 @@ namespace cg2016
             //gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             //Configuracion de las Luces
-            luces = new Light[1];
-            luz = new Light();
+            
+            luces = new Light[4];
+
+            luces[0] = new Light();
+            luces[0].Position = new Vector4(-1.0f, 0.0f, 0.0f, 0.0f); //Directional light(hacia -x)
+            luces[0].Iambient = new Vector3(1.0f, 0.0f, 1.0f);
+            luces[0].Idiffuse = new Vector3(0.0f, 0.0f, 0.0f);
+            luces[0].Ispecular = new Vector3(0.0f, 0.0f, 0.0f);
+            //luces[0].ConeAngle = 12.0f; //NOT USED IN DIRECTIONAL
+            //luces[0].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);//NOT USED IN DIRECTIONAL
+            luces[0].Enabled = 1;
+
+            luces[1] = new Light();
+            luces[1].Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f); //spot desde arriba
+            luces[1].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
+            luces[1].Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
+            luces[1].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
+            luces[1].ConeAngle = 12.0f;
+            luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[1].Enabled = 1;
+
+            luces[2] = new Light();
+            luces[2].Position = new Vector4(0.0f, 1.0f, 0.0f, 1.0f); 
+            luces[2].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
+            luces[2].Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
+            luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
+            luces[2].ConeAngle = 12.0f;
+            luces[2].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[2].Enabled = 1;
+
+            luces[3] = new Light();
+            luces[3].Position = new Vector4(0.0f, 0.5f, 0.0f, 1.0f);
+            luces[3].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
+            luces[3].Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
+            luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
+            luces[3].ConeAngle = 12.0f;
+            luces[3].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[3].Enabled = 1;
+
+            /*luz = new Light();
             luz.Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f); //spot desde arriba
             luz.Iambient = new Vector3(0.8f, 0.65f, 0.2f);
             luz.Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
@@ -76,6 +114,7 @@ namespace cg2016
             luz.ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luz.Enabled = 1;
             luces[0] = luz;
+            */
             //luz = new Light(new Vector3(0f, 0f, 0f), new Vector3(1f, 0.7f, 0f), 0.5f);
 
             //Configuracion de Materiales
@@ -153,22 +192,25 @@ namespace cg2016
             sProgram.SetUniformValue("material.Ks", material.Kspecular);
             sProgram.SetUniformValue("material.shininess", material.Shininess);
 
-            sProgram.SetUniformValue("myLight.position", luz.Position);
-            sProgram.SetUniformValue("myLight.Ia", luz.Iambient);
-            sProgram.SetUniformValue("myLight.Id", luz.Idiffuse);
-            sProgram.SetUniformValue("myLight.Is", luz.Ispecular);
-            sProgram.SetUniformValue("myLight.coneAngle", luz.ConeAngle);
-            sProgram.SetUniformValue("myLight.coneDirection", luz.ConeDirection);
-            sProgram.SetUniformValue("myLight.enabled", luz.Enabled);
-
+            sProgram.SetUniformValue("numLights", luces.Length);
+            for (int i = 0; i < luces.Length; i++)
+            {
+                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
+                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
+                sProgram.SetUniformValue("allLights[" + i + "].Id", luces[i].Idiffuse);
+                sProgram.SetUniformValue("allLights[" + i + "].Is", luces[i].Ispecular);
+                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+            }
             //Configuracion de las transformaciones del objeto a espacio de mundo
             //Transform transform = new Transform();
             //transform.Position = new Vector3(-1,-1,-1);
             //transform.Rotate(new Vector3(3.14f / 2f, 0f ,0f));
             //transform.Rotation = Quaternion.FromAxisAngle(Vector3.UnitX, 3.14f/2f);
             //foreach(Mesh m in objeto.Meshes)
-              //m.Transform = transform;
-            
+            //m.Transform = transform;
+
             //Dibujamos el Objeto
             objeto.Dibujar(sProgram, mvMatrix);
             if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);
@@ -271,7 +313,7 @@ namespace cg2016
                 //ON/OFF LUCES
                 case Keys.D0:
                     ToggleLight(0);
-                    break;/*
+                    break;
                 case Keys.D1:
                     ToggleLight(1);
                     break;
@@ -298,7 +340,7 @@ namespace cg2016
                     break;
                 case Keys.D9:
                     ToggleLight(9);
-                    break;*/
+                    break;
                 //TAMAÑO CONO LUZ_1
                 case Keys.N:
                     ModificarCono(-2.0f);
