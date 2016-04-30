@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\OpenTK.GLControl.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,14 +54,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />
+    <Compile Include="CGUNS\Cameras\SphericalCamera.cs" />
+    <Compile Include="CGUNS\GLControl3.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CGUNS\Light.cs" />
+    <Compile Include="CGUNS\Material.cs" />
+    <Compile Include="CGUNS\Meshes\FaceVertexList\FVLFace.cs" />
+    <Compile Include="CGUNS\Meshes\FaceVertexList\FVLMesh.cs" />
+    <Compile Include="CGUNS\Meshes\HalfEdge\HEFace.cs" />
+    <Compile Include="CGUNS\Meshes\HalfEdge\HEHalfEdge.cs" />
+    <Compile Include="CGUNS\Meshes\HalfEdge\HEMesh.cs" />
+    <Compile Include="CGUNS\Meshes\HalfEdge\HEVertex.cs" />
+    <Compile Include="CGUNS\Meshes\Mesh.cs" />
+    <Compile Include="CGUNS\Meshes\ObjetoGrafico.cs" />
+    <Compile Include="CGUNS\Parsers\ObjFileParser.cs" />
+    <Compile Include="CGUNS\Primitives\Cube.cs" />
+    <Compile Include="CGUNS\Primitives\Ejes.cs" />
+    <Compile Include="CGUNS\Shaders\Exceptions.cs" />
+    <Compile Include="CGUNS\Shaders\Shader.cs" />
+    <Compile Include="CGUNS\Shaders\ShaderProgram.cs" />
+    <Compile Include="CGUNS\Transform.cs" />
+    <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="MainWindow.Designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CGUNS\GLControl3.resx">
+      <DependentUpon>GLControl3.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -63,6 +96,105 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="CGUNS\ModelosOBJ\avionJuguete.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\buggy.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\homer.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\homer_hp.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\humbird.OBJ">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\ico.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\ico_sm.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\IronMan.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\micilindro.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\ModernTable.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\mono.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\moto.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\octaedro.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\piram.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\plane.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\plane2.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\test.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\Tetera.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\tetra.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\torus.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\vaca.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fbordes.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fgouraud.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fmultiplesluces.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fnormals.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fphong.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\funlit.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vbordes.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vgouraud.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vmultiplesluces.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vnormals.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vphong.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vunlit.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -75,6 +207,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="libs\OpenTK.dll" />
+    <Content Include="libs\OpenTK.GLControl.dll" />
+    <Content Include="libs\OpenTK.GLControl.xml" />
+    <Content Include="libs\OpenTK.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
