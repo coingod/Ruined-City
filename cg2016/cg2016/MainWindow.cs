@@ -112,7 +112,6 @@ namespace cg2016
             //Vector3 ks = 0.3f * new Vector3(1f, 1f, 1f);
             //float coefEsp = 3;
 
-
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit); //Borramos el contenido del glControl.
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
 
