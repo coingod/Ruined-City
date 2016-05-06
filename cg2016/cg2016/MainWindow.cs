@@ -15,6 +15,7 @@ using CGUNS.Cameras;
 using CGUNS.Primitives;
 using CGUNS.Meshes;
 using CGUNS.Meshes.FaceVertexList;
+using System.Drawing.Imaging;
 
 namespace cg2016
 {
@@ -43,7 +44,7 @@ namespace cg2016
         private bool toggleWires = false;
 
         private int transformaciones = 0;
-
+		private int tex1;
         private void glControl3_Load(object sender, EventArgs e)
         {            
             logContextInfo(); //Mostramos info de contexto.
@@ -56,9 +57,9 @@ namespace cg2016
             //ejes_locales.Build(sProgramUnlit);
 
             //Carga y configuracion de Objetos
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/homer_hp.obj"); //Construimos los objetos que voy a dibujar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/dancingbanana.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-
+			tex1 = CargarTextura("files/Texturas/dancingbanana.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -231,6 +232,29 @@ namespace cg2016
 
             glControl3.SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
         }
+
+		private int CargarTextura(String imagenTex)
+		{
+			int texId = GL.GenTexture();
+			GL.BindTexture(TextureTarget.Texture2D, texId);
+
+
+			Bitmap bitmap = new Bitmap(Image.FromFile(imagenTex));
+
+			BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+							 ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+					OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+			bitmap.UnlockBits(data);
+			return texId;
+
+		}
 
         private void glControl3_Resize(object sender, EventArgs e)
         {   //Actualizamos el viewport para que dibuje en el centro de la pantalla.

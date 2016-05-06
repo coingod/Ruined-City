@@ -20,9 +20,10 @@ struct Light {
 
 in vec3 fragPos;
 in vec3 fragNormal;
+in vec2 f_TexCoord;
 
 uniform int numLights;
-
+uniform sampler2D gSampler; 
 uniform mat4 modelMatrix;
 uniform mat3 normalMatrix;
 uniform vec3 cameraPosition; //In World Space.
@@ -53,8 +54,13 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 			attenuation = 0.0;
 		}
 	}
+
+	//Obtenemos el color de la textura
+	vec4 colorTex=texture2D(gSampler, f_TexCoord.st);
+
 	//AMBIENT
-	vec3 ambient = light.Ia * material.Ka;
+	vec3 ambient = light.Ia * material.Ka * vec3(colorTex);
+
 	//DIFUSSE
 	float diffuseCoefficient = max(0.0, dot(surfaceNormal, surfaceToLight));
 	vec3 diffuse = light.Id * material.Kd * diffuseCoefficient;
@@ -81,4 +87,5 @@ void main() {
 		linearColor += applyLight(allLights[i], material, surfacePos, surfaceNormal, surfaceToCamera);
 
 	fragColor = vec4(linearColor, 1.0);
+
 }

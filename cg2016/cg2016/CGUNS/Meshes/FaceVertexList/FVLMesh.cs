@@ -107,10 +107,12 @@ namespace CGUNS.Meshes.FaceVertexList {
     private int h_VBO; //Handle del Vertex Buffer Object (posiciones de los vertices)
     private int h_VBO_NormalVectors; //Handle del Vertex Buffer Object (posiciones de los vertices)
     private int h_VBO_normales; //Handle del Vertex Buffer Object (posiciones de los vertices)
+	private int h_VBO_texturas;
     private int h_EBO; //Handle del Elements Buffer Object (indices)
     private int h_VAO; //Handle del Vertex Array Object (Configuracion de los dos anteriores)
     private int h_VAO_NormalVectors; //Handle del Vertex Array Object (Configuracion de los dos anteriores)
     private int h_EBO_NormalVectors; //Handle del Elements Buffer Object (indices)
+	private int h_EBO_texturas;
    
     private void CrearVBOs()
     {
@@ -121,7 +123,7 @@ namespace CGUNS.Meshes.FaceVertexList {
         BufferUsageHint hint = BufferUsageHint.StaticDraw;
              
         Vector3[] posiciones = new Vector3[VertexCount];
-        Vector3[] texturas = new Vector3[VertexCount];
+        Vector2[] texturas = new Vector2[VertexCount];
         Vector3[] NormalVectors = new Vector3[VertexCount];
         Vector3[] normales = new Vector3[VertexCount];
 
@@ -152,6 +154,14 @@ namespace CGUNS.Meshes.FaceVertexList {
 
         gl.BufferData<Vector3>(bufferType, size, normales, hint); //Lo lleno con la info.
         gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
+
+		//VBO con el atributo "texturas" de los vertices.
+		size = new IntPtr(texturas.Length * Vector2.SizeInBytes);
+		h_VBO_texturas = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
+		gl.BindBuffer(bufferType, h_VBO_texturas); //Lo selecciono como buffer de Datos actual.
+
+		gl.BufferData<Vector2>(bufferType, size, texturas, hint); //Lo lleno con la info.
+		gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
         
         //VBO con otros atributos de los vertices (color, normal, textura, etc).
         //Se pueden hacer en distintos VBOs o en el mismo.
@@ -168,23 +178,23 @@ namespace CGUNS.Meshes.FaceVertexList {
 
         //EBO, buffer con los indices NormalVectors.
         bufferType = BufferTarget.ElementArrayBuffer;
-        //size = new IntPtr(faceList.Count * sizeof(int));
         h_EBO_NormalVectors = gl.GenBuffer();
-        //indices = CarasToIndices();
         size = new IntPtr(indicesNormalVectors.Length * sizeof(int));
         gl.BindBuffer(bufferType, h_EBO_NormalVectors); //Lo selecciono como buffer de elementos actual.
         gl.BufferData<int>(bufferType, size, indicesNormalVectors, hint);
         gl.BindBuffer(bufferType, 0);
+
+		
     }
 
-    private void reordenar(out Vector3[] vertices, out Vector3[] texturas, out Vector3[] normales, out Vector3[] NormalVectors, out int[] indices, out int[] indicesNormalVectors)
+    private void reordenar(out Vector3[] vertices, out Vector2[] texturas, out Vector3[] normales, out Vector3[] NormalVectors, out int[] indices, out int[] indicesNormalVectors)
     {
         int cantFaces = faceList.Count;
 
         indices = new int[cantFaces * 3]; //OJO solo si  TODAS las caras son triágulos
         indicesNormalVectors = new int[cantFaces * 3 * 2];
         vertices = new Vector3[cantFaces * 3];
-        texturas = new Vector3[cantFaces * 3];
+        texturas = new Vector2[cantFaces * 3];
         normales = new Vector3[cantFaces * 3];
         NormalVectors = new Vector3[cantFaces * 3 * 2];
 
@@ -200,8 +210,8 @@ namespace CGUNS.Meshes.FaceVertexList {
             {
                 indices[i] = i;
                 vertices[i] = vertexList[verticesCara[j]];
-                //Vector2 tex = texCordList[texturasCara[j]];
-                //texturas[i] = new Vector3(tex.X, tex.Y, 1.0f);
+                Vector2 tex = texCordList[texturasCara[j]];
+                texturas[i] = new Vector2(tex.X, tex.Y);
                 //normales[i] = vertexNormalList[normalesCara[j]];
                 //normales[i] = (vertexNormalList[normalesCara[j]] + vertices[i]) / 2;
                 if(vertexNormalList.Count > 0)
@@ -254,6 +264,18 @@ namespace CGUNS.Meshes.FaceVertexList {
         gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
         gl.BindBuffer(bufferType, h_VBO); //Seleccionamos el buffer a utilizar.
         gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
+
+		//2. Configuramos el VBO de texturas.
+		attribIndex = sProgram.GetVertexAttribLocation("TexCoord"); //Yo lo saco de mi clase ProgramShader.
+		cantComponentes = 2;   // 2 componentes (x, y)
+		attribType = VertexAttribPointerType.Float; //Cada componente es un Float.
+		stride = 0;  //Los datos estan uno a continuacion del otro.
+		offset = 0;  //El primer dato esta al comienzo. (no hay offset).
+		bufferType = BufferTarget.ArrayBuffer; //Buffer de Datos.
+
+		gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
+		gl.BindBuffer(bufferType, h_VBO_texturas); //Seleccionamos el buffer a utilizar.
+		gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
         
         //2. Configuramos el VBO de posiciones.
         attribIndex = sProgram.GetVertexAttribLocation("vNormal"); //Yo lo saco de mi clase ProgramShader.
