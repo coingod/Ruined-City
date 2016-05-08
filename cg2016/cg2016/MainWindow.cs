@@ -57,9 +57,10 @@ namespace cg2016
             //ejes_locales.Build(sProgramUnlit);
 
             //Carga y configuracion de Objetos
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/dancingbanana.obj"); //Construimos los objetos que voy a dibujar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/sonic.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-			tex1 = CargarTextura("files/Texturas/dancingbanana.png");
+			tex1 = CargarTextura("files/Texturas/sonic.png");
+            //tex1 = CargarTextura("files/Texturas/checker.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.

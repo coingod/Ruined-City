@@ -17,5 +17,5 @@ void main(){
  fragPos = vPos;
  fragNormal = vNormal;
  gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(vPos, 1.0);
- f_TexCoord = TexCoord;
+ f_TexCoord = vec2(TexCoord.s, 1 - TexCoord.t);
 }

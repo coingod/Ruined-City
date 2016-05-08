@@ -104,16 +104,19 @@ namespace CGUNS.Meshes.FaceVertexList {
         CrearVBOs();
         CrearVAO(sProgram);
     }
-    private int h_VBO; //Handle del Vertex Buffer Object (posiciones de los vertices)
-    private int h_VBO_NormalVectors; //Handle del Vertex Buffer Object (posiciones de los vertices)
-    private int h_VBO_normales; //Handle del Vertex Buffer Object (posiciones de los vertices)
-	private int h_VBO_texturas;
-    private int h_EBO; //Handle del Elements Buffer Object (indices)
-    private int h_VAO; //Handle del Vertex Array Object (Configuracion de los dos anteriores)
-    private int h_VAO_NormalVectors; //Handle del Vertex Array Object (Configuracion de los dos anteriores)
-    private int h_EBO_NormalVectors; //Handle del Elements Buffer Object (indices)
-	private int h_EBO_texturas;
-   
+
+    //Buffers para la Mesh
+    private int h_VBO;                  //Handle del Vertex Buffer Object (posiciones de los vertices)
+    private int n_VBO;                  //Handle del Vertex Buffer Object (normales de los vertices)
+	private int t_VBO;                  //Handle del Vertex Buffer Object (texturas de los vertices)
+    private int h_EBO;                  //Handle del Elements Buffer Object (indices)
+    private int h_VAO;                  //Handle del Vertex Array Object (Configuracion de los VBO anteriores)
+
+    //Buffers para Normales Graficadas
+    private int h_VBO_NormalVectors;    //Handle del Vertex Buffer Object (posiciones de los vertices)
+    private int h_EBO_NormalVectors;    //Handle del Elements Buffer Object (indices)
+    private int h_VAO_NormalVectors;    //Handle del Vertex Array Object (Configuracion de los VBO anteriores)
+
     private void CrearVBOs()
     {
         BufferTarget bufferType; //Tipo de buffer (Array: datos, Element: indices)
@@ -149,16 +152,16 @@ namespace CGUNS.Meshes.FaceVertexList {
       
         //VBO con el atributo "Normales" de los vertices.
         size = new IntPtr(normales.Length * Vector3.SizeInBytes);
-        h_VBO_normales = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
-        gl.BindBuffer(bufferType, h_VBO_normales); //Lo selecciono como buffer de Datos actual.
+        n_VBO = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
+        gl.BindBuffer(bufferType, n_VBO); //Lo selecciono como buffer de Datos actual.
 
         gl.BufferData<Vector3>(bufferType, size, normales, hint); //Lo lleno con la info.
         gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
 
 		//VBO con el atributo "texturas" de los vertices.
 		size = new IntPtr(texturas.Length * Vector2.SizeInBytes);
-		h_VBO_texturas = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
-		gl.BindBuffer(bufferType, h_VBO_texturas); //Lo selecciono como buffer de Datos actual.
+		t_VBO = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
+		gl.BindBuffer(bufferType, t_VBO); //Lo selecciono como buffer de Datos actual.
 
 		gl.BufferData<Vector2>(bufferType, size, texturas, hint); //Lo lleno con la info.
 		gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
@@ -196,6 +199,7 @@ namespace CGUNS.Meshes.FaceVertexList {
         vertices = new Vector3[cantFaces * 3];
         texturas = new Vector2[cantFaces * 3];
         normales = new Vector3[cantFaces * 3];
+
         NormalVectors = new Vector3[cantFaces * 3 * 2];
 
         int i = 0; int k = 0;
@@ -206,24 +210,27 @@ namespace CGUNS.Meshes.FaceVertexList {
             int[] normalesCara = cara.NormalesDeCara();
             int[] texturasCara = cara.TexturasDeCara();
             int cuantosVertices = cara.VertexCount;
+
             for (int j = 0; j < cuantosVertices; j++)
             {
-                indices[i] = i;
                 vertices[i] = vertexList[verticesCara[j]];
-                Vector2 tex = texCordList[texturasCara[j]];
-                texturas[i] = new Vector2(tex.X, tex.Y);
-                //normales[i] = vertexNormalList[normalesCara[j]];
-                //normales[i] = (vertexNormalList[normalesCara[j]] + vertices[i]) / 2;
+
+                texturas[i] = texCordList[texturasCara[j]];
+
                 if(vertexNormalList.Count > 0)
                 {
+                  //Normales reales
                   normales[i] = vertexNormalList[normalesCara[j]];
 
+                  //Normales graficadas
                   indicesNormalVectors[k] = k;
                   indicesNormalVectors[k + 1] = k + 1;
                   NormalVectors[k] = vertices[i];
                   NormalVectors[k + 1] = (vertexNormalList[normalesCara[j]]/20 + vertices[i]);
                   k += 2;
                 }
+
+                indices[i] = i;
                 i++;
             }
         }
@@ -267,14 +274,14 @@ namespace CGUNS.Meshes.FaceVertexList {
 
 		//2. Configuramos el VBO de texturas.
 		attribIndex = sProgram.GetVertexAttribLocation("TexCoord"); //Yo lo saco de mi clase ProgramShader.
-		cantComponentes = 2;   // 2 componentes (x, y)
+		cantComponentes = 2;   // 2 componentes (s, t)
 		attribType = VertexAttribPointerType.Float; //Cada componente es un Float.
 		stride = 0;  //Los datos estan uno a continuacion del otro.
 		offset = 0;  //El primer dato esta al comienzo. (no hay offset).
 		bufferType = BufferTarget.ArrayBuffer; //Buffer de Datos.
 
 		gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
-		gl.BindBuffer(bufferType, h_VBO_texturas); //Seleccionamos el buffer a utilizar.
+		gl.BindBuffer(bufferType, t_VBO); //Seleccionamos el buffer a utilizar.
 		gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
         
         //2. Configuramos el VBO de posiciones.
@@ -286,7 +293,7 @@ namespace CGUNS.Meshes.FaceVertexList {
         bufferType = BufferTarget.ArrayBuffer; //Buffer de Datos.
 
         gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
-        gl.BindBuffer(bufferType, h_VBO_normales); //Seleccionamos el buffer a utilizar.
+        gl.BindBuffer(bufferType, n_VBO); //Seleccionamos el buffer a utilizar.
         gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
         
         // 2.a.El bloque anterior se repite para cada atributo del vertice (color, normal, textura..)

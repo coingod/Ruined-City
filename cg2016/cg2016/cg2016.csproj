@@ -217,6 +217,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="files\Texturas\checker.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\checker.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\cherries.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
