@@ -167,20 +167,20 @@ namespace cg2016
             //SECOND SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
 
-            /*
-                                                                                                  //Que Shaders requieren cada Atributo (!)
-            sProgram.SetUniformValue("Proy", projMatrix);                                 //UNLIT - NORMALS - PHONG
-            sProgram.SetUniformValue("MV", mvMatrix);                                       //UNLIT - GOURAUD - BORDES - NORMALS - PHONG
-            //sProgram.SetUniformValue("MVP", MVP);                                           //GOURAUD - BORDES - NORMALS
-            sProgram.SetUniformValue("MN", normalMatrix);                                   //GOURAUD - BORDES - NORMALS - PHONG
-            sProgram.SetUniformValue("posL", luz.Position);                                 //GOURAUD
-
-            sProgram.SetUniformValue("ka", ka);                                             //GOURAUD
-            sProgram.SetUniformValue("kd", kd);                                             //GOURAUD
-            sProgram.SetUniformValue("ks", ks);                                             //GOURAUD
-            sProgram.SetUniformValue("CoefEsp", coefEsp);                                   //GOURAUD
-            */
             //Configuracion de los valores uniformes del shader
+
+            //Phong + NormalMap
+            sProgram.SetUniformValue("projMatrix", projMatrix);
+            sProgram.SetUniformValue("modelMatrix", modelMatrix);
+            sProgram.SetUniformValue("viewMatrix", viewMatrix);
+            sProgram.SetUniformValue("posL", luces[0].Position);
+            sProgram.SetUniformValue("ka", material.Kambient);
+            sProgram.SetUniformValue("kd", material.Kdiffuse);
+            sProgram.SetUniformValue("ks", material.Kspecular);
+            sProgram.SetUniformValue("CoefEsp", material.Shininess);
+
+            //Multiples Luces
+            /*
             sProgram.SetUniformValue("projMatrix", projMatrix);
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
@@ -205,6 +205,7 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
             }
+            */
             //Configuracion de las transformaciones del objeto a espacio de mundo
             //Transform transform = new Transform();
             //transform.Position = new Vector3(-1,-1,-1);
@@ -434,10 +435,10 @@ namespace cg2016
 
             //===== SHADER DE LUCES =====
             //1. Creamos los shaders, a partir de archivos.
-            vShaderFile = "files/shaders/vmultiplesluces.glsl";
-            fShaderFile = "files/shaders/fmultiplesluces.glsl";
-            //vShaderFile = "files/shaders/vgouraud.glsl";
-            //fShaderFile = "files/shaders/fgouraud.glsl";
+            vShaderFile = "files/shaders/vbumpedphong.glsl";
+            fShaderFile = "files/shaders/fbumpedphong.glsl";
+            //vShaderFile = "files/shaders/vmultiplesluces.glsl";
+            //fShaderFile = "files/shaders/fmultiplesluces.glsl";
             vShader = new Shader(ShaderType.VertexShader, vShaderFile);
             fShader = new Shader(ShaderType.FragmentShader, fShaderFile);
             //2. Los compilamos
