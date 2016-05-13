@@ -97,12 +97,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="App.config" />
-    <None Include="CGUNS\ModelosOBJ\avionJuguete.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\buggy.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="CGUNS\ModelosOBJ\cube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -118,20 +112,7 @@
     <None Include="CGUNS\ModelosOBJ\humbird.OBJ">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\ico.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\ico_sm.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="CGUNS\ModelosOBJ\IronMan.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\micilindro.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\ModernTable.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="CGUNS\ModelosOBJ\mono.obj">
@@ -140,34 +121,22 @@
     <None Include="CGUNS\ModelosOBJ\moto.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\octaedro.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\piram.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\plane.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\plane2.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="CGUNS\ModelosOBJ\sonic.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\test.obj">
+    <None Include="CGUNS\ModelosOBJ\sphere.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\Tetera.obj">
+    <None Include="CGUNS\ModelosOBJ\sphere_flat.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\tetra.obj">
+    <None Include="CGUNS\ModelosOBJ\supercube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\torus.obj">
+    <None Include="files\shaders\vbumpedphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\vaca.obj">
+    <None Include="files\shaders\fbumpedphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fbordes.glsl">
@@ -180,9 +149,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fnormals.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\fbumpedphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fphong.glsl">
@@ -203,9 +169,6 @@
     <None Include="files\shaders\vnormals.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="files\shaders\vbumpedphong.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="files\shaders\vphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -223,28 +186,49 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="files\Texturas\BrickWallHD_d.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\BrickWallHD_n.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\brickwall_d.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\brickwall_n.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\checker.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\checker.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\cherries.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\fruit.bmp">
+    <Content Include="files\Texturas\flash_n.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\DancingBanana.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\image.bmp">
+    <Content Include="files\Texturas\normalMap.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\maggie.png">
+    <Content Include="files\Texturas\normalMap2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\sonic.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\tierra_d.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\tierra_n.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\wall_d.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\wall_n.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="libs\OpenTK.dll" />

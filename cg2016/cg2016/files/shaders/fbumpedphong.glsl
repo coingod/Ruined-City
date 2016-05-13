@@ -1,44 +1,46 @@
+﻿// FRAGMENT SHADER. Simple
+
 #version 330
 
-in vec3 fragPos;
-in vec3 fragNormal;
+in vec3 LightDir;
 in vec2 f_TexCoord;
+in vec3 ViewDir;
+in vec3 fnorm;
 
-//Light Attrib
-in vec3 fragLightPos;
+uniform sampler2D ColorTex;
+uniform sampler2D NormalMapTex;
 
-//Material Attrib
-uniform vec3 ka;
-uniform vec3 kd;
-uniform vec3 ks;
-uniform float CoefEsp;
-uniform sampler2D gSampler;
+struct Material {
+	vec3 Ka;
+	//vec3 Kd;
+	vec3 Ks;
+	float Shininess;
+};
 
+uniform Material material;
 out vec4 FragColor;
 
-vec3 ads(vec3 newNormal)
+vec3 phongModel( vec3 norm, vec3 diffR ) 
 {
-	//Calcular luz en el Espacio Tangente
-	vec3 n = normalize(fragNormal);
-	vec3 s = normalize(fragLightPos - fragPos);
-	vec3 v = normalize(-fragPos.xyz);
-	vec3 r = reflect(-s, n);
-	float diffuse = max(dot(s, fragNormal), 0.0);
-	float spec = 0.0;
-	if(diffuse > 0.0)
-		spec = pow(max(dot(r,v), 0.0), CoefEsp);
-
-	float d = distance(fragLightPos, fragPos);
-	float fatt = 0.5/(0.3 + 0.007*d + 0.00008*d*d);
-
-	return ka + (kd*diffuse + ks*spec)*fatt;
+	vec3 r = reflect( -LightDir, norm );
+	vec3 ambient = material.Ka;
+	float sDotN = max( dot(LightDir, norm), 0.0 );
+	vec3 diffuse = diffR * sDotN;
+	vec3 spec = vec3(0.0);
+	if( sDotN > 0.0 )
+	spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess );
+	return ambient + diffuse + spec;
 }
 
-void main()
+void main() 
 {
-	//Obtengo la nueva normal del NormalMap
-	vec3 newNormal = normalize( texture(gSampler, f_TexCoord.st).rgb*2 - 1 ); 
+	// Lookup the normal from the normal map
+	vec4 normal = 2.0*texture2D( NormalMapTex, f_TexCoord ) - 1;
 
-	//Calculo la iluminacion con el metodo de Phong y la nueva normal
-	FragColor = vec4(ads(newNormal), 1.0);
+	// The color texture is used as the diff. reflectivity
+	vec4 texColor = texture2D( ColorTex, f_TexCoord );
+
+	FragColor = vec4( phongModel(normal.xyz, texColor.rgb), 1.0 );
+	//FragColor = vec4( phongModel(normal.xyz*0.00001 + fnorm, texColor.rgb), 1.0 );
+
 }

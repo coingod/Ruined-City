@@ -188,19 +188,19 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
 
             //VBO con el atributo "tangentes" de los vertices.
-            size = new IntPtr(texturas.Length * Vector3.SizeInBytes);
+            size = new IntPtr(tangentes.Length * Vector3.SizeInBytes);
             tan_VBO = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
             gl.BindBuffer(bufferType, tan_VBO); //Lo selecciono como buffer de Datos actual.
 
-            gl.BufferData<Vector2>(bufferType, size, texturas, hint); //Lo lleno con la info.
+            gl.BufferData<Vector3>(bufferType, size, tangentes, hint); //Lo lleno con la info.
             gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
 
             //VBO con el atributo "bitangentes" de los vertices.
-            size = new IntPtr(texturas.Length * Vector3.SizeInBytes);
+            size = new IntPtr(bitangentes.Length * Vector3.SizeInBytes);
             bitan_VBO = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
             gl.BindBuffer(bufferType, bitan_VBO); //Lo selecciono como buffer de Datos actual.
 
-            gl.BufferData<Vector2>(bufferType, size, texturas, hint); //Lo lleno con la info.
+            gl.BufferData<Vector3>(bufferType, size, bitangentes, hint); //Lo lleno con la info.
             gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
 
             //VBO con otros atributos de los vertices (color, normal, textura, etc).
@@ -375,7 +375,7 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
             gl.BindBuffer(bufferType, n_VBO); //Seleccionamos el buffer a utilizar.
             gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
-
+            
             //2. Configuramos el VBO de tangentes.
             attribIndex = sProgram.GetVertexAttribLocation("vTangente"); //Yo lo saco de mi clase ProgramShader.
             cantComponentes = 3;   // 3 componentes (x, y, z)
@@ -399,7 +399,7 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
             gl.BindBuffer(bufferType, bitan_VBO); //Seleccionamos el buffer a utilizar.
             gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
-
+            
             // 2.a.El bloque anterior se repite para cada atributo del vertice (color, normal, textura..)
 
             // 3. Configuramos el EBO a utilizar. (como son indices, no necesitan info de layout)

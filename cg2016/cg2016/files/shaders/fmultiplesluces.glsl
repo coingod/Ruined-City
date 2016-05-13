@@ -24,6 +24,7 @@ in vec2 f_TexCoord;
 
 uniform int numLights;
 uniform sampler2D gSampler; 
+uniform sampler2D gSampler2;
 uniform mat4 modelMatrix;
 uniform mat3 normalMatrix;
 uniform vec3 cameraPosition; //In World Space.
@@ -56,7 +57,8 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 	}
 
 	//Obtenemos el color de la textura
-	vec4 colorTex=texture2D(gSampler, f_TexCoord.st);
+	vec4 colorTex2=texture2D(gSampler, f_TexCoord);
+	vec4 colorTex=colorTex2 * texture2D(gSampler2, f_TexCoord);
 
 	//AMBIENT
 	vec3 ambient = light.Ia * material.Ka * vec3(colorTex);
