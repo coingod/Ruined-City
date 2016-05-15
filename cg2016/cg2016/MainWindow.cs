@@ -42,6 +42,7 @@ namespace cg2016
 
         private bool toggleNormals = false;
         private bool toggleWires = false;
+        private bool drawGizmos = true;
 
         private int transformaciones = 0;
 		private int tex1,tex2;
@@ -61,9 +62,10 @@ namespace cg2016
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             GL.ActiveTexture(TextureUnit.Texture0);
 			tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
+            //tex1 = CargarTextura("files/Texturas/chesterfield_d.png");
             GL.ActiveTexture(TextureUnit.Texture1);
             tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
-            //tex1 = CargarTextura("files/Texturas/checker.png");
+            //tex2 = CargarTextura("files/Texturas/chesterfield_n.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -75,40 +77,44 @@ namespace cg2016
             luces = new Light[4];
 
             luces[0] = new Light();
-            luces[0].Position = new Vector4(-1.0f, 0.0f, 0.0f, 0.0f); //Directional light(hacia -x)
+            luces[0].Position = new Vector4(-2.0f, 0.0f, 0.0f, 1.0f);
             luces[0].Iambient = new Vector3(1.0f, 0.0f, 1.0f);
             luces[0].Idiffuse = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
-            //luces[0].ConeAngle = 12.0f; //NOT USED IN DIRECTIONAL
-            //luces[0].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);//NOT USED IN DIRECTIONAL
+            luces[0].ConeAngle = 180.0f;
+            luces[0].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[0].Enabled = 1;
+            luces[0].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
 
             luces[1] = new Light();
-            luces[1].Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f); //spot desde arriba
-            luces[1].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
-            luces[1].Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
+            luces[1].Position = new Vector4(0.0f, 2.5f, 0.0f, 0.0f); //Directional light
+            luces[1].Iambient = new Vector3(1f, 1f, 1f);
+            luces[1].Idiffuse = new Vector3(0f, 1f, 0f);
             luces[1].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            luces[1].ConeAngle = 12.0f;
-            luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            //luces[1].ConeAngle = 12.0f;//NOT USED IN DIRECTIONAL
+            //luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);//NOT USED IN DIRECTIONAL
             luces[1].Enabled = 1;
+            luces[1].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
 
             luces[2] = new Light();
-            luces[2].Position = new Vector4(0.0f, 1.0f, 0.0f, 1.0f); 
+            luces[2].Position = new Vector4(0.0f, -2.0f, 0.0f, 1.0f); 
             luces[2].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
-            luces[2].Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
+            luces[2].Idiffuse = new Vector3(1f, 1f, 0.0f);
             luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            luces[2].ConeAngle = 12.0f;
+            luces[2].ConeAngle = 180.0f;
             luces[2].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[2].Enabled = 1;
+            luces[2].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
 
             luces[3] = new Light();
-            luces[3].Position = new Vector4(0.0f, 0.5f, 0.0f, 1.0f);
+            luces[3].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
             luces[3].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
-            luces[3].Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
+            luces[3].Idiffuse = new Vector3(0.0f, 0.0f, 1.0f);
             luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            luces[3].ConeAngle = 12.0f;
+            luces[3].ConeAngle = 180.0f;
             luces[3].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[3].Enabled = 1;
+            luces[3].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
 
             /*luz = new Light();
             luz.Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f); //spot desde arriba
@@ -125,15 +131,34 @@ namespace cg2016
             //Configuracion de Materiales
             material = materiales[materialIndex];
             
+            updateDebugInfo();
+        }
+
+        private void updateDebugInfo()
+        {
             //Muestro informacion de Debugeo en el titulo de la ventana
             int vertCount = 0, faceCount = 0, normalCount = 0, objCount = objeto.Meshes.Count;
-            foreach(FVLMesh m in objeto.Meshes)
+            foreach (FVLMesh m in objeto.Meshes)
             {
-              vertCount += m.VertexCount;
-              faceCount += m.FaceCount;
-              normalCount += m.VertexNormalList.Count;
+                vertCount += m.VertexCount;
+                faceCount += m.FaceCount;
+                normalCount += m.VertexNormalList.Count;
             }
-            this.Text = "CGLabo v15 [Verts:"+vertCount+" - Normals:"+ normalCount + " - Faces:"+ faceCount + " - Objects:"+objCount+"]";
+
+            String title = "CGLabo2016 [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount +
+                "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos + 
+                "] [Lights: ";
+
+            for (int i = 0; i < luces.Length; i++)
+            {
+                bool onoff = luces[i].Enabled == 1 ? true : false;
+                title += "L" + i + ": " + onoff;
+                if (i != luces.Length - 1)
+                    title += " - ";
+            }
+            title += "]";
+
+            this.Text = title;
         }
 
         private void glControl3_Paint(object sender, PaintEventArgs e)
@@ -146,8 +171,8 @@ namespace cg2016
             Matrix4 viewMatrix = myCamera.getViewMatrix();
             Matrix4 projMatrix = myCamera.getProjectionMatrix();
             Matrix4 mvMatrix = Matrix4.Mult(viewMatrix, modelMatrix);
-            Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix))); //Usando esta matris la luz se mueve con la camara
-            //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix))); //Usando esta matris la luz queda fija en el mundo
+            Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
+            //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
             Matrix4 MVP = Matrix4.Mult(mvMatrix, projMatrix);
 
             //Vector4 posL = new Vector4(1f, 1f, 1f, 1f);
@@ -159,13 +184,20 @@ namespace cg2016
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit); //Borramos el contenido del glControl.
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
 
-            //FIRST SHADER (Para dibujar los ejes)
-            sProgramUnlit.Activate(); //Activamos el programa de shaders
-            sProgramUnlit.SetUniformValue("Proy", projMatrix);
-            sProgramUnlit.SetUniformValue("MV", mvMatrix);
-            //Dibujamos los ejes de referencia.
-            ejes_globales.Dibujar(sProgramUnlit);
-            sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
+            if(drawGizmos)
+            {
+                //FIRST SHADER (Para dibujar los gizmos)
+                sProgramUnlit.Activate(); //Activamos el programa de shaders
+                sProgramUnlit.SetUniformValue("projMatrix", projMatrix);
+                sProgramUnlit.SetUniformValue("modelMatrix", modelMatrix);
+                sProgramUnlit.SetUniformValue("viewMatrix", viewMatrix);
+                //Dibujamos los ejes de referencia.
+                ejes_globales.Dibujar(sProgramUnlit);
+                //Dibujamos la representacion visual de la luz.
+                for (int i = 0; i < luces.Length; i++)
+                    luces[i].gizmo.Dibujar(sProgramUnlit);
+                sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
+            }
 
             //SECOND SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
@@ -343,6 +375,9 @@ namespace cg2016
                 case Keys.F2:
                     toggleNormals = !toggleNormals;
                     break;
+                case Keys.G:
+                    drawGizmos = !drawGizmos;
+                    break;
 
                 //ON/OFF LUCES
                 case Keys.D0:
@@ -393,6 +428,8 @@ namespace cg2016
                     break;
             }
             glControl3.Invalidate(); //Notar que renderizamos para CUALQUIER tecla que sea presionada.
+            //Actualizar la info de debugeo
+            updateDebugInfo();
         }
 
         private void ToggleLight(int i)

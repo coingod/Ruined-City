@@ -71,6 +71,7 @@
     <Compile Include="CGUNS\Meshes\ObjetoGrafico.cs" />
     <Compile Include="CGUNS\Parsers\ObjFileParser.cs" />
     <Compile Include="CGUNS\Primitives\Cube.cs" />
+    <Compile Include="CGUNS\Primitives\LightGizmo.cs" />
     <Compile Include="CGUNS\Primitives\Ejes.cs" />
     <Compile Include="CGUNS\Shaders\Exceptions.cs" />
     <Compile Include="CGUNS\Shaders\Shader.cs" />
@@ -204,6 +205,9 @@
     <Content Include="files\Texturas\checker.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\chesterfield_d.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\flash_n.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -213,7 +217,7 @@
     <Content Include="files\Texturas\normalMap.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\normalMap2.png">
+    <Content Include="files\Texturas\chesterfield_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\sonic.png">

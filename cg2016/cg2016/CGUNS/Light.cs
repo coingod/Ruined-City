@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OpenTK; //La matematica
+using CGUNS.Primitives;
 
 
 namespace CGUNS
@@ -15,6 +16,13 @@ namespace CGUNS
         float coneAngle;
         Vector3 coneDirection;
         int enabled;
+
+        public LightGizmo gizmo;
+
+        public Light()
+        {
+            gizmo = new LightGizmo(this);
+        }
 
         public Vector4 Position
         {

@@ -14,7 +14,7 @@ out vec3 ViewDir;
 out vec3 fnorm;
 
 struct Light {
-	vec4 position;	//Light position in Camera Space
+	vec4 position;	//Light position in World Space
 	//vec3 intensity;
 };
 
@@ -41,7 +41,7 @@ void main()
 	vec3 pos = vec3( modelViewMatrix * vec4(vPos,1.0) );
 
 	//Transformar Posicion de la Luz de CameraSpace a TangentSpace
-	LightDir = normalize( TBN * (light.position.xyz - pos) );
+	LightDir = normalize( TBN * ( (viewMatrix*light.position).xyz - pos) );
 
 	//Transformar Posicion de CameraSpace a TangentSpace
 	ViewDir = TBN * normalize(-pos);
