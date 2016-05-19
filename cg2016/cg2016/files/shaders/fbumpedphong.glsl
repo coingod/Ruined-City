@@ -1,35 +1,64 @@
 ﻿// FRAGMENT SHADER. Simple
 
 #version 330
+#define maxLights 5
 
-in vec3 LightDir;
+//in vec3 LightDir;
 in vec2 f_TexCoord;
-in vec3 ViewDir;
-in vec3 fnorm;
+//in vec3 ViewDir;
+in mat3 TBN;
+in vec3 pos;
 
-uniform sampler2D ColorTex;
-uniform sampler2D NormalMapTex;
+struct Light {
+	vec4 position; //Light position in World Space
+	vec3 Ia;
+	vec3 Id;
+	vec3 Is;
+	/*
+	float coneAngle;
+	vec3 coneDirection;
+	*/
+	int enabled;
+};
 
 struct Material {
 	vec3 Ka;
-	//vec3 Kd;
+	vec3 Kd;
 	vec3 Ks;
 	float Shininess;
 };
 
+uniform sampler2D ColorTex;
+uniform sampler2D NormalMapTex;
+uniform mat4 viewMatrix;
+uniform int numLights;
+uniform Light allLights[maxLights];
 uniform Material material;
+
+uniform float A;
+uniform float B;
+uniform float C;
+
 out vec4 FragColor;
 
-vec3 phongModel( vec3 norm, vec3 diffR ) 
+vec3 phongModel( vec3 norm, vec3 diffR, Light light, vec3 ViewDir) 
 {
+	//Transformar Posicion de la Luz de CameraSpace a TangentSpace
+	vec3 LightDir = normalize( TBN * ( (viewMatrix*light.position).xyz - pos) );
+
 	vec3 r = reflect( -LightDir, norm );
-	vec3 ambient = material.Ka;
+	vec3 ambient = material.Ka * light.Ia;
 	float sDotN = max( dot(LightDir, norm), 0.0 );
-	vec3 diffuse = diffR * sDotN;
+	vec3 diffuse = diffR * sDotN * light.Id;// * material.Kd;
 	vec3 spec = vec3(0.0);
 	if( sDotN > 0.0 )
-	spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess );
-	return ambient + diffuse + spec;
+		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is;
+
+	float attenuation = 1.0;
+	float distanceToLight = length(light.position.xyz);
+	attenuation = 0.5 / ( A + B * distanceToLight + C * pow(distanceToLight, 2));
+
+	return ambient + attenuation * (diffuse + spec) * light.enabled;
 }
 
 void main() 
@@ -40,7 +69,13 @@ void main()
 	// The color texture is used as the diff. reflectivity
 	vec4 texColor = texture2D( ColorTex, f_TexCoord );
 
-	FragColor = vec4( phongModel(normal.xyz, texColor.rgb), 1.0 );
-	//FragColor = vec4( phongModel(normal.xyz*0.00001 + fnorm, texColor.rgb), 1.0 );
+	//Transformar Posicion de CameraSpace a TangentSpace
+	vec3 ViewDir = TBN * normalize(-pos);
 
+	//Acumular iluminacion de cada fuente de luz
+	vec3 linearColor=vec3(0);
+	for(int i=0; i<numLights; i++)
+		linearColor += phongModel(normal.xyz, texColor.rgb, allLights[i], ViewDir);
+
+	FragColor = vec4( linearColor, 1.0 );
 }

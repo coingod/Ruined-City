@@ -26,6 +26,9 @@ namespace cg2016
             InitializeComponent();
         }
 
+        private System.Timers.Timer timer; // From System.Timers
+        private float time = 0;
+
         private ShaderProgram sProgram; //Nuestro programa de shaders.
         private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
 
@@ -85,15 +88,15 @@ namespace cg2016
             luces[0].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[0].Enabled = 1;
             luces[0].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-
+            
             luces[1] = new Light();
-            luces[1].Position = new Vector4(0.0f, 2.5f, 0.0f, 0.0f); //Directional light
+            luces[1].Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f);
             luces[1].Iambient = new Vector3(1f, 1f, 1f);
             luces[1].Idiffuse = new Vector3(0f, 1f, 0f);
             luces[1].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            //luces[1].ConeAngle = 12.0f;//NOT USED IN DIRECTIONAL
-            //luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);//NOT USED IN DIRECTIONAL
-            luces[1].Enabled = 1;
+            luces[1].ConeAngle = 180.0f;
+            luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[1].Enabled = 0;
             luces[1].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
 
             luces[2] = new Light();
@@ -103,7 +106,7 @@ namespace cg2016
             luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
             luces[2].ConeAngle = 180.0f;
             luces[2].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
-            luces[2].Enabled = 1;
+            luces[2].Enabled = 0;
             luces[2].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
 
             luces[3] = new Light();
@@ -113,25 +116,30 @@ namespace cg2016
             luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
             luces[3].ConeAngle = 180.0f;
             luces[3].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
-            luces[3].Enabled = 1;
+            luces[3].Enabled = 0;
             luces[3].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-
-            /*luz = new Light();
-            luz.Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f); //spot desde arriba
-            luz.Iambient = new Vector3(0.8f, 0.65f, 0.2f);
-            luz.Idiffuse = new Vector3(0.38f, 0.15f, 0.72f);
-            luz.Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            luz.ConeAngle = 180.0f;
-            luz.ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
-            luz.Enabled = 1;
-            luces[0] = luz;
-            */
-            //luz = new Light(new Vector3(0f, 0f, 0f), new Vector3(1f, 0.7f, 0f), 0.5f);
+            
 
             //Configuracion de Materiales
             material = materiales[materialIndex];
             
             updateDebugInfo();
+
+            timer = new System.Timers.Timer(10);
+            timer.Elapsed += OnTimedEvent;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+        }
+
+        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            Console.WriteLine("Timer");
+            time += 0.01f;
+            float blend = ((float)Math.Sin(time) + 1)/2;
+            Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 2.0f, 0.0f), new Vector3(4.0f, 2.0f, 0.0f), blend);
+            luces[0].Position = new Vector4(pos, 1.0f);
+            glControl3.Invalidate(); //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
+
         }
 
         private void updateDebugInfo()
@@ -205,7 +213,7 @@ namespace cg2016
             //Configuracion de los valores uniformes del shader
 
             //Phong + NormalMap
-            
+            /*
             sProgram.SetUniformValue("projMatrix", projMatrix);
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
@@ -217,7 +225,35 @@ namespace cg2016
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
-             
+             */
+
+            //Phong + NormalMap (Multiples Luces)
+            sProgram.SetUniformValue("projMatrix", projMatrix);
+            sProgram.SetUniformValue("modelMatrix", modelMatrix);
+            sProgram.SetUniformValue("normalMatrix", normalMatrix);
+            sProgram.SetUniformValue("viewMatrix", viewMatrix);
+            sProgram.SetUniformValue("A", 0.3f);
+            sProgram.SetUniformValue("B", 0.007f);
+            sProgram.SetUniformValue("C", 0.00008f);
+            sProgram.SetUniformValue("material.Ka", material.Kambient);
+            //sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
+            sProgram.SetUniformValue("material.Ks", material.Kspecular);
+            sProgram.SetUniformValue("material.Shininess", material.Shininess);
+            sProgram.SetUniformValue("ColorTex", 0);
+            sProgram.SetUniformValue("NormalMapTex", 1);
+
+            sProgram.SetUniformValue("numLights", luces.Length);
+            for (int i = 0; i < luces.Length; i++)
+            {
+                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
+                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
+                sProgram.SetUniformValue("allLights[" + i + "].Id", luces[i].Idiffuse);
+                sProgram.SetUniformValue("allLights[" + i + "].Is", luces[i].Ispecular);
+                //sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                //sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+            }
+
             //Multiples Luces
             /*
             sProgram.SetUniformValue("projMatrix", projMatrix);
@@ -246,6 +282,7 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
             }
             */
+            
             //Configuracion de las transformaciones del objeto a espacio de mundo
             //Transform transform = new Transform();
             //transform.Position = new Vector3(-1,-1,-1);

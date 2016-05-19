@@ -9,10 +9,9 @@ in vec3 vTangente;
 in vec3 vBitangente; 
 
 out vec2 f_TexCoord;
-//out vec3 LightDir;
-//out vec3 ViewDir;
-out vec3 pos;
-out mat3 TBN;
+out vec3 LightDir;
+out vec3 ViewDir;
+out vec3 fnorm;
 
 struct Light {
 	vec4 position;	//Light position in World Space
@@ -36,22 +35,21 @@ void main()
 	vec3 bitangente = normalize(normalMatrix * vBitangente);
 
 	//Construir la Matris de transformacion de CameraSpace a TangentSpace
-	TBN = transpose( mat3(tangente, bitangente, normal) );
+	mat3 TBN = transpose( mat3(tangente, bitangente, normal) );
 
-	
 	//Transformar Posicion de ObjectSpace a CameraSpace
-	pos = vec3( modelViewMatrix * vec4(vPos,1.0) );
+	vec3 pos = vec3( modelViewMatrix * vec4(vPos,1.0) );
 
-	/*
 	//Transformar Posicion de la Luz de CameraSpace a TangentSpace
 	LightDir = normalize( TBN * ( (viewMatrix*light.position).xyz - pos) );
 
 	//Transformar Posicion de CameraSpace a TangentSpace
 	ViewDir = TBN * normalize(-pos);
-	*/
 
 	//Invertir la coordenada "y" de textura
 	f_TexCoord = vec2(TexCoord.s, 1 - TexCoord.t);
+
+	fnorm = vNormal;
 
 	gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(vPos, 1.0);
 }
