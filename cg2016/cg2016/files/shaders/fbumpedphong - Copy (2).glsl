@@ -14,10 +14,11 @@ struct Light {
 	vec3 Ia;
 	vec3 Id;
 	vec3 Is;
+	/*
 	float coneAngle;
 	vec3 coneDirection;
+	*/
 	int enabled;
-	int direccional;
 };
 
 struct Material {
@@ -42,41 +43,26 @@ out vec4 FragColor;
 
 vec3 phongModel( vec3 norm, vec3 diffR, Light light, vec3 ViewDir) 
 {
-	float fAtt=1.0f;
-	vec3 LightDir;
-	
-	if(light.direccional==1){ //direccional
-		LightDir=normalize(TBN*((viewMatrix*-light.position).xyz));
-	}
-	else{
-		//Transformar Posicion de la Luz de CameraSpace a TangentSpace
-		LightDir = normalize( TBN * ( (viewMatrix*light.position).xyz - pos) );
-		vec3 coneDirection = normalize(light.coneDirection);
-		vec3 rayDirection = -LightDir;
-		float lightToSurfaceAngle = degrees(acos(dot(rayDirection, coneDirection)));
-			if (lightToSurfaceAngle <= light.coneAngle) { //Inside cone
-				float distanceToLight = length(light.position.xyz);
-				fAtt = 1.0 / ( A + B * distanceToLight + C * pow(distanceToLight, 2));
-			} 
-			else {
-				fAtt = 0.0;
-			}
-		}
+	//Transformar Posicion de la Luz de CameraSpace a TangentSpace
+	vec3 LightDir = normalize( TBN * ( (viewMatrix*light.position).xyz - pos) );
 
-		vec3 r = reflect( -LightDir, norm );
-		vec3 ambient = material.Ka * light.Ia;
-		float sDotN = max( dot(LightDir, norm), 0.0 );
-		vec3 diffuse = diffR * sDotN * light.Id;// * material.Kd;
-		vec3 specular = vec3(0,0,0);
-		if( sDotN > 0.0 )
-			specular = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is;
-		return ambient + fAtt * (diffuse + specular) * light.enabled;
+	vec3 r = reflect( -LightDir, norm );
+	vec3 ambient = material.Ka * light.Ia;
+	float sDotN = max( dot(LightDir, norm), 0.0 );
+	vec3 diffuse = diffR * sDotN * light.Id;// * material.Kd;
+	vec3 spec = vec3(0.0);
+	if( sDotN > 0.0 )
+		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is;
 
+	float attenuation = 1.0;
+	float distanceToLight = length(light.position.xyz);
+	attenuation = 0.5 / ( A + B * distanceToLight + C * pow(distanceToLight, 2));
+
+	return ambient + attenuation * (diffuse + spec) * light.enabled;
 }
 
 void main() 
 {
-
 	// Lookup the normal from the normal map
 	vec4 normal = 2.0*texture2D( NormalMapTex, f_TexCoord ) - 1;
 

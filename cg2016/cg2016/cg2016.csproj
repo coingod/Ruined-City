@@ -134,7 +134,13 @@
     <None Include="CGUNS\ModelosOBJ\supercube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\shaders\fbumpedphong - Copy %282%29.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\fbumpedphong - Copy.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vbumpedphong - Copy %282%29.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vbumpedphong - Copy.glsl">

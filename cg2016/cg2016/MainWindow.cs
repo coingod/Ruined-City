@@ -61,7 +61,7 @@ namespace cg2016
             //ejes_locales.Build(sProgramUnlit);
 
             //Carga y configuracion de Objetos
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/dancingbanana.obj"); //Construimos los objetos que voy a dibujar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/supercube.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             GL.ActiveTexture(TextureUnit.Texture0);
 			tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
@@ -86,11 +86,11 @@ namespace cg2016
             luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
-            luces[0].Enabled = 1;
+            luces[0].Enabled = 0;
             luces[0].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
             
             luces[1] = new Light();
-            luces[1].Position = new Vector4(0.0f, 2.5f, 0.0f, 1.0f);
+            luces[1].Position = new Vector4(0.0f, 3.0f, 0.0f, 1.0f);
             luces[1].Iambient = new Vector3(1f, 1f, 1f);
             luces[1].Idiffuse = new Vector3(0f, 1f, 0f);
             luces[1].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
@@ -98,27 +98,29 @@ namespace cg2016
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 0;
             luces[1].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
+            luces[1].Direccional = 1;
 
             luces[2] = new Light();
-            luces[2].Position = new Vector4(0.0f, -2.0f, 0.0f, 1.0f); 
-            luces[2].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
+            luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f); 
+            luces[2].Iambient = new Vector3(0.4f, 0.4f, 0.0f);
             luces[2].Idiffuse = new Vector3(1f, 1f, 0.0f);
             luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            luces[2].ConeAngle = 180.0f;
-            luces[2].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[2].ConeAngle = 10.0f;
+            luces[2].ConeDirection = new Vector3(0.0f, 4.0f, 0.0f);
             luces[2].Enabled = 0;
             luces[2].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
+            luces[2].Direccional = 0;
 
             luces[3] = new Light();
-            luces[3].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
-            luces[3].Iambient = new Vector3(0.8f, 0.65f, 0.2f);
-            luces[3].Idiffuse = new Vector3(0.0f, 0.0f, 1.0f);
+            luces[3].Position = new Vector4(0.0f, 0.0f, 3.0f, 1.0f);
+            luces[3].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
+            luces[3].Idiffuse = new Vector3(0.0f, 0.0f, 0.5f);
             luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
-            luces[3].ConeAngle = 180.0f;
-            luces[3].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[3].ConeAngle = 20.0f;
+            luces[3].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[3].Enabled = 0;
             luces[3].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-            
+            luces[3].Direccional = 0;
 
             //Configuracion de Materiales
             material = materiales[materialIndex];
@@ -249,9 +251,10 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
                 sProgram.SetUniformValue("allLights[" + i + "].Id", luces[i].Idiffuse);
                 sProgram.SetUniformValue("allLights[" + i + "].Is", luces[i].Ispecular);
-                //sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
-                //sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+                sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
 
             //Multiples Luces

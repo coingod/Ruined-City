@@ -16,6 +16,7 @@ namespace CGUNS
         float coneAngle;
         Vector3 coneDirection;
         int enabled;
+        int direccional;
 
         public LightGizmo gizmo;
 
@@ -102,6 +103,17 @@ namespace CGUNS
             set
             {
                 this.enabled = value;
+            }
+        }
+        public int Direccional
+        {
+            get
+            {
+                return direccional;
+            }
+            set
+            {
+                this.direccional = value;
             }
         }
         public void Toggle()
