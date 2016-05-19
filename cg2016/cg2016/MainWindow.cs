@@ -61,7 +61,7 @@ namespace cg2016
             //ejes_locales.Build(sProgramUnlit);
 
             //Carga y configuracion de Objetos
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/supercube.obj"); //Construimos los objetos que voy a dibujar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/dancingbanana.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             GL.ActiveTexture(TextureUnit.Texture0);
 			tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
@@ -418,33 +418,43 @@ namespace cg2016
 
                 //ON/OFF LUCES
                 case Keys.D0:
+                case Keys.NumPad0:
                     ToggleLight(0);
                     break;
+                case Keys.NumPad1:
                 case Keys.D1:
                     ToggleLight(1);
                     break;
+                case Keys.NumPad2:
                 case Keys.D2:
                     ToggleLight(2);
                     break;
+                case Keys.NumPad3:
                 case Keys.D3:
                     ToggleLight(3);
                     break;
                 case Keys.D4:
+                case Keys.NumPad4:
                     ToggleLight(4);
                     break;
                 case Keys.D5:
+                case Keys.NumPad5:
                     ToggleLight(5);
                     break;
                 case Keys.D6:
+                case Keys.NumPad6:
                     ToggleLight(6);
                     break;
                 case Keys.D7:
+                case Keys.NumPad7:
                     ToggleLight(7);
                     break;
                 case Keys.D8:
+                case Keys.NumPad8:
                     ToggleLight(8);
                     break;
                 case Keys.D9:
+                case Keys.NumPad9:
                     ToggleLight(9);
                     break;
                 //TAMAÑO CONO LUZ_1
