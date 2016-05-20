@@ -6,7 +6,7 @@ struct Material {
 	vec3 Ka;
 	vec3 Kd;
 	vec3 Ks;
-	float shininess;
+	float Shininess;
 };
 struct Light {
 	vec4 position;
@@ -23,10 +23,11 @@ in vec3 fragNormal;
 in vec2 f_TexCoord;
 
 uniform int numLights;
-uniform sampler2D gSampler; 
-uniform sampler2D gSampler2;
+uniform sampler2D ColorTex; 
+//uniform sampler2D gSampler2;
+uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
-uniform mat3 normalMatrix;
+uniform mat3 normalMatrix;	//IN WORLD SPACE!!!
 uniform vec3 cameraPosition; //In World Space.
 uniform Light allLights[maxLights];
 uniform Material material;
@@ -57,8 +58,8 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 	}
 
 	//Obtenemos el color de la textura
-	vec4 colorTex2=texture2D(gSampler, f_TexCoord);
-	vec4 colorTex=colorTex2 * texture2D(gSampler2, f_TexCoord);
+	vec4 colorTex=texture2D(ColorTex, f_TexCoord);
+	//vec4 colorTex=colorTex2 * texture2D(gSampler2, f_TexCoord);
 
 	//AMBIENT
 	vec3 ambient = light.Ia * material.Ka * vec3(colorTex);
@@ -73,7 +74,7 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 		vec3 incidenceVector = -surfaceToLight;
 		vec3 reflectionVector = reflect(incidenceVector, surfaceNormal);
 		float cosAngle = max(0.0, dot(surfaceToCamera, reflectionVector));
-		specularCoefficient = pow(cosAngle, material.shininess);
+		specularCoefficient = pow(cosAngle, material.Shininess);
 	}
 	vec3 specular = light.Is * material.Ks * specularCoefficient;
 	return ambient + attenuation * (diffuse + specular) * light.enabled;

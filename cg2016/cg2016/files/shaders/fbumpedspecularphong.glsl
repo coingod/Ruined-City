@@ -29,6 +29,7 @@ struct Material {
 
 uniform sampler2D ColorTex;
 uniform sampler2D NormalMapTex;
+uniform sampler2D SpecularMapTex;
 uniform mat4 viewMatrix;
 uniform vec3 cameraPosition; //In World Space.
 uniform int numLights;
@@ -41,7 +42,7 @@ uniform float C;
 
 out vec4 FragColor;
 
-vec3 phongModel( vec3 norm, vec3 diffR, Light light, vec3 ViewDir) 
+vec3 phongModel( vec3 norm, vec3 diffR, vec3 specR, Light light, vec3 ViewDir) 
 {
 	float fAtt;
 	vec3 LightPos;
@@ -93,7 +94,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, Light light, vec3 ViewDir)
 	vec3 r = reflect( -LightPos, norm );
 	vec3 spec = vec3(0.0);
 	if( sDotN > 0.0 )
-		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is;
+		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is * specR;
 
 	return ambient + fAtt * falloff * (diffuse + spec*0.001) * light.enabled;
 }
@@ -106,13 +107,16 @@ void main()
 	// The color texture is used as the diff. reflectivity
 	vec4 texColor = texture2D( ColorTex, f_TexCoord );
 
+	// The specular texture is used as the spec intensity
+	vec4 specular = texture2D( SpecularMapTex, f_TexCoord );
+
 	//Transformar Posicion de CameraSpace a TangentSpace
 	vec3 ViewDir = TBN * normalize(-fPos_CS);
 
 	//Acumular iluminacion de cada fuente de luz
 	vec3 linearColor=vec3(0);
 	for(int i=0; i<numLights; i++)
-		linearColor += phongModel(normal.xyz, texColor.rgb, allLights[i], ViewDir);
+		linearColor += phongModel(normal.xyz, texColor.rgb, specular.rgb, allLights[i], ViewDir);
 
 	FragColor = vec4( linearColor, 1.0 );
 }

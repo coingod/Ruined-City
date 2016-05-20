@@ -69,6 +69,8 @@ namespace cg2016
             GL.ActiveTexture(TextureUnit.Texture1);
             tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
             //tex2 = CargarTextura("files/Texturas/chesterfield_n.png");
+            GL.ActiveTexture(TextureUnit.Texture2);
+            tex2 = CargarTextura("files/Texturas/BrickWallHD_s.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -85,10 +87,11 @@ namespace cg2016
             luces[0].Idiffuse = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
             luces[0].ConeAngle = 180.0f;
-            luces[0].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
-            luces[0].Enabled = 0;
+            luces[0].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[0].Enabled = 1;
             luces[0].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-            
+            luces[0].Direccional = 0;
+
             luces[1] = new Light();
             luces[1].Position = new Vector4(0.0f, 3.0f, 0.0f, 1.0f);
             luces[1].Iambient = new Vector3(1f, 1f, 1f);
@@ -98,7 +101,7 @@ namespace cg2016
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 0;
             luces[1].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-            luces[1].Direccional = 1;
+            luces[1].Direccional = 0;
 
             luces[2] = new Light();
             luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f); 
@@ -106,7 +109,7 @@ namespace cg2016
             luces[2].Idiffuse = new Vector3(1f, 1f, 0.0f);
             luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
             luces[2].ConeAngle = 10.0f;
-            luces[2].ConeDirection = new Vector3(0.0f, 4.0f, 0.0f);
+            luces[2].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[2].Enabled = 0;
             luces[2].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
             luces[2].Direccional = 0;
@@ -185,12 +188,6 @@ namespace cg2016
             //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
             Matrix4 MVP = Matrix4.Mult(mvMatrix, projMatrix);
 
-            //Vector4 posL = new Vector4(1f, 1f, 1f, 1f);
-            //Vector3 ka = 0.1f * new Vector3(1f, 0.7f, 0f);
-            //Vector3 kd = 0.6f * new Vector3(1f, 0.7f, 0f);
-            //Vector3 ks = 0.3f * new Vector3(1f, 1f, 1f);
-            //float coefEsp = 3;
-
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit); //Borramos el contenido del glControl.
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
 
@@ -213,27 +210,12 @@ namespace cg2016
             sProgram.Activate(); //Activamos el programa de shaders
 
             //Configuracion de los valores uniformes del shader
-
-            //Phong + NormalMap
-            /*
-            sProgram.SetUniformValue("projMatrix", projMatrix);
-            sProgram.SetUniformValue("modelMatrix", modelMatrix);
-            sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            sProgram.SetUniformValue("normalMatrix", normalMatrix);
-            sProgram.SetUniformValue("light.position", luces[0].Position);
-            sProgram.SetUniformValue("material.Ka", material.Kambient);
-            //sProgram.SetUniformValue("kd", material.Kdiffuse);
-            sProgram.SetUniformValue("material.Ks", material.Kspecular);
-            sProgram.SetUniformValue("material.Shininess", material.Shininess);
-            sProgram.SetUniformValue("ColorTex", 0);
-            sProgram.SetUniformValue("NormalMapTex", 1);
-             */
-
-            //Phong + NormalMap (Multiples Luces)
+            
             sProgram.SetUniformValue("projMatrix", projMatrix);
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             sProgram.SetUniformValue("normalMatrix", normalMatrix);
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
+            //sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
@@ -243,6 +225,7 @@ namespace cg2016
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
+            sProgram.SetUniformValue("SpecularMapTex", 1);
 
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
@@ -256,35 +239,6 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
                 sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
-
-            //Multiples Luces
-            /*
-            sProgram.SetUniformValue("projMatrix", projMatrix);
-            sProgram.SetUniformValue("modelMatrix", modelMatrix);
-            sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            sProgram.SetUniformValue("normalMatrix", normalMatrix);
-            sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
-            sProgram.SetUniformValue("A", 0.3f);
-            sProgram.SetUniformValue("B", 0.007f);
-            sProgram.SetUniformValue("C", 0.00008f);
-            sProgram.SetUniformValue("material.Ka", material.Kambient);
-            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
-            sProgram.SetUniformValue("material.Ks", material.Kspecular);
-            sProgram.SetUniformValue("material.shininess", material.Shininess);
-            sProgram.SetUniformValue("gSampler2", 1);
-            
-            sProgram.SetUniformValue("numLights", luces.Length);
-            for (int i = 0; i < luces.Length; i++)
-            {
-                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
-                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
-                sProgram.SetUniformValue("allLights[" + i + "].Id", luces[i].Idiffuse);
-                sProgram.SetUniformValue("allLights[" + i + "].Is", luces[i].Ispecular);
-                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
-                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
-                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
-            }
-            */
             
             //Configuracion de las transformaciones del objeto a espacio de mundo
             //Transform transform = new Transform();
@@ -532,8 +486,8 @@ namespace cg2016
             //1. Creamos los shaders, a partir de archivos.
             //vShaderFile = "files/shaders/vmultiplesluces.glsl";
             //fShaderFile = "files/shaders/fmultiplesluces.glsl";
-            vShaderFile = "files/shaders/vbumpedphong.glsl";
-            fShaderFile = "files/shaders/fbumpedphong.glsl";
+            vShaderFile = "files/shaders/vbumpedspecularphong.glsl";
+            fShaderFile = "files/shaders/fbumpedspecularphong.glsl";
             vShader = new Shader(ShaderType.VertexShader, vShaderFile);
             fShader = new Shader(ShaderType.FragmentShader, fShaderFile);
             //2. Los compilamos

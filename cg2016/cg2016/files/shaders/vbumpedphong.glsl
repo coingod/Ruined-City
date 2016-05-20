@@ -11,7 +11,7 @@ in vec3 vBitangente;
 out vec2 f_TexCoord;
 //out vec3 LightDir;
 //out vec3 ViewDir;
-out vec3 pos;
+out vec3 fPos_CS;
 out mat3 TBN;
 
 struct Light {
@@ -38,9 +38,8 @@ void main()
 	//Construir la Matris de transformacion de CameraSpace a TangentSpace
 	TBN = transpose( mat3(tangente, bitangente, normal) );
 
-	
 	//Transformar Posicion de ObjectSpace a CameraSpace
-	pos = vec3( modelViewMatrix * vec4(vPos,1.0) );
+	fPos_CS = vec3( modelViewMatrix * vec4(vPos,1.0) );
 
 	/*
 	//Transformar Posicion de la Luz de CameraSpace a TangentSpace
