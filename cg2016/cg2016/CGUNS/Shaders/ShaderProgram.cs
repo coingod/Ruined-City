@@ -19,7 +19,7 @@ namespace CGUNS.Shaders
             }
         }
         private List<Shader> shaders;
-        private Dictionary<String, int> programUniforms;
+        //private Dictionary<String, int> programUniforms;
         private Dictionary<String, int> programAttributes;
 
         public ShaderProgram()
@@ -32,7 +32,7 @@ namespace CGUNS.Shaders
             }
             log("Successfully created Program with Handle: {0}", programHandle);
             shaders = new List<Shader>();
-            programUniforms = new Dictionary<string, int>();
+            //programUniforms = new Dictionary<string, int>();
             programAttributes = new Dictionary<string, int>();
         }
 
@@ -100,7 +100,7 @@ namespace CGUNS.Shaders
             gl.LinkProgram(programHandle);
             TestProgramLinkage();
             //Creo mis tablitas de simbolos.
-            BuildUniformsMap();
+            //BuildUniformsMap();
             BuildAttributesMap();
             // Clean resources.
             foreach (Shader shader in shaders)
@@ -137,7 +137,7 @@ namespace CGUNS.Shaders
             }
             log(linkerMessage); //Should print success;
         }
-
+        /*
         private void BuildUniformsMap()
         {
             int uniformCount;
@@ -163,7 +163,7 @@ namespace CGUNS.Shaders
                 }
 
             }
-        }
+        }*/
 
         private void BuildAttributesMap()
         {
@@ -205,7 +205,8 @@ namespace CGUNS.Shaders
         private bool ValidateUniform(String uniformName)
         {
             bool resul = true;
-            if (!programUniforms.ContainsKey(uniformName))
+            int location = gl.GetUniformLocation(ID, uniformName);
+            if (location == -1)
             {
                 String message = String.Format("Shader program does not contain a uniform named: {0}", uniformName);
                 throw new ShaderProgramException(message);
@@ -217,7 +218,7 @@ namespace CGUNS.Shaders
         {
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.Uniform1(location, value);
             }
         }
@@ -226,7 +227,7 @@ namespace CGUNS.Shaders
         {
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.Uniform1(location, value);
             }
         }
@@ -235,7 +236,7 @@ namespace CGUNS.Shaders
         {
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.UniformMatrix4(location, false, ref value);
             }
         }
@@ -244,7 +245,7 @@ namespace CGUNS.Shaders
         {
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.UniformMatrix3(location, false, ref value);
             }
         }
@@ -253,7 +254,7 @@ namespace CGUNS.Shaders
         {
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.Uniform4(location, value);
             }
         }
@@ -263,7 +264,7 @@ namespace CGUNS.Shaders
 
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.Uniform3(location, value);
             }
         }
@@ -272,7 +273,7 @@ namespace CGUNS.Shaders
         {
             if (ValidateUniform(uniformName))
             {
-                int location = programUniforms[uniformName];
+                int location = gl.GetUniformLocation(ID, uniformName);
                 gl.Uniform2(location, value);
             }
         }
