@@ -50,16 +50,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specR, Light light, vec3 ViewDir)
 
 	if(light.direccional==1)
 	{ 
-		//La Pos de la Luz se interpreta como una direccion centrada en el origen WS
-		//Invierto la pos de la luz (en WS) y tengo extremo de la dir (en WS). La paso a CS
-		//Invierto la pos de la camara (en WS) para obtener el origen (de WS) en CameraSpace
-		//Extremo - Origen, me da la dir de Luz (centrada en origen de mundo) en CS
-		//vec3 direccion = ((viewMatrix * -light.position).xyz) - (-cameraPosition);
-
-		//Transformar DIRECCION de la Luz de CameraSpace a TangentSpace
-		//LightPos = normalize( TBN *  direccion);
-
-		LightPos = normalize( TBN * ( (viewMatrix * -light.position).xyz) );
+		LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
 	}
 	else
 	{
@@ -89,14 +80,15 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specR, Light light, vec3 ViewDir)
 	//Difuso
 	float sDotN = max( dot(LightPos, norm), 0.0 );
 	vec3 diffuse = diffR * sDotN * light.Id;// * material.Kd;
+	//vec3 diffuse = (0.5*diffR + 0.5 * light.Id) * sDotN;// * material.Kd;
 
 	//Especular
 	vec3 r = reflect( -LightPos, norm );
 	vec3 spec = vec3(0.0);
 	if( sDotN > 0.0 )
-		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is * specR;
+		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is * specR ;
 
-	return ambient + fAtt * falloff * (diffuse + spec*0.001) * light.enabled;
+	return ambient + fAtt * falloff * (diffuse + spec) * light.enabled;
 }
 
 void main() 

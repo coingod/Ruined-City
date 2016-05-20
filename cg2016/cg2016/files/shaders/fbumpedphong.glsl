@@ -49,16 +49,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, Light light, vec3 ViewDir)
 
 	if(light.direccional==1)
 	{ 
-		//La Pos de la Luz se interpreta como una direccion centrada en el origen WS
-		//Invierto la pos de la luz (en WS) y tengo extremo de la dir (en WS). La paso a CS
-		//Invierto la pos de la camara (en WS) para obtener el origen (de WS) en CameraSpace
-		//Extremo - Origen, me da la dir de Luz (centrada en origen de mundo) en CS
-		//vec3 direccion = ((viewMatrix * -light.position).xyz) - (-cameraPosition);
-
-		//Transformar DIRECCION de la Luz de CameraSpace a TangentSpace
-		//LightPos = normalize( TBN *  direccion);
-
-		LightPos = normalize( TBN * ( (viewMatrix * -light.position).xyz) );
+		LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
 	}
 	else
 	{

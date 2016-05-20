@@ -66,7 +66,7 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 
 	//DIFUSSE
 	float diffuseCoefficient = max(0.0, dot(surfaceNormal, surfaceToLight));
-	vec3 diffuse = light.Id * material.Kd * diffuseCoefficient;
+	vec3 diffuse = light.Id * material.Kd * diffuseCoefficient * vec3(colorTex);
 
 	//SPECULAR
 	float specularCoefficient = 0.0;

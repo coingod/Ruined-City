@@ -48,7 +48,7 @@ namespace cg2016
         private bool drawGizmos = true;
 
         private int transformaciones = 0;
-		private int tex1,tex2;
+		private int tex1,tex2, tex3;
         private void glControl3_Load(object sender, EventArgs e)
         {            
             logContextInfo(); //Mostramos info de contexto.
@@ -70,7 +70,7 @@ namespace cg2016
             tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
             //tex2 = CargarTextura("files/Texturas/chesterfield_n.png");
             GL.ActiveTexture(TextureUnit.Texture2);
-            tex2 = CargarTextura("files/Texturas/BrickWallHD_s.png");
+            tex3 = CargarTextura("files/Texturas/BrickWallHD_s.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -101,7 +101,7 @@ namespace cg2016
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 0;
             luces[1].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-            luces[1].Direccional = 0;
+            luces[1].Direccional = 1;
 
             luces[2] = new Light();
             luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f); 
@@ -225,7 +225,7 @@ namespace cg2016
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
-            sProgram.SetUniformValue("SpecularMapTex", 1);
+            sProgram.SetUniformValue("SpecularMapTex", 2);
 
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
