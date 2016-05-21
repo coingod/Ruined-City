@@ -33,9 +33,8 @@ namespace cg2016
         private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
 
         private ObjetoGrafico objeto; //Nuestro objeto a dibujar.
-        private Light luz;
         private Light[] luces;
-        private Material[] materiales = new Material[] { Material.Obsidian, Material.Bronze, Material.Gold, Material.Jade, Material.Brass };
+        private Material[] materiales = new Material[] { Material.Default, Material.WhiteRubber, Material.Obsidian, Material.Bronze, Material.Gold, Material.Jade, Material.Brass };
         private Material material;
         private int materialIndex = 0;
         private QSphericalCamera myCamera;  //Camara
@@ -48,7 +47,7 @@ namespace cg2016
         private bool drawGizmos = true;
 
         private int transformaciones = 0;
-		private int tex1,tex2, tex3;
+		private int tex1,tex2, tex3, tex4;
         private void glControl3_Load(object sender, EventArgs e)
         {            
             logContextInfo(); //Mostramos info de contexto.
@@ -82,67 +81,69 @@ namespace cg2016
             luces = new Light[4];
 
             luces[0] = new Light();
-            luces[0].Position = new Vector4(-2.0f, 0.0f, 0.0f, 1.0f);
-            luces[0].Iambient = new Vector3(1.0f, 0.0f, 1.0f);
+            luces[0].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
+            luces[0].Iambient = new Vector3(0.1f, 0.0f, 0.1f);
             luces[0].Idiffuse = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[0].Enabled = 1;
-            luces[0].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
             luces[0].Direccional = 0;
+            luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             luces[1] = new Light();
-            luces[1].Position = new Vector4(0.0f, 3.0f, 0.0f, 1.0f);
-            luces[1].Iambient = new Vector3(1f, 1f, 1f);
-            luces[1].Idiffuse = new Vector3(0f, 1f, 0f);
-            luces[1].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
+            luces[1].Position = new Vector4(1.0f, 2.0f, 1.0f, 1.0f);
+            luces[1].Iambient = new Vector3(0f, 0f, 0f);
+            luces[1].Idiffuse = new Vector3(1f, 1f, 1f);
+            luces[1].Ispecular = new Vector3(0.1f, 0.1f, 0.1f);
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 0;
-            luces[1].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
             luces[1].Direccional = 1;
+            luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             luces[2] = new Light();
             luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f); 
-            luces[2].Iambient = new Vector3(0.4f, 0.4f, 0.0f);
+            luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.0f);
             luces[2].Idiffuse = new Vector3(1f, 1f, 0.0f);
             luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
             luces[2].ConeAngle = 10.0f;
             luces[2].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[2].Enabled = 0;
-            luces[2].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-            luces[2].Direccional = 0;
+            luces[2].Direccional = 1;
+            luces[2].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             luces[3] = new Light();
-            luces[3].Position = new Vector4(0.0f, 0.0f, 3.0f, 1.0f);
-            luces[3].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
+            luces[3].Position = new Vector4(0.0f, 0.0f, -3.0f, 1.0f);
+            luces[3].Iambient = new Vector3(0.0f, 0.0f, 0.1f);
             luces[3].Idiffuse = new Vector3(0.0f, 0.0f, 0.5f);
             luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
             luces[3].ConeAngle = 20.0f;
             luces[3].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[3].Enabled = 0;
-            luces[3].gizmo.Build(sProgramUnlit);    //Representacion visual de la luz
-            luces[3].Direccional = 0;
+            luces[3].Direccional = 1;
+            luces[3].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             //Configuracion de Materiales
             material = materiales[materialIndex];
             
             updateDebugInfo();
 
+            //Configuracion del Timer para redibujar la escena cada 10ms
             timer = new System.Timers.Timer(10);
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = true;
             timer.Enabled = true;
         }
 
+        //Se ejecuta cada tick del Timer y redibuja la escena. Sirve para animar
         private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
             Console.WriteLine("Timer");
             time += 0.01f;
             float blend = ((float)Math.Sin(time) + 1)/2;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 2.0f, 0.0f), new Vector3(4.0f, 2.0f, 0.0f), blend);
-            luces[0].Position = new Vector4(pos, 1.0f);
+            luces[1].Position = new Vector4(pos, 1.0f);
             glControl3.Invalidate(); //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
 
         }
@@ -158,7 +159,7 @@ namespace cg2016
                 normalCount += m.VertexNormalList.Count;
             }
 
-            String title = "CGLabo2016 [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount +
+            String title = "CGLabo2016 [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
                 "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos + 
                 "] [Lights: ";
 
@@ -220,13 +221,13 @@ namespace cg2016
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
             sProgram.SetUniformValue("material.Ka", material.Kambient);
-            //sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
-            sProgram.SetUniformValue("material.Ks", material.Kspecular);
+            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
+            //sProgram.SetUniformValue("material.Ks", material.Kspecular);
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
             sProgram.SetUniformValue("SpecularMapTex", 2);
-
+            
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
             {

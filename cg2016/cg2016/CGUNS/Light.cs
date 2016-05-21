@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenTK; //La matematica
 using CGUNS.Primitives;
-
+using CGUNS.Shaders;
 
 namespace CGUNS
 {
@@ -19,10 +19,16 @@ namespace CGUNS
         int direccional;
 
         public LightGizmo gizmo;
-
+        /*
         public Light()
         {
             gizmo = new LightGizmo(this);
+        }
+        */
+        public void updateGizmo(ShaderProgram sProgram)
+        {
+            gizmo = new LightGizmo(this);
+            gizmo.Build(sProgram);
         }
 
         public Vector4 Position

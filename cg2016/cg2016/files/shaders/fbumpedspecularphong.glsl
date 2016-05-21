@@ -1,13 +1,12 @@
-﻿// FRAGMENT SHADER. Simple
+﻿// FRAGMENT SHADER. TEXTURE + BUMP + SPECULAR
 
 #version 330
 #define maxLights 5
 
-//in vec3 LightDir;
 in vec2 f_TexCoord;
-//in vec3 ViewDir;
 in mat3 TBN;
 in vec3 fPos_CS;
+in vec3 fnormal;
 
 struct Light {
 	vec4 position; //Light position in World Space
@@ -42,7 +41,65 @@ uniform float C;
 
 out vec4 FragColor;
 
-vec3 phongModel( vec3 norm, vec3 diffR, vec3 specR, Light light, vec3 ViewDir) 
+
+float beckmannDistribution(float x, float roughness) 
+{
+	float NdotH = max(x, 0.0001);
+	float cos2Alpha = NdotH * NdotH;
+	float tan2Alpha = (cos2Alpha - 1.0) / cos2Alpha;
+	float roughness2 = roughness * roughness;
+	float denom = 3.141592653589793 * roughness2 * cos2Alpha * cos2Alpha;
+	return exp(tan2Alpha / roughness2) / denom;
+}
+
+float cookTorranceSpecular(vec3 lightDirection,	vec3 viewDirection,	vec3 surfaceNormal,	float roughness, float fresnel) 
+{
+	float VdotN = max(dot(viewDirection, surfaceNormal), 0.0);
+	float LdotN = max(dot(lightDirection, surfaceNormal), 0.0);
+
+	//Half angle vector
+	vec3 H = normalize(lightDirection + viewDirection);
+
+	//Geometric term
+	float NdotH = max(dot(surfaceNormal, H), 0.0);
+	float VdotH = max(dot(viewDirection, H), 0.000001);
+	float LdotH = max(dot(lightDirection, H), 0.000001);
+	float G1 = (2.0 * NdotH * VdotN) / VdotH;
+	float G2 = (2.0 * NdotH * LdotN) / LdotH;
+	float G = min(1.0, min(G1, G2));
+  
+	//Distribution term
+	float D = beckmannDistribution(NdotH, roughness);
+
+	//Fresnel term
+	float F = pow(1.0 - VdotN, fresnel);
+
+	//Multiply terms and done
+	return  G * F * D / max(3.14159265 * VdotN, 0.000001);
+}
+
+float phongSpecular(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNormal, float roughness) 
+{
+	float spec = 0;
+	float sDotN = max( dot(lightDirection, surfaceNormal), 0.0 );
+	vec3 reflectionVector = reflect( -lightDirection, surfaceNormal );
+	if( sDotN > 0.0 )
+		spec = pow( max( dot(reflectionVector, viewDirection), 0.0 ), roughness );
+	return spec;
+}
+
+float blinnPhongSpecular(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNormal, float roughness) 
+{
+	float spec = 0;
+	float sDotN = max( dot(lightDirection, surfaceNormal), 0.0 );
+	vec3 h = normalize(viewDirection + lightDirection);
+	if( sDotN > 0.0 )
+		spec = pow( max( dot(h, surfaceNormal), 0.0 ), roughness );
+	return spec;
+}
+
+//Calculo de la iluminacion por metodo de Phong
+vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir) 
 {
 	float fAtt;
 	vec3 LightPos;
@@ -73,22 +130,25 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specR, Light light, vec3 ViewDir)
 		} else 
 			fAtt = 0.0;
 	}
+	
+	//Normal real del obj (WS -> TS) (Para testear el shader sin NormalMap)
+	//norm = normalize( transpose(inverse(TBN)) * vec3(( (transpose(inverse(viewMatrix)) * vec4(fnormal,1.0)).xyz)) );
 
 	//Ambiente
-	vec3 ambient = material.Ka * diffR * light.Ia;
+	vec3 ambient = material.Ka * light.Ia * diffR;
 
 	//Difuso
 	float sDotN = max( dot(LightPos, norm), 0.0 );
-	vec3 diffuse = diffR * sDotN * light.Id;// * material.Kd;
-	//vec3 diffuse = (0.5*diffR + 0.5 * light.Id) * sDotN;// * material.Kd;
+	vec3 diffuse = sDotN * light.Id * material.Kd * diffR;
 
 	//Especular
-	vec3 r = reflect( -LightPos, norm );
-	vec3 spec = vec3(0.0);
-	if( sDotN > 0.0 )
-		spec = material.Ks * pow( max( dot(r,ViewDir), 0.0 ), material.Shininess ) * light.Is * specR ;
+	vec3 spec = specMap;
+	//spec *= cookTorranceSpecular(LightPos, ViewDir, norm, 0.25, 1);
+	spec *= phongSpecular(LightPos, ViewDir, norm, material.Shininess);
+	//spec *= blinnPhongSpecular(LightPos, ViewDir, norm, material.Shininess * 4);
 
-	return ambient + fAtt * falloff * (diffuse + spec) * light.enabled;
+	//Retorna el color final con conservacion de energia
+	return (ambient + fAtt * falloff * (diffuse * 0.6 + spec * 0.4) ) * light.enabled;
 }
 
 void main() 
@@ -100,7 +160,7 @@ void main()
 	vec4 texColor = texture2D( ColorTex, f_TexCoord );
 
 	// The specular texture is used as the spec intensity
-	vec4 specular = texture2D( SpecularMapTex, f_TexCoord );
+	vec4 specular = texture2D( SpecularMapTex, f_TexCoord ) ;
 
 	//Transformar Posicion de CameraSpace a TangentSpace
 	vec3 ViewDir = TBN * normalize(-fPos_CS);

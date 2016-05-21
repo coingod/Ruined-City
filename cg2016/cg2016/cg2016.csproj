@@ -208,6 +208,9 @@
     <Content Include="files\Texturas\BrickWallHD_s.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\BrickWallHD_g.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\checker.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

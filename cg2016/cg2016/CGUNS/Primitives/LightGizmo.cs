@@ -14,36 +14,58 @@ namespace CGUNS.Primitives
         private uint[] indices;  //Los indices para formar las caras.
         private Light light;
 
-        public LightGizmo( Light l,  float s = 0.1f )
+        public LightGizmo( Light l,  float s = 0.075f )
         {
             light = l;
 
-            vPos = new Vector3[8];
-            vPos[0] = new Vector3(s, s, 0.0f);
-            vPos[1] = new Vector3(s, 0.0f, 0.0f);
-            vPos[2] = new Vector3(0.0f, 0.0f, 0.0f);
-            vPos[3] = new Vector3(0.0f, s, 0.0f);
+            if(light.Direccional == 0)
+            {
+                vPos = new Vector3[8];
 
-            vPos[4] = new Vector3(s, s, s);
-            vPos[5] = new Vector3(s, 0.0f, s);
-            vPos[6] = new Vector3(0.0f, 0.0f, s);
-            vPos[7] = new Vector3(0.0f, s, s);
+                vPos[0] = new Vector3(0.5f, -0.5f, -0.5f) * s;
+                vPos[1] = new Vector3(0.5f, -0.5f, 0.5f) * s;
+                vPos[2] = new Vector3(-0.5f, -0.5f, 0.5f) * s;
+                vPos[3] = new Vector3(-0.5f, -0.5f, -0.5f) * s;
 
+                vPos[4] = new Vector3(0.5f, 0.5f, -0.5f) * s;
+                vPos[5] = new Vector3(0.5f, 0.5f, 0.5f) * s;
+                vPos[6] = new Vector3(-0.5f, 0.5f, 0.5f) * s;
+                vPos[7] = new Vector3(-0.5f, 0.5f, -0.5f) * s;
 
-            indices = new uint[]{
-                0, 1, 2,
-                0, 2, 3,
-                4, 5, 1,
-                4, 1, 0,
-                7, 6, 5,
-                7, 5, 4,
-                3, 2, 6,
-                3, 6, 7,
-                3, 7, 4,
-                3, 4, 0,
-                1, 5, 6,
-                1, 6, 2
-            };
+                indices = new uint[]{
+                    1, 3, 0,
+                    7, 5, 4,
+                    4, 1, 0,
+                    5, 2, 1,
+                    2, 7, 3,
+                    0, 7, 4,
+                    1, 2, 3,
+                    7, 6, 5,
+                    4, 5, 1,
+                    5, 6, 2,
+                    2, 6, 7,
+                    0, 3, 7
+                };
+            }
+            else
+            {
+                vPos = new Vector3[5];
+                vPos[0] = new Vector3(-1f, -1f, -1f) * s;
+                vPos[1] = new Vector3(1f, -1f, -1f) * s;
+                vPos[2] = new Vector3(0f, 1f, 0f) * s;
+                vPos[3] = new Vector3(1f, -1f, 1f) * s;
+                vPos[4] = new Vector3(-1f, -1f, 1f) * s;
+
+                indices = new uint[]{
+                    0, 2, 1,
+                    1, 2, 3,
+                    3, 2, 4,
+                    4, 2, 0,
+                    1, 4, 0,
+                    1, 3, 4
+                };
+            }
+
 
         }
 
@@ -68,7 +90,7 @@ namespace CGUNS.Primitives
             int count;  // Cuantos?
             DrawElementsType indexType; //Tipo de los indices.
 
-            primitive = PrimitiveType.Lines;  //Usamos quads.
+            primitive = PrimitiveType.Triangles;  //Usamos quads.
             offset = 0;  // A partir del primer indice.
             count = indices.Length; // Todos los indices.
             indexType = DrawElementsType.UnsignedInt; //Los indices son enteros sin signo.
@@ -76,7 +98,6 @@ namespace CGUNS.Primitives
             Vector4 figColor; //Color que usaremos para cada eje;
 
             gl.BindVertexArray(h_VAO); //Seleccionamos el VAO a utilizar.
-            //gl.DrawElements(primitive, count, indexType, offset); //Dibujamos utilizando los indices del VAO.
 
             if(light.Enabled == 1)
             {
@@ -89,8 +110,41 @@ namespace CGUNS.Primitives
                 figColor = new Vector4(0.2f, 0.2f, 0.2f, 1.0f);
                 sProgram.SetUniformValue("figureColor", figColor);
             }
-            
-            Matrix4 modelMatrix = Matrix4.CreateTranslation(new Vector3(light.Position));
+
+            Matrix4 modelMatrix;
+
+            //Si es Direccional, la roto para que apunte en la direccion correcta
+            if (light.Direccional == 1)
+            {
+                //Direccion a la cual debe apuntar el nuevo eje Y (UP) local
+                Vector3 upDir = new Vector3(light.Position.X, light.Position.Y, light.Position.Z).Normalized();
+                //Calculo el eje de rotacion para rotar el versor Y hacia el versor direccion nuevo
+                Vector3 eje = Vector3.Cross(Vector3.UnitY, upDir);
+                double angle;
+                //Si la direccion coincide con -Y, roto 180° en el eje X .
+                if ((eje == Vector3.Zero) && (upDir.Y < 0))
+                {
+                    angle = Math.PI;
+                    eje = Vector3.UnitX;
+                }
+                else
+                {
+                    //El angulo que debo rotar, es el angulo entre el eje Y y la direccion
+                    angle = Math.Acos(Vector3.Dot(Vector3.UnitY, upDir));
+                }
+                //Calculo la matriz de rotacion
+                Matrix4 rotation = Matrix4.CreateFromQuaternion(Quaternion.FromAxisAngle(eje, (float)angle));
+                //Traslado el gizmo para que su posicion en el mundo sea la correcta
+                Matrix4 translation = Matrix4.CreateTranslation(new Vector3(light.Position));
+                //Primero aplico la rotacion, luego lo traslado
+                modelMatrix = Matrix4.Mult(rotation, translation);
+            }
+            else
+            {
+                //Posiciono la luz
+                modelMatrix = Matrix4.CreateTranslation(new Vector3(light.Position));
+            }
+
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
 
             gl.DrawElements(primitive, count, indexType, offset); //Dibujamos utilizando los indices del VAO.

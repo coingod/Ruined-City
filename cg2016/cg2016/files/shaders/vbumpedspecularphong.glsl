@@ -1,4 +1,4 @@
-﻿// VERTEX SHADER. Simple
+﻿// VERTEX SHADER. TEXTURE + BUMP + SPECULAR
 
 #version 330
 
@@ -9,17 +9,9 @@ in vec3 vTangente;
 in vec3 vBitangente; 
 
 out vec2 f_TexCoord;
-//out vec3 LightDir;
-//out vec3 ViewDir;
 out vec3 fPos_CS;
 out mat3 TBN;
-
-struct Light {
-	vec4 position;	//Light position in World Space
-	//vec3 intensity;
-};
-
-uniform Light light;
+out vec3 fnormal;
 
 uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
@@ -41,13 +33,7 @@ void main()
 	//Transformar Posicion de ObjectSpace a CameraSpace
 	fPos_CS = vec3( modelViewMatrix * vec4(vPos,1.0) );
 
-	/*
-	//Transformar Posicion de la Luz de CameraSpace a TangentSpace
-	LightDir = normalize( TBN * ( (viewMatrix*light.position).xyz - pos) );
-
-	//Transformar Posicion de CameraSpace a TangentSpace
-	ViewDir = TBN * normalize(-pos);
-	*/
+	fnormal = vNormal;
 
 	//Invertir la coordenada "y" de textura
 	f_TexCoord = vec2(TexCoord.s, 1 - TexCoord.t);
