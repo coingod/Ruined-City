@@ -18,15 +18,75 @@ namespace CGUNS.Primitives
         {
             light = l;
 
-            if(light.Direccional == 0)
+            if(light.Direccional == 1)
             {
-                vPos = new Vector3[8];
+                //El gizmo para las luces direccionales es una flecha.
+                vPos = new Vector3[13];
+                //Base de la flecha.
+                vPos[0] = new Vector3(0.5f, -1f - 0.5f, -0.5f) * s * 0.75f;
+                vPos[1] = new Vector3(0.5f, -1f - 0.5f, 0.5f) * s * 0.75f;
+                vPos[2] = new Vector3(-0.5f, -1f - 0.5f, 0.5f) * s * 0.75f;
+                vPos[3] = new Vector3(-0.5f, -1f - 0.5f, -0.5f) * s * 0.75f;
+                vPos[4] = new Vector3(0.5f, 1f - 0.5f, -0.5f) * s * 0.75f;
+                vPos[5] = new Vector3(0.5f, 1f - 0.5f, 0.5f) * s * 0.75f;
+                vPos[6] = new Vector3(-0.5f, 1f - 0.5f, 0.5f) * s * 0.75f;
+                vPos[7] = new Vector3(-0.5f, 1f - 0.5f, -0.5f) * s * 0.75f;
+                //Punta de la flecha.
+                vPos[8] = new Vector3(-1f, -1f + 0.5f, -1f) * s * 0.75f;
+                vPos[9] = new Vector3(1f, -1f + 0.5f, -1f) * s * 0.75f;
+                vPos[10] = new Vector3(0f, 1f + 0.5f, 0f) * s * 0.75f;
+                vPos[11] = new Vector3(1f, -1f + 0.5f, 1f) * s * 0.75f;
+                vPos[12] = new Vector3(-1f, -1f + 0.5f, 1f) * s * 0.75f;
+                
+                indices = new uint[]{
+                    1, 3, 0,
+                    7, 5, 4,
+                    4, 1, 0,
+                    5, 2, 1,
+                    2, 7, 3,
+                    0, 7, 4,
+                    1, 2, 3,
+                    7, 6, 5,
+                    4, 5, 1,
+                    5, 6, 2,
+                    2, 6, 7,
+                    0, 3, 7,
+                    ////////
+                    8, 10, 9,
+                    9, 10, 11,
+                    11, 10, 12,
+                    12, 10, 8,
+                    9, 12, 8,
+                    9, 11, 12
+                };
+            }
+            else if(light.ConeAngle < 180.0f)
+            {
+                //El gizmo para las luces spot es un cono.
+                vPos = new Vector3[5];
+                vPos[0] = new Vector3(-1f, -1f, -1f) * s;
+                vPos[1] = new Vector3(1f, -1f, -1f) * s;
+                vPos[2] = new Vector3(0f, 1f, 0f) * s;
+                vPos[3] = new Vector3(1f, -1f, 1f) * s;
+                vPos[4] = new Vector3(-1f, -1f, 1f) * s;
 
+                indices = new uint[]{
+                    0, 2, 1,
+                    1, 2, 3,
+                    3, 2, 4,
+                    4, 2, 0,
+                    1, 4, 0,
+                    1, 3, 4
+                };
+            }
+            else
+            {
+                //El gizmo para las luces puntuales es un cubo.
+                vPos = new Vector3[8];
                 vPos[0] = new Vector3(0.5f, -0.5f, -0.5f) * s;
                 vPos[1] = new Vector3(0.5f, -0.5f, 0.5f) * s;
                 vPos[2] = new Vector3(-0.5f, -0.5f, 0.5f) * s;
                 vPos[3] = new Vector3(-0.5f, -0.5f, -0.5f) * s;
-
                 vPos[4] = new Vector3(0.5f, 0.5f, -0.5f) * s;
                 vPos[5] = new Vector3(0.5f, 0.5f, 0.5f) * s;
                 vPos[6] = new Vector3(-0.5f, 0.5f, 0.5f) * s;
@@ -47,25 +107,6 @@ namespace CGUNS.Primitives
                     0, 3, 7
                 };
             }
-            else
-            {
-                vPos = new Vector3[5];
-                vPos[0] = new Vector3(-1f, -1f, -1f) * s;
-                vPos[1] = new Vector3(1f, -1f, -1f) * s;
-                vPos[2] = new Vector3(0f, 1f, 0f) * s;
-                vPos[3] = new Vector3(1f, -1f, 1f) * s;
-                vPos[4] = new Vector3(-1f, -1f, 1f) * s;
-
-                indices = new uint[]{
-                    0, 2, 1,
-                    1, 2, 3,
-                    3, 2, 4,
-                    4, 2, 0,
-                    1, 4, 0,
-                    1, 3, 4
-                };
-            }
-
 
         }
 
@@ -114,7 +155,7 @@ namespace CGUNS.Primitives
             Matrix4 modelMatrix;
 
             //Si es Direccional, la roto para que apunte en la direccion correcta
-            if (light.Direccional == 1)
+            if (light.Direccional == 1 || light.ConeAngle < 180)
             {
                 //Direccion a la cual debe apuntar el nuevo eje Y (UP) local
                 Vector3 upDir = new Vector3(light.Position.X, light.Position.Y, light.Position.Z).Normalized();

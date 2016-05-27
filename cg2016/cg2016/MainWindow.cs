@@ -86,7 +86,7 @@ namespace cg2016
             luces[0].Idiffuse = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
             luces[0].ConeAngle = 180.0f;
-            luces[0].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[0].Enabled = 1;
             luces[0].Direccional = 0;
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
@@ -110,7 +110,7 @@ namespace cg2016
             luces[2].ConeAngle = 10.0f;
             luces[2].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[2].Enabled = 0;
-            luces[2].Direccional = 1;
+            luces[2].Direccional = 0;
             luces[2].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             luces[3] = new Light();
@@ -119,9 +119,9 @@ namespace cg2016
             luces[3].Idiffuse = new Vector3(0.0f, 0.0f, 0.5f);
             luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
             luces[3].ConeAngle = 20.0f;
-            luces[3].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
+            luces[3].ConeDirection = new Vector3(0.0f, 0.0f, 1.0f);
             luces[3].Enabled = 0;
-            luces[3].Direccional = 1;
+            luces[3].Direccional = 0;
             luces[3].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             //Configuracion de Materiales

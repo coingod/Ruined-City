@@ -101,9 +101,9 @@ float blinnPhongSpecular(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNo
 //Calculo de la iluminacion por metodo de Phong
 vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir) 
 {
-	float fAtt;
+	float fAtt = 1.0;
 	vec3 LightPos;
-	float falloff;
+	float falloff = 1.0;
 
 	if(light.direccional==1)
 	{ 
@@ -118,6 +118,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 		vec3 coneDirection = normalize(TBN * (mat3(viewMatrix) * light.coneDirection) );
 		vec3 rayDirection = -LightPos;
 		float lightToSurfaceAngle = degrees(acos(dot(rayDirection, coneDirection)));
+		//Dentro del cono
 		if (lightToSurfaceAngle <= light.coneAngle) 
 		{ 
 			//Atenuacion a la distancia
@@ -127,7 +128,8 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 			//Atenuacion de los bordes 
 			float innerCone = light.coneAngle*0.75;
 			falloff = smoothstep(light.coneAngle, innerCone, lightToSurfaceAngle);
-		} else 
+		}//Fuera del cono 
+		else 
 			fAtt = 0.0;
 	}
 	
