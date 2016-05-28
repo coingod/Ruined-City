@@ -31,7 +31,9 @@ namespace cg2016
 
         private ShaderProgram sProgram; //Nuestro programa de shaders.
         private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
+        private ShaderProgram sProgramParticles; //Nuestro programa de shaders.
 
+        private ParticleEmitter particles;
         private ObjetoGrafico objeto; //Nuestro objeto a dibujar.
         private Light[] luces;
         private Material[] materiales = new Material[] { Material.Default, Material.WhiteRubber, Material.Obsidian, Material.Bronze, Material.Gold, Material.Jade, Material.Brass };
@@ -51,14 +53,22 @@ namespace cg2016
         private void glControl3_Load(object sender, EventArgs e)
         {            
             logContextInfo(); //Mostramos info de contexto.
-            SetupShaders(); //Creamos los shaders y el programa de shader
+
+            //Creamos los shaders y el programa de shader
+            SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
+            SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
+            SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
 
             //Configuracion de Ejes
             ejes_globales = new Ejes();
             //ejes_locales = new Ejes(0.4f);
             ejes_globales.Build(sProgramUnlit);
             //ejes_locales.Build(sProgramUnlit);
-
+            
+            //Configuracion de los sistemas de particulas
+            particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
+            particles.Build(sProgramParticles);
+            
             //Carga y configuracion de Objetos
             objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/supercube.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
@@ -131,21 +141,28 @@ namespace cg2016
 
             //Configuracion del Timer para redibujar la escena cada 10ms
             timer = new System.Timers.Timer(10);
-            timer.Elapsed += OnTimedEvent;
+            timer.Elapsed += Update;
             timer.AutoReset = true;
             timer.Enabled = true;
         }
 
-        //Se ejecuta cada tick del Timer y redibuja la escena. Sirve para animar
-        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        //Se ejecuta cada tick del Timer, actualiza a las entidades dinamicas y redibuja la escena.
+        private void Update(Object source, System.Timers.ElapsedEventArgs e)
         {
-            Console.WriteLine("Timer");
+            //Console.WriteLine("Timer");
+            //Incremento el tiempo transcurrido
             time += 0.01f;
+
+            //Animacion de una luz
             float blend = ((float)Math.Sin(time) + 1)/2;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 2.0f, 0.0f), new Vector3(4.0f, 2.0f, 0.0f), blend);
             luces[1].Position = new Vector4(pos, 1.0f);
-            glControl3.Invalidate(); //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
 
+            //Actualizo los sistemas de particulas
+            particles.Update();
+
+            //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
+            glControl3.Invalidate();
         }
 
         private void updateDebugInfo()
@@ -211,7 +228,6 @@ namespace cg2016
             sProgram.Activate(); //Activamos el programa de shaders
 
             //Configuracion de los valores uniformes del shader
-            
             sProgram.SetUniformValue("projMatrix", projMatrix);
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             sProgram.SetUniformValue("normalMatrix", normalMatrix);
@@ -264,6 +280,16 @@ namespace cg2016
             
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
+            
+            //THIRD SHADER (Para dibujar las particulas)
+            sProgramParticles.Activate(); //Activamos el programa de shaders
+            sProgramParticles.SetUniformValue("projMatrix", projMatrix);
+            sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
+            sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
+            //Dibujamos el sistema de particulas
+            particles.Dibujar(sProgramParticles);
+            sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
+            
             //ejes_locales.Dibujar(sProgramUnlit);
             //Console.WriteLine("Camera Position: "+ myCamera.getPosition().ToString());
 
@@ -462,27 +488,26 @@ namespace cg2016
             }
         }
 
-        private void SetupShaders()
+        private void SetupShaders(String vShaderName, String fShaderName, out ShaderProgram sProgram)
         {
-            //===== SHADER PARA LOS EJES =====
             //1. Creamos los shaders, a partir de archivos.
-            String vShaderFile = "files/shaders/vunlit.glsl";
-            String fShaderFile = "files/shaders/funlit.glsl";
+            String vShaderFile = "files/shaders/" + vShaderName;
+            String fShaderFile = "files/shaders/" + fShaderName;
             Shader vShader = new Shader(ShaderType.VertexShader, vShaderFile);
             Shader fShader = new Shader(ShaderType.FragmentShader, fShaderFile);
             //2. Los compilamos
             vShader.Compile();
             fShader.Compile();
             //3. Creamos el Programa de shader con ambos.
-            sProgramUnlit = new ShaderProgram();
-            sProgramUnlit.AddShader(vShader);
-            sProgramUnlit.AddShader(fShader);
+            sProgram = new ShaderProgram();
+            sProgram.AddShader(vShader);
+            sProgram.AddShader(fShader);
             //4. Construimos (linkeamos) el programa.
-            sProgramUnlit.Build();
+            sProgram.Build();
             //5. Ya podemos eliminar los shaders compilados. (Si no los vamos a usar en otro programa)
             vShader.Delete();
             fShader.Delete();
-
+            /*
             //===== SHADER DE LUCES =====
             //1. Creamos los shaders, a partir de archivos.
             //vShaderFile = "files/shaders/vmultiplesluces.glsl";
@@ -503,6 +528,7 @@ namespace cg2016
             //5. Ya podemos eliminar los shaders compilados. (Si no los vamos a usar en otro programa)
             vShader.Delete();
             fShader.Delete();
+            */
         }
 
         private void logContextInfo()
