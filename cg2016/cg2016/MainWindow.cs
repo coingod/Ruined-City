@@ -93,7 +93,7 @@ namespace cg2016
             luces[0] = new Light();
             luces[0].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
             luces[0].Iambient = new Vector3(0.1f, 0.0f, 0.1f);
-            luces[0].Idiffuse = new Vector3(1.0f, 0.0f, 0.0f);
+            luces[0].Idiffuse = new Vector3(1.0f, 89.0f, 0.0f);
             luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
