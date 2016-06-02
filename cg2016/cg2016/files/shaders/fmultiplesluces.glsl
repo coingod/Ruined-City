@@ -11,8 +11,7 @@ struct Material {
 struct Light {
 	vec4 position;
 	vec3 Ia;
-	vec3 Id;
-	vec3 Is;
+	vec3 Ip;
 	float coneAngle;
 	vec3 coneDirection;
 	int enabled;
@@ -66,7 +65,7 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 
 	//DIFUSSE
 	float diffuseCoefficient = max(0.0, dot(surfaceNormal, surfaceToLight));
-	vec3 diffuse = light.Id * material.Kd * diffuseCoefficient * vec3(colorTex);
+	vec3 diffuse = light.Ip * material.Kd * diffuseCoefficient * vec3(colorTex);
 
 	//SPECULAR
 	float specularCoefficient = 0.0;
@@ -76,7 +75,7 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 		float cosAngle = max(0.0, dot(surfaceToCamera, reflectionVector));
 		specularCoefficient = pow(cosAngle, material.Shininess);
 	}
-	vec3 specular = light.Is * material.Ks * specularCoefficient;
+	vec3 specular = light.Ip * material.Ks * specularCoefficient;
 	return ambient + attenuation * (diffuse + specular) * light.enabled;
 }
 

@@ -143,7 +143,7 @@ namespace CGUNS.Primitives
             if(light.Enabled == 1)
             {
                 //figColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-                figColor = new Vector4(light.Idiffuse, 1.0f);
+                figColor = new Vector4(light.Ipuntual, 1.0f);
                 sProgram.SetUniformValue("figureColor", figColor);
             }
             else
