@@ -82,7 +82,7 @@ namespace cg2016
             tex3 = CargarTextura("files/Texturas/BrickWallHD_s.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
-            gl.ClearColor(Color.Black); //Configuro el Color de borrado.
+            gl.ClearColor(Color.LightGray); //Configuro el Color de borrado.
             gl.Enable(EnableCap.DepthTest);
             //gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
@@ -92,7 +92,7 @@ namespace cg2016
             //Roja
             luces[0] = new Light();
             luces[0].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
-            luces[0].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[0].Iambient = new Vector3(1f, 1f, 1f);
             luces[0].Ipuntual = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
@@ -251,7 +251,7 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
                 sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
-            
+
             //Configuracion de las transformaciones del objeto a espacio de mundo
             //Transform transform = new Transform();
             //transform.Position = new Vector3(-1,-1,-1);
@@ -260,6 +260,12 @@ namespace cg2016
             //foreach(Mesh m in objeto.Meshes)
             //m.Transform = transform;
 
+            //objeto.transform.scale = new Vector3(0.5f, 1f, 0.5f);
+            //objeto.transform.Rotate(new Vector3(0.0f, 3.14f / 4, 0.0f));
+            //objeto.transform.RotateAround(new Vector3(2f,0f,0f), Vector3.UnitY, 0.01f);
+            //objeto.transform.LookAt(new Vector3(1.0f, 1.0f, 1.0f));
+
+            //Console.WriteLine(objeto.transform.forward);
             //Dibujamos el Objeto
             objeto.Dibujar(sProgram, mvMatrix);
             if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);

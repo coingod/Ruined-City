@@ -439,6 +439,7 @@ namespace CGUNS.Meshes.FaceVertexList
 
         public override void Dibujar(ShaderProgram sProgram, Matrix4 mvMatrix)
         {
+            sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
             //mvMatrix = Matrix4.Mult(transform.LocalToWorld, mvMatrix);
             //sProgram.SetUniformValue("MV", mvMatrix);
             //sProgram.SetUniformValue("MN", Matrix4.Transpose(Matrix4.Invert(mvMatrix)));
@@ -459,6 +460,7 @@ namespace CGUNS.Meshes.FaceVertexList
 
         public override void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix)
         {
+            sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
             //mvMatrix = Matrix4.Mult(transform.LocalToWorld, mvMatrix);
             //sProgram.SetUniformValue("MV", mvMatrix);
             //sProgram.SetUniformValue("MN", Matrix4.Transpose(Matrix4.Invert(mvMatrix)));
