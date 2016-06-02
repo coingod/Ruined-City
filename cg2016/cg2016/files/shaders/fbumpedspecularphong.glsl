@@ -11,8 +11,7 @@ in vec3 fnormal;
 struct Light {
 	vec4 position; //Light position in World Space
 	vec3 Ia;
-	vec3 Id;
-	vec3 Is;
+	vec3 Ip;
 	float coneAngle;
 	vec3 coneDirection; //Cone direction in World Space
 	int enabled;
@@ -141,7 +140,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 
 	//Difuso
 	float sDotN = max( dot(LightPos, norm), 0.0 );
-	vec3 diffuse = sDotN * light.Id * material.Kd * diffR;
+	vec3 diffuse = sDotN * light.Ip * material.Kd * diffR;
 
 	//Especular
 	vec3 spec = specMap;

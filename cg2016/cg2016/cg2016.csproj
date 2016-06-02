@@ -239,6 +239,12 @@
     <Content Include="files\Texturas\chesterfield_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\no_n.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\no_s.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\sonic.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

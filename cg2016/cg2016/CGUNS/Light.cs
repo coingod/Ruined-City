@@ -11,8 +11,7 @@ namespace CGUNS
     {
         Vector4 position;
         Vector3 iambient;
-        Vector3 idiffuse;
-        Vector3 ispecular;
+        Vector3 ipuntual;
         float coneAngle;
         Vector3 coneDirection;
         int enabled;
@@ -53,28 +52,17 @@ namespace CGUNS
                 this.iambient = value;
             }
         }
-        public Vector3 Idiffuse
+        public Vector3 Ipuntual
         {
             get
             {
-                return idiffuse;
+                return ipuntual;
             }
             set
             {
-                this.idiffuse = value;
+                this.ipuntual = value;
             }
-        }
-        public Vector3 Ispecular
-        {
-            get
-            {
-                return ispecular;
-            }
-            set
-            {
-                this.ispecular = value;
-            }
-        }
+        }        
         public Vector3 ConeDirection
         {
             get

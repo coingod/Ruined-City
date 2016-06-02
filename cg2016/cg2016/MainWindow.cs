@@ -89,45 +89,41 @@ namespace cg2016
             //Configuracion de las Luces
             
             luces = new Light[4];
-
+            //Roja
             luces[0] = new Light();
             luces[0].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
-            luces[0].Iambient = new Vector3(0.1f, 0.0f, 0.1f);
-            luces[0].Idiffuse = new Vector3(1.0f, 0.0f, 0.0f);
-            luces[0].Ispecular = new Vector3(1.0f, 1.0f, 1.0f);
+            luces[0].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[0].Ipuntual = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[0].Enabled = 1;
             luces[0].Direccional = 0;
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
-
+            //Direccional blanca
             luces[1] = new Light();
             luces[1].Position = new Vector4(1.0f, 2.0f, 1.0f, 1.0f);
-            luces[1].Iambient = new Vector3(0f, 0f, 0f);
-            luces[1].Idiffuse = new Vector3(1f, 1f, 1f);
-            luces[1].Ispecular = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[1].Ipuntual = new Vector3(1f, 1f, 1f);
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 0;
             luces[1].Direccional = 1;
             luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
-
+            //Amarilla
             luces[2] = new Light();
             luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f); 
-            luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.0f);
-            luces[2].Idiffuse = new Vector3(1f, 1f, 0.0f);
-            luces[2].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
+            luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[2].Ipuntual = new Vector3(1f, 1f, 0.0f);
             luces[2].ConeAngle = 10.0f;
             luces[2].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[2].Enabled = 0;
             luces[2].Direccional = 0;
             luces[2].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
-
+            //Azul
             luces[3] = new Light();
             luces[3].Position = new Vector4(0.0f, 0.0f, -3.0f, 1.0f);
-            luces[3].Iambient = new Vector3(0.0f, 0.0f, 0.1f);
-            luces[3].Idiffuse = new Vector3(0.0f, 0.0f, 0.5f);
-            luces[3].Ispecular = new Vector3(0.8f, 0.8f, 0.8f);
+            luces[3].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[3].Ipuntual = new Vector3(0.0f, 0.0f, 0.5f);
             luces[3].ConeAngle = 20.0f;
             luces[3].ConeDirection = new Vector3(0.0f, 0.0f, 1.0f);
             luces[3].Enabled = 0;
@@ -249,8 +245,7 @@ namespace cg2016
             {
                 sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
                 sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
-                sProgram.SetUniformValue("allLights[" + i + "].Id", luces[i].Idiffuse);
-                sProgram.SetUniformValue("allLights[" + i + "].Is", luces[i].Ispecular);
+                sProgram.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
                 sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
                 sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
