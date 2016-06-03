@@ -42,11 +42,12 @@ namespace cg2016
         private QSphericalCamera myCamera;  //Camara
         private Rectangle viewport; //Viewport a utilizar (Porcion del glControl en donde voy a dibujar).
         private Ejes ejes_globales; // Ejes de referencia globales
-        //private Ejes ejes_locales; // Ejes de referencia laocales al cubo
+        private Ejes ejes_locales; // Ejes de referencia locales al objeto
 
         private bool toggleNormals = false;
         private bool toggleWires = false;
         private bool drawGizmos = true;
+        private bool toggleParticles = true;
 
         private int transformaciones = 0;
 		private int tex1,tex2, tex3, tex4;
@@ -58,36 +59,40 @@ namespace cg2016
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
             SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
-
-            //Configuracion de Ejes
-            ejes_globales = new Ejes();
-            //ejes_locales = new Ejes(0.4f);
-            ejes_globales.Build(sProgramUnlit);
-            //ejes_locales.Build(sProgramUnlit);
-            
+                        
             //Configuracion de los sistemas de particulas
             particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
             particles.Build(sProgramParticles);
             
             //Carga y configuracion de Objetos
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/supercube.obj"); //Construimos los objetos que voy a dibujar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/humbird.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            objeto.transform.position = new Vector3(-1f, 1f, 0f);
+
+            //Carga de Texturas
             GL.ActiveTexture(TextureUnit.Texture0);
-			tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
-            //tex1 = CargarTextura("files/Texturas/chesterfield_d.png");
+			//tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
+            tex1 = CargarTextura("files/Texturas/no_s.jpg");
             GL.ActiveTexture(TextureUnit.Texture1);
-            tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
-            //tex2 = CargarTextura("files/Texturas/chesterfield_n.png");
+            //tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
+            tex2 = CargarTextura("files/Texturas/no_n.jpg");
             GL.ActiveTexture(TextureUnit.Texture2);
-            tex3 = CargarTextura("files/Texturas/BrickWallHD_s.png");
+            //tex3 = CargarTextura("files/Texturas/BrickWallHD_s.png");
+            tex3 = CargarTextura("files/Texturas/no_s.jpg");
+
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
-            gl.ClearColor(Color.LightGray); //Configuro el Color de borrado.
+            gl.ClearColor(Color.Black); //Configuro el Color de borrado.
             gl.Enable(EnableCap.DepthTest);
             //gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
+            //Configuracion de Ejes
+            ejes_globales = new Ejes();
+            ejes_locales = new Ejes(0.5f, objeto);
+            ejes_globales.Build(sProgramUnlit);
+            ejes_locales.Build(sProgramUnlit);
+
             //Configuracion de las Luces
-            
             luces = new Light[4];
             //Roja
             luces[0] = new Light();
@@ -204,23 +209,8 @@ namespace cg2016
 
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit); //Borramos el contenido del glControl.
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
-
-            if(drawGizmos)
-            {
-                //FIRST SHADER (Para dibujar los gizmos)
-                sProgramUnlit.Activate(); //Activamos el programa de shaders
-                sProgramUnlit.SetUniformValue("projMatrix", projMatrix);
-                sProgramUnlit.SetUniformValue("modelMatrix", modelMatrix);
-                sProgramUnlit.SetUniformValue("viewMatrix", viewMatrix);
-                //Dibujamos los ejes de referencia.
-                ejes_globales.Dibujar(sProgramUnlit);
-                //Dibujamos la representacion visual de la luz.
-                for (int i = 0; i < luces.Length; i++)
-                    luces[i].gizmo.Dibujar(sProgramUnlit);
-                sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
-            }
-
-            //SECOND SHADER (Para dibujar objetos)
+            
+            //FIRST SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
 
             //Configuracion de los valores uniformes del shader
@@ -252,47 +242,57 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
 
-            //Configuracion de las transformaciones del objeto a espacio de mundo
-            //Transform transform = new Transform();
-            //transform.Position = new Vector3(-1,-1,-1);
-            //transform.Rotate(new Vector3(3.14f / 2f, 0f ,0f));
-            //transform.Rotation = Quaternion.FromAxisAngle(Vector3.UnitX, 3.14f/2f);
-            //foreach(Mesh m in objeto.Meshes)
-            //m.Transform = transform;
-
+            //Configuracion de las transformaciones del objeto en espacio de mundo
+            
             //objeto.transform.scale = new Vector3(0.5f, 1f, 0.5f);
-            //objeto.transform.Rotate(new Vector3(0.0f, 3.14f / 4, 0.0f));
-            //objeto.transform.RotateAround(new Vector3(2f,0f,0f), Vector3.UnitY, 0.01f);
-            //objeto.transform.LookAt(new Vector3(1.0f, 1.0f, 1.0f));
+            //objeto.transform.position = new Vector3(2f, 0f, 0f);
+            //objeto.transform.scale = new Vector3(0.5f, 0.5f, 0.5f);
+            //objeto.transform.rotation = Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2);
+            //objeto.transform.Rotate(new Vector3(0.0f, 0.1f, 0.0f));
+            objeto.transform.RotateAround(new Vector3(0f,0f,0f), Vector3.UnitY, 0.025f);
+            //objeto.transform.LookAt(myCamera.getPosition()); //El objeto mira siempre a la camara
+            //objeto.transform.LookAt(luces[1].Position.Xyz); //El objeto mira siempre a la luz
 
+            //Debug
+            //Console.WriteLine(objeto.transform.position);
+            //Console.WriteLine(objeto.transform.rotation);
+            //Console.WriteLine(objeto.transform.scale);
             //Console.WriteLine(objeto.transform.forward);
+            //Console.WriteLine(objeto.transform.left);
+            //Console.WriteLine(objeto.transform.up);
+
             //Dibujamos el Objeto
-            objeto.Dibujar(sProgram, mvMatrix);
-            if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);
-
-            //transform.Rotate(new Vector3(3.14f / 2f, 0f ,0f));
-            //transform.Translate(new Vector3(1,1,1));
-            //foreach(Mesh m in objeto.Meshes)
-              //m.Transform = transform;
-
-            //Dibujamos el objeto
-            //objeto.Dibujar(sProgram, mvMatrix);
-            //if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);
+            objeto.Dibujar(sProgram, viewMatrix);
+            if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
             
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
             
-            //THIRD SHADER (Para dibujar las particulas)
+            //SECOND SHADER (Para dibujar las particulas)
             sProgramParticles.Activate(); //Activamos el programa de shaders
             sProgramParticles.SetUniformValue("projMatrix", projMatrix);
             sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
             sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
             //Dibujamos el sistema de particulas
-            particles.Dibujar(sProgramParticles);
+            if(toggleParticles)
+                particles.Dibujar(sProgramParticles);
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
-            
-            //ejes_locales.Dibujar(sProgramUnlit);
-            //Console.WriteLine("Camera Position: "+ myCamera.getPosition().ToString());
+
+            if (drawGizmos)
+            {
+                //THIRD SHADER (Para dibujar los gizmos)
+                sProgramUnlit.Activate(); //Activamos el programa de shaders
+                sProgramUnlit.SetUniformValue("projMatrix", projMatrix);
+                sProgramUnlit.SetUniformValue("modelMatrix", modelMatrix);
+                sProgramUnlit.SetUniformValue("viewMatrix", viewMatrix);
+                //Dibujamos los ejes de referencia.
+                ejes_globales.Dibujar(sProgramUnlit);
+                ejes_locales.Dibujar(sProgramUnlit);
+                //Dibujamos la representacion visual de la luz.
+                for (int i = 0; i < luces.Length; i++)
+                    luces[i].gizmo.Dibujar(sProgramUnlit);
+                sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
+            }
 
             glControl3.SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
         }
@@ -399,6 +399,9 @@ namespace cg2016
                     break;
                 case Keys.G:
                     drawGizmos = !drawGizmos;
+                    break;
+                case Keys.P:
+                    toggleParticles = !toggleParticles;
                     break;
 
                 //ON/OFF LUCES

@@ -12,30 +12,12 @@ namespace CGUNS.Meshes
     {
         List<Mesh> meshes;
         List<Vector3> meshesColor;
-        Transform tr;
+        Transform rootTransform;
 
         public ObjetoGrafico()
         {
             meshes = new List<Mesh>();
-            tr = new Transform();
-        }
-
-        public Transform transform
-        {
-            get { return tr; }
-            set
-            {
-                tr = value;
-                UpdateAllTransforms();
-            }
-        }
-
-        private void UpdateAllTransforms()
-        {
-            foreach (Mesh m in meshes)
-            {
-                m.Transform = tr;
-            }
+            transform = new Transform();
         }
 
         public ObjetoGrafico(string path)
@@ -49,6 +31,24 @@ namespace CGUNS.Meshes
             foreach (Mesh m in meshes)
             {
                 meshesColor.Add(new Vector3((float)rand2.NextDouble(), (float)rand2.NextDouble(), (float)rand2.NextDouble()));
+            }
+        }
+
+        public Transform transform
+        {
+            get { return rootTransform; }
+            set
+            {
+                rootTransform = value;
+                UpdateAllTransforms();
+            }
+        }
+
+        private void UpdateAllTransforms()
+        {
+            foreach (Mesh m in meshes)
+            {
+                m.Transform = rootTransform;
             }
         }
 

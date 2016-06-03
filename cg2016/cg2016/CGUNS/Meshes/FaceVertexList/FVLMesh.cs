@@ -437,12 +437,10 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindVertexArray(0);
         }
 
-        public override void Dibujar(ShaderProgram sProgram, Matrix4 mvMatrix)
+        public override void Dibujar(ShaderProgram sProgram, Matrix4 viewMatrix)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
-            //mvMatrix = Matrix4.Mult(transform.LocalToWorld, mvMatrix);
-            //sProgram.SetUniformValue("MV", mvMatrix);
-            //sProgram.SetUniformValue("MN", Matrix4.Transpose(Matrix4.Invert(mvMatrix)));
+            sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?
             int count;  // Cuantos?
@@ -458,12 +456,10 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindVertexArray(0); //Deseleccionamos el VAO
         }
 
-        public override void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix)
+        public override void DibujarNormales(ShaderProgram sProgram, Matrix4 viewMatrix)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
-            //mvMatrix = Matrix4.Mult(transform.LocalToWorld, mvMatrix);
-            //sProgram.SetUniformValue("MV", mvMatrix);
-            //sProgram.SetUniformValue("MN", Matrix4.Transpose(Matrix4.Invert(mvMatrix)));
+            sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?
             int count;  // Cuantos?
