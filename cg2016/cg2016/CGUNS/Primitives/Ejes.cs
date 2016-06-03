@@ -5,6 +5,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using gl = OpenTK.Graphics.OpenGL.GL;
 using CGUNS.Shaders;
+using CGUNS.Meshes;
 
 namespace CGUNS.Primitives
 {
@@ -12,9 +13,11 @@ namespace CGUNS.Primitives
     {
         private Vector3[] vPos; //Las posiciones de los vertices.
         private uint[] indices;  //Los indices para formar las caras.
+        private ObjetoGrafico objeto;
 
-        public Ejes( float s = 1.0f )
+        public Ejes(float s = 1.0f, ObjetoGrafico o = null)
         {
+            objeto = o;
             vPos = new Vector3[4];
             vPos[0] = new Vector3(0.0f, 0.0f, 0.0f);
             vPos[1] = new Vector3(s, 0.0f, 0.0f);
@@ -59,6 +62,10 @@ namespace CGUNS.Primitives
 
             gl.BindVertexArray(h_VAO); //Seleccionamos el VAO a utilizar.
             //gl.DrawElements(primitive, count, indexType, offset); //Dibujamos utilizando los indices del VAO.
+
+            //Obtengo la posicion y rotacion del objeto asociado si existe
+            if(objeto != null)
+                sProgram.SetUniformValue("modelMatrix", objeto.transform.localToWorld.ClearScale());
 
             figColor = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
             sProgram.SetUniformValue("figureColor", figColor);
