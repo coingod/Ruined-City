@@ -78,6 +78,12 @@
     <Compile Include="CGUNS\Shaders\ShaderProgram.cs" />
     <Compile Include="CGUNS\ParticleEmitter.cs" />
     <Compile Include="CGUNS\Transform.cs" />
+    <Compile Include="MainSupercube.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainSupercube.Designer.cs">
+      <DependentUpon>MainSupercube.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
