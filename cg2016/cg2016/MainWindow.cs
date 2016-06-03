@@ -49,9 +49,9 @@ namespace cg2016
         private bool drawGizmos = true;
 
         private int transformaciones = 0;
-		private int tex1,tex2, tex3, tex4;
+        private int tex1, tex2, tex3;
         private void glControl3_Load(object sender, EventArgs e)
-        {            
+        {
             logContextInfo(); //Mostramos info de contexto.
 
             //Creamos los shaders y el programa de shader
@@ -64,16 +64,16 @@ namespace cg2016
             //ejes_locales = new Ejes(0.4f);
             ejes_globales.Build(sProgramUnlit);
             //ejes_locales.Build(sProgramUnlit);
-            
+
             //Configuracion de los sistemas de particulas
             particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
             particles.Build(sProgramParticles);
-            
+
             //Carga y configuracion de Objetos
             objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/supercube.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             GL.ActiveTexture(TextureUnit.Texture0);
-			tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
+            tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
             //tex1 = CargarTextura("files/Texturas/chesterfield_d.png");
             GL.ActiveTexture(TextureUnit.Texture1);
             tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
@@ -87,7 +87,7 @@ namespace cg2016
             //gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             //Configuracion de las Luces
-            
+
             luces = new Light[4];
             //Roja
             luces[0] = new Light();
@@ -111,7 +111,7 @@ namespace cg2016
             luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Amarilla
             luces[2] = new Light();
-            luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f); 
+            luces[2].Position = new Vector4(0.0f, -3.0f, 0.0f, 1.0f);
             luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[2].Ipuntual = new Vector3(1f, 1f, 0.0f);
             luces[2].ConeAngle = 10.0f;
@@ -132,7 +132,7 @@ namespace cg2016
 
             //Configuracion de Materiales
             material = materiales[materialIndex];
-            
+
             updateDebugInfo();
 
             //Configuracion del Timer para redibujar la escena cada 10ms
@@ -150,7 +150,7 @@ namespace cg2016
             time += 0.01f;
 
             //Animacion de una luz
-            float blend = ((float)Math.Sin(time) + 1)/2;
+            float blend = ((float)Math.Sin(time) + 1) / 2;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 2.0f, 0.0f), new Vector3(4.0f, 2.0f, 0.0f), blend);
             luces[1].Position = new Vector4(pos, 1.0f);
 
@@ -173,7 +173,7 @@ namespace cg2016
             }
 
             String title = "CGLabo2016 [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
-                "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos + 
+                "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos +
                 "] [Lights: ";
 
             for (int i = 0; i < luces.Length; i++)
@@ -190,9 +190,9 @@ namespace cg2016
 
         private void glControl3_Paint(object sender, PaintEventArgs e)
         {
-            if(toggleWires)
-              gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line); //De cada poligono solo dibujo las lineas de contorno (wireframe).
-              else gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill); 
+            if (toggleWires)
+                gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line); //De cada poligono solo dibujo las lineas de contorno (wireframe).
+            else gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
             Matrix4 viewMatrix = myCamera.getViewMatrix();
@@ -205,7 +205,7 @@ namespace cg2016
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit); //Borramos el contenido del glControl.
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
 
-            if(drawGizmos)
+            if (drawGizmos)
             {
                 //FIRST SHADER (Para dibujar los gizmos)
                 sProgramUnlit.Activate(); //Activamos el programa de shaders
@@ -239,7 +239,7 @@ namespace cg2016
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
             sProgram.SetUniformValue("SpecularMapTex", 2);
-            
+
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
             {
@@ -251,68 +251,46 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
                 sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
-            
-            //Configuracion de las transformaciones del objeto a espacio de mundo
-            //Transform transform = new Transform();
-            //transform.Position = new Vector3(-1,-1,-1);
-            //transform.Rotate(new Vector3(3.14f / 2f, 0f ,0f));
-            //transform.Rotation = Quaternion.FromAxisAngle(Vector3.UnitX, 3.14f/2f);
-            //foreach(Mesh m in objeto.Meshes)
-            //m.Transform = transform;
 
             //Dibujamos el Objeto
             objeto.Dibujar(sProgram, mvMatrix);
             if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);
 
-            //transform.Rotate(new Vector3(3.14f / 2f, 0f ,0f));
-            //transform.Translate(new Vector3(1,1,1));
-            //foreach(Mesh m in objeto.Meshes)
-              //m.Transform = transform;
-
-            //Dibujamos el objeto
-            //objeto.Dibujar(sProgram, mvMatrix);
-            //if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);
-            
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
-            
             //THIRD SHADER (Para dibujar las particulas)
             sProgramParticles.Activate(); //Activamos el programa de shaders
             sProgramParticles.SetUniformValue("projMatrix", projMatrix);
             sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
             sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
             //Dibujamos el sistema de particulas
-            particles.Dibujar(sProgramParticles);
+            //particles.Dibujar(sProgramParticles);
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
-            
+
             //ejes_locales.Dibujar(sProgramUnlit);
-            //Console.WriteLine("Camera Position: "+ myCamera.getPosition().ToString());
 
             glControl3.SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
         }
 
-		private int CargarTextura(String imagenTex)
-		{
-			int texId = GL.GenTexture();
-			GL.BindTexture(TextureTarget.Texture2D, texId);
+        private int CargarTextura(String imagenTex)
+        {
+            int texId = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texId);     
 
+            Bitmap bitmap = new Bitmap(Image.FromFile(imagenTex));
 
-			Bitmap bitmap = new Bitmap(Image.FromFile(imagenTex));
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                             ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-			BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-							 ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
 
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
-					OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-			bitmap.UnlockBits(data);
-			return texId;
-
-		}
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            bitmap.UnlockBits(data);
+            return texId;
+        }
 
         private void glControl3_Resize(object sender, EventArgs e)
         {   //Actualizamos el viewport para que dibuje en el centro de la pantalla.
@@ -334,6 +312,8 @@ namespace cg2016
             glControl3.Invalidate(); //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
         }
 
+        #region Entrada por teclado
+
         private void glControl3_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             e.IsInputKey = true;
@@ -342,117 +322,72 @@ namespace cg2016
         private void glControl3_KeyPressed(object sender, KeyEventArgs e)
         {
             if (transformaciones == 1) transformaciones = 0;
-            switch (e.KeyCode)
+
+            //De 48 a 57 estan 0 a 9. De 96 a 105 numerico.
+            if (e.Control && (int)e.KeyCode >= 48 && (int)e.KeyCode <= 57)
             {
-                case Keys.Down:
-                case Keys.S:
-                    myCamera.Abajo();
-                    break;
-
-                case Keys.Up:
-                case Keys.W:
-                    myCamera.Arriba();
-                    break;
-
-                
-                case Keys.Q:
-                    //myCamera.Abajo2();
-                    break;
-
-                
-                case Keys.E:
-                    //myCamera.Arriba2();
-                    break;
-
-                case Keys.Right:
-                case Keys.D:
-                    myCamera.Derecha();
-                    break;
-
-                case Keys.Left:
-                case Keys.A:
-                    myCamera.Izquierda();
-                    break;
-
-                case Keys.Add:
-                case Keys.I:
-                    myCamera.Acercar(0.05f);
-                    break;
-
-                case Keys.Subtract:
-                case Keys.O:
-                    myCamera.Alejar(0.05f);
-                    break;
-
-                //Teclas para activar/desactivar funciones
-                case Keys.F3:
-                  toggleWires = !toggleWires;
-                    break;
-                case Keys.F2:
-                    toggleNormals = !toggleNormals;
-                    break;
-                case Keys.G:
-                    drawGizmos = !drawGizmos;
-                    break;
-
-                //ON/OFF LUCES
-                case Keys.D0:
-                case Keys.NumPad0:
-                    ToggleLight(0);
-                    break;
-                case Keys.NumPad1:
-                case Keys.D1:
-                    ToggleLight(1);
-                    break;
-                case Keys.NumPad2:
-                case Keys.D2:
-                    ToggleLight(2);
-                    break;
-                case Keys.NumPad3:
-                case Keys.D3:
-                    ToggleLight(3);
-                    break;
-                case Keys.D4:
-                case Keys.NumPad4:
-                    ToggleLight(4);
-                    break;
-                case Keys.D5:
-                case Keys.NumPad5:
-                    ToggleLight(5);
-                    break;
-                case Keys.D6:
-                case Keys.NumPad6:
-                    ToggleLight(6);
-                    break;
-                case Keys.D7:
-                case Keys.NumPad7:
-                    ToggleLight(7);
-                    break;
-                case Keys.D8:
-                case Keys.NumPad8:
-                    ToggleLight(8);
-                    break;
-                case Keys.D9:
-                case Keys.NumPad9:
-                    ToggleLight(9);
-                    break;
-                //TAMAÑO CONO LUZ_1
-                case Keys.N:
-                    ModificarCono(-2.0f);
-                    break;
-                case Keys.M:
-                    ModificarCono(2.0f);
-                    break;
-                //CAMBIO DE MATERIAL
-                case Keys.Z:
-                    materialIndex = (materiales.Length + materialIndex - 1) % materiales.Length;
-                    material = materiales[materialIndex];
-                    break;
-                case Keys.X:
-                    materialIndex = (materialIndex + 1) % materiales.Length;
-                    material = materiales[materialIndex];
-                    break;
+                ModificarCono(-2.0f, (int)e.KeyCode - 48);
             }
+            else
+                if (e.Shift && (int)e.KeyCode >= 48 && (int)e.KeyCode <= 57)
+                {
+                    ModificarCono(2.0f, (int)e.KeyCode - 48);
+                }
+                else
+                     if ((int)e.KeyCode >= 48 && (int)e.KeyCode <= 57)
+                    {   
+                        ToggleLight((int)e.KeyCode - 48);
+                    }
+                    else
+                    {
+                        switch (e.KeyCode)
+                        {
+                            case Keys.Down:
+                            case Keys.S:
+                                myCamera.Abajo();
+                                break;
+                            case Keys.Up:
+                            case Keys.W:
+                                myCamera.Arriba();
+                                break;
+                            case Keys.Right:
+                            case Keys.D:
+                                myCamera.Derecha();
+                                break;
+                            case Keys.Left:
+                            case Keys.A:
+                                myCamera.Izquierda();
+                                break;
+                            case Keys.Add:
+                            case Keys.I:
+                                myCamera.Acercar(0.05f);
+                                break;
+                            case Keys.Subtract:
+                            case Keys.O:
+                                myCamera.Alejar(0.05f);
+                                break;
+                            //Teclas para activar/desactivar funciones
+                            case Keys.F3:
+                                toggleWires = !toggleWires;
+                                break;
+                            case Keys.F2:
+                                toggleNormals = !toggleNormals;
+                                break;
+                            case Keys.G:
+                                drawGizmos = !drawGizmos;
+                                break;
+                            //CAMBIO DE MATERIAL
+                            case Keys.Z:
+                                materialIndex = (materiales.Length + materialIndex - 1) % materiales.Length;
+                                material = materiales[materialIndex];
+                                break;
+                            case Keys.X:
+                                materialIndex = (materialIndex + 1) % materiales.Length;
+                                material = materiales[materialIndex];
+                                break;
+                        }
+                    }
+
             glControl3.Invalidate(); //Notar que renderizamos para CUALQUIER tecla que sea presionada.
             //Actualizar la info de debugeo
             updateDebugInfo();
@@ -465,11 +400,12 @@ namespace cg2016
                 luces[i].Toggle();
             }
         }
-        private void ModificarCono(float deltaGrados)
+
+        private void ModificarCono(float deltaGrados, int luz)
         {
-            if (luces.Length >= 1 && (luces[0].Enabled == 1))
+            if (luces.Length >= luz && luces.Length >= 1 && luces[luz].Enabled == 1 && luces[luz].Direccional != 1)
             {
-                float coneAngle = luces[0].ConeAngle;
+                float coneAngle = luces[luz].ConeAngle;
                 coneAngle = coneAngle + deltaGrados;
                 if (coneAngle < 2.0f)
                 {
@@ -479,9 +415,11 @@ namespace cg2016
                 {
                     coneAngle = 45.0f;
                 }
-                luces[0].ConeAngle = coneAngle;
+                luces[luz].ConeAngle = coneAngle;
             }
         }
+
+        #endregion Entrada por teclado
 
         private void SetupShaders(String vShaderName, String fShaderName, out ShaderProgram sProgram)
         {
@@ -502,28 +440,6 @@ namespace cg2016
             //5. Ya podemos eliminar los shaders compilados. (Si no los vamos a usar en otro programa)
             vShader.Delete();
             fShader.Delete();
-            /*
-            //===== SHADER DE LUCES =====
-            //1. Creamos los shaders, a partir de archivos.
-            //vShaderFile = "files/shaders/vmultiplesluces.glsl";
-            //fShaderFile = "files/shaders/fmultiplesluces.glsl";
-            vShaderFile = "files/shaders/vbumpedspecularphong.glsl";
-            fShaderFile = "files/shaders/fbumpedspecularphong.glsl";
-            vShader = new Shader(ShaderType.VertexShader, vShaderFile);
-            fShader = new Shader(ShaderType.FragmentShader, fShaderFile);
-            //2. Los compilamos
-            vShader.Compile();
-            fShader.Compile();
-            //3. Creamos el Programa de shader con ambos.
-            sProgram = new ShaderProgram();
-            sProgram.AddShader(vShader);
-            sProgram.AddShader(fShader);
-            //4. Construimos (linkeamos) el programa.
-            sProgram.Build();
-            //5. Ya podemos eliminar los shaders compilados. (Si no los vamos a usar en otro programa)
-            vShader.Delete();
-            fShader.Delete();
-            */
         }
 
         private void logContextInfo()
@@ -547,7 +463,5 @@ namespace cg2016
         {
             System.Diagnostics.Debug.WriteLine(String.Format(format, args), "[CGUNS]");
         }
-
-
     }
 }
