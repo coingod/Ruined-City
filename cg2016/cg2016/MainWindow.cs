@@ -413,7 +413,10 @@ namespace cg2016
                                 materialIndex = (materialIndex + 1) % materiales.Length;
                                 material = materiales[materialIndex];
                                 break;
-                        }
+                            case Keys.P:
+                                toggleParticles = !toggleParticles;
+                                break;
+                }
                     }
 
             glControl3.Invalidate(); //Notar que renderizamos para CUALQUIER tecla que sea presionada.
