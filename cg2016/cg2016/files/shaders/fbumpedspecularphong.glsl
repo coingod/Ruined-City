@@ -5,7 +5,7 @@
 
 in vec2 f_TexCoord;
 in mat3 TBN;
-in vec3 fPos_CS;
+in vec3 fPos_WS;
 in vec3 fnormal;
 
 struct Light {
@@ -25,11 +25,15 @@ struct Material {
 	float Shininess;
 };
 
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+
 uniform sampler2D ColorTex;
 uniform sampler2D NormalMapTex;
 uniform sampler2D SpecularMapTex;
-uniform mat4 viewMatrix;
+
 uniform vec3 cameraPosition; //In World Space.
+
 uniform int numLights;
 uniform Light allLights[maxLights];
 uniform Material material;
@@ -104,17 +108,22 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 	vec3 LightPos;
 	float falloff = 1.0;
 
+	//vec3 fPos_CS = (viewMatrix * vec4(fPos_WS, 1.0)).xyz;
+
 	if(light.direccional==1)
 	{ 
-		LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
+		//LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
+		LightPos = normalize( transpose(inverse(TBN)) * (-light.position).xyz);
 	}
 	else
 	{
 		//Transformar POSICION de la Luz de CameraSpace a TangentSpace
-		LightPos = normalize( TBN * ( (viewMatrix * light.position).xyz - fPos_CS) );
+		//LightPos = normalize( TBN * ( (viewMatrix * light.position).xyz - fPos_CS) );
+		LightPos = normalize( TBN * ((light.position).xyz - fPos_WS));
 
 		//Restricciones del cono de luz
-		vec3 coneDirection = normalize(TBN * (mat3(viewMatrix) * light.coneDirection) );
+		//vec3 coneDirection = normalize(TBN * (mat3(viewMatrix) * light.coneDirection) );
+		vec3 coneDirection = normalize(TBN * (light.coneDirection).xyz );
 		vec3 rayDirection = -LightPos;
 		float lightToSurfaceAngle = degrees(acos(dot(rayDirection, coneDirection)));
 		//Dentro del cono
@@ -163,8 +172,8 @@ void main()
 	// The specular texture is used as the spec intensity
 	vec4 specular = texture2D( SpecularMapTex, f_TexCoord ) ;
 
-	//Transformar Posicion de CameraSpace a TangentSpace
-	vec3 ViewDir = TBN * normalize(-fPos_CS);
+	//Transformar Posicion de WorldSpace a TangentSpace
+	vec3 ViewDir = TBN * normalize(-fPos_WS);
 
 	//Acumular iluminacion de cada fuente de luz
 	vec3 linearColor=vec3(0);

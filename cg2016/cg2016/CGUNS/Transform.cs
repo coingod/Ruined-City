@@ -103,21 +103,53 @@ namespace CGUNS.Meshes
 
         #region Public Functions
         /// <summary>
-        /// Rotates the transform so the forward vector points at /target/'s current position.
+        /// Rotates the transform so the forward vector points at /target/'s current position. (Unity's version).
         /// </summary>
         /// <param name="target"></param>
         public void LookAt(Vector3 target)
         {
-            //Direccion hacia arriba en el mundo
-            Vector3 worldUp = Vector3.UnitY;
+            if ((target - position) == Vector3.Zero)
+                return;
+            Vector3 direction = Vector3.Normalize(target - position);
+            Matrix4 Rx = Matrix4.CreateRotationX((float)Math.Asin(-direction.Y));
+            Matrix4 Ry = Matrix4.CreateRotationY(-(float)Math.Atan2(-direction.X, direction.Z));
+            modelMatrix = Rx * Ry * modelMatrix.ClearRotation();
+        }
+        /// <summary>
+        /// Rotates the transform so the forward vector points at /target/'s current position. With Quaternions.
+        /// </summary>
+        /// <param name="target"></param>
+        public void LookAt2(Vector3 target)
+        {
+            if ((target - position) == Vector3.Zero)
+                return;
+            //Direccion hacia adelante en el mundo
+            Vector3 worldFwd = Vector3.UnitZ;
             //Vector direccion de este Transform al target
-            Vector3 direccion = target - position;
-            //El eje de rotacion perpendicular al plano de WorldUp y la direccion
-            Vector3 axis = Vector3.Cross(worldUp, direccion);
+            Vector3 dir = Vector3.Normalize(target - position);
+            //El eje de rotacion perpendicular al plano de worldFwd y la direccion
+            Vector3 axis = Vector3.Cross(worldFwd, dir);
             //El angulo que hay que rotar
-            float angle = Vector3.CalculateAngle(worldUp, direccion);
+            float angle = (float)Math.Acos(Vector3.Dot(worldFwd, dir));
             //Construyo la matris de rotacion para mirar al target
             Matrix4 lookRotation = Matrix4.CreateFromQuaternion(Quaternion.FromAxisAngle(axis, angle));
+
+            //Calculo la rotacion al rededor del eje forward que ahora apunta al target
+            //http://www.euclideanspace.com/maths/algebra/vectors/lookat/
+            //projection matrix = [I] - [x,y,z][x,y,z]t
+            Matrix4 projMatrix = new Matrix4(
+                new Vector4(1 - dir.X * dir.X, -dir.X * dir.Y, -dir.X * dir.Z, 0),//Row0
+                new Vector4(-dir.Y * dir.X, 1 - dir.Y * dir.Y, -dir.Y * dir.Z, 0),//Row1
+                new Vector4(-dir.Z * dir.X, -dir.Z * dir.Y, 1 - dir.Z * dir.Z, 0),//Row2
+                new Vector4(0, 0, 0, 1) //Row3
+                );
+            //WorldUp direction
+            Vector3 worldUp = Vector3.Transform(Vector3.UnitY, projMatrix);
+            //LocalUp direction
+            Vector3 localUp = Vector3.Transform(up, projMatrix);
+            float twist = (float)Math.Acos(Vector3.Dot(worldUp, localUp));
+            Matrix4 forwardTwist = Matrix4.CreateFromQuaternion(Quaternion.FromAxisAngle(dir, twist));
+
             //Aplico la rotacion al objeto y luego la transformacion existente
             modelMatrix = lookRotation * modelMatrix.ClearRotation();
         }

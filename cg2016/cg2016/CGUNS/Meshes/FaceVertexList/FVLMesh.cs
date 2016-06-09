@@ -146,7 +146,7 @@ namespace CGUNS.Meshes.FaceVertexList
             Vector3[] NormalVectors;
             Vector3[] normales;
 
-            Vector3[] tangentes;
+            Vector4[] tangentes;
             Vector3[] bitangentes;
 
             reordenar(out posiciones, out texturas, out normales, out NormalVectors, out indices, out indicesNormalVectors);
@@ -188,11 +188,11 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
 
             //VBO con el atributo "tangentes" de los vertices.
-            size = new IntPtr(tangentes.Length * Vector3.SizeInBytes);
+            size = new IntPtr(tangentes.Length * Vector4.SizeInBytes);
             tan_VBO = gl.GenBuffer();  //Le pido un Id de buffer a OpenGL
             gl.BindBuffer(bufferType, tan_VBO); //Lo selecciono como buffer de Datos actual.
 
-            gl.BufferData<Vector3>(bufferType, size, tangentes, hint); //Lo lleno con la info.
+            gl.BufferData<Vector4>(bufferType, size, tangentes, hint); //Lo lleno con la info.
             gl.BindBuffer(bufferType, 0); // Lo deselecciono (0: ninguno)
 
             //VBO con el atributo "bitangentes" de los vertices.
@@ -271,10 +271,10 @@ namespace CGUNS.Meshes.FaceVertexList
             }
         }
 
-        private void CalcularBaseTangente(Vector3[] vertices, Vector2[] texturas, Vector3[] normales, out Vector3[] tangentes, out Vector3[] bitangentes)
+        private void CalcularBaseTangente(Vector3[] vertices, Vector2[] texturas, Vector3[] normales, out Vector4[] tangentes, out Vector3[] bitangentes)
         {
             int cantFaces = FaceCount;
-            tangentes = new Vector3[cantFaces * 3];
+            tangentes = new Vector4[cantFaces * 3];
             bitangentes = new Vector3[cantFaces * 3];
 
             //Para cada triangulo, se computa el deltaPos y deltaUV
@@ -304,14 +304,26 @@ namespace CGUNS.Meshes.FaceVertexList
                 Vector3 bitangente = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
 
                 //Asigno la tangente del triangulo a cada uno de sus vertices
-                tangentes[i + 0] = tangente;
-                tangentes[i + 1] = tangente;
-                tangentes[i + 2] = tangente;
+                tangentes[i + 0] = new Vector4(tangente);
+                tangentes[i + 1] = new Vector4(tangente);
+                tangentes[i + 2] = new Vector4(tangente);
 
                 //Asigno la bitangente del triangulo a cada uno de sus vertices
                 bitangentes[i + 0] = bitangente;
                 bitangentes[i + 1] = bitangente;
                 bitangentes[i + 2] = bitangente;
+            }
+
+            for (int i = 0; i < cantFaces * 3; i++)
+            {
+                Vector3 n = normales[i];
+                Vector3 t = tangentes[i].Xyz;
+
+                // Gram-Schmidt orthogonalize
+                tangentes[i] = new Vector4((t - n * Vector3.Dot(n, t)).Normalized());
+
+                // Calculate handedness
+                tangentes[i].W = (Vector3.Dot(Vector3.Cross(n, t), bitangentes[i]) < 0.0f) ? -1.0f : 1.0f;
             }
         }
 
@@ -378,7 +390,7 @@ namespace CGUNS.Meshes.FaceVertexList
             
             //2. Configuramos el VBO de tangentes.
             attribIndex = sProgram.GetVertexAttribLocation("vTangente"); //Yo lo saco de mi clase ProgramShader.
-            cantComponentes = 3;   // 3 componentes (x, y, z)
+            cantComponentes = 4;   // 3 componentes (x, y, z)
             attribType = VertexAttribPointerType.Float; //Cada componente es un Float.
             stride = 0;  //Los datos estan uno a continuacion del otro.
             offset = 0;  //El primer dato esta al comienzo. (no hay offset).
@@ -387,7 +399,7 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
             gl.BindBuffer(bufferType, tan_VBO); //Seleccionamos el buffer a utilizar.
             gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
-
+            /*
             //2. Configuramos el VBO de bitangentes.
             attribIndex = sProgram.GetVertexAttribLocation("vBitangente"); //Yo lo saco de mi clase ProgramShader.
             cantComponentes = 3;   // 3 componentes (x, y, z)
@@ -399,7 +411,7 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
             gl.BindBuffer(bufferType, bitan_VBO); //Seleccionamos el buffer a utilizar.
             gl.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
-            
+            */
             // 2.a.El bloque anterior se repite para cada atributo del vertice (color, normal, textura..)
 
             // 3. Configuramos el EBO a utilizar. (como son indices, no necesitan info de layout)
@@ -440,7 +452,7 @@ namespace CGUNS.Meshes.FaceVertexList
         public override void Dibujar(ShaderProgram sProgram, Matrix4 viewMatrix)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
-            sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
+            //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?
             int count;  // Cuantos?
@@ -459,7 +471,7 @@ namespace CGUNS.Meshes.FaceVertexList
         public override void DibujarNormales(ShaderProgram sProgram, Matrix4 viewMatrix)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
-            sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
+            //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?
             int count;  // Cuantos?

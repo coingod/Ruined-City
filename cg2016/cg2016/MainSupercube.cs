@@ -56,7 +56,8 @@ namespace cg2016
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
-            SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
+            //SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
+            SetupShaders("vparallaxmapping.glsl", "fparallaxmapping.glsl", out sProgram);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
 
             //Configuracion de Ejes
@@ -73,13 +74,16 @@ namespace cg2016
             objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/supercube.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             GL.ActiveTexture(TextureUnit.Texture0);
-            tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
-            //tex1 = CargarTextura("files/Texturas/chesterfield_d.png");
+            tex1 = CargarTextura("files/Texturas/bricks2.jpg");
+            //tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
             GL.ActiveTexture(TextureUnit.Texture1);
-            tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
-            //tex2 = CargarTextura("files/Texturas/chesterfield_n.png");
+            tex2 = CargarTextura("files/Texturas/bricks2_normal.jpg");
+            //tex2 = CargarTextura("files/Texturas/normal2.png");
+            //tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
             GL.ActiveTexture(TextureUnit.Texture2);
-            tex3 = CargarTextura("files/Texturas/BrickWallHD_s.png");
+            //tex3 = CargarTextura("files/Texturas/depth2.png");
+            tex3 = CargarTextura("files/Texturas/bricks2_disp.jpg");
+            //tex3 = CargarTextura("files/Texturas/BrickWallHD_h.png");
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -93,7 +97,7 @@ namespace cg2016
             luces[0] = new Light();
             luces[0].Position = new Vector4(0.0f, 0.0f, 2.0f, 1.0f);
             luces[0].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[0].Ipuntual = new Vector3(1.0f, 0.0f, 0.0f);
+            luces[0].Ipuntual = new Vector3(1.0f, 1.0f, 1.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[0].Enabled = 1;
@@ -152,7 +156,7 @@ namespace cg2016
             //Animacion de una luz
             float blend = ((float)Math.Sin(time) + 1) / 2;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 2.0f, 0.0f), new Vector3(4.0f, 2.0f, 0.0f), blend);
-            luces[1].Position = new Vector4(pos, 1.0f);
+            luces[0].Position = new Vector4(pos, 1.0f);
 
             //Actualizo los sistemas de particulas
             particles.Update();
@@ -172,7 +176,7 @@ namespace cg2016
                 normalCount += m.VertexNormalList.Count;
             }
 
-            String title = "CGLabo2016 [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
+            String title = "MainSuperube [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
                 "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos +
                 "] [Lights: ";
 
@@ -226,19 +230,22 @@ namespace cg2016
             //Configuracion de los valores uniformes del shader
             sProgram.SetUniformValue("projMatrix", projMatrix);
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
-            sProgram.SetUniformValue("normalMatrix", normalMatrix);
+            //sProgram.SetUniformValue("normalMatrix", normalMatrix); //No lo usamos
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            //sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
+            sProgram.SetUniformValue("cameraPosition", myCamera.getPosition()); //ParallaxMapping
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
             sProgram.SetUniformValue("material.Ka", material.Kambient);
             sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
-            //sProgram.SetUniformValue("material.Ks", material.Kspecular);
+            //sProgram.SetUniformValue("material.Ks", material.Kspecular); //No lo usamos.
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
-            sProgram.SetUniformValue("SpecularMapTex", 2);
+            //sProgram.SetUniformValue("SpecularMapTex", 2); //NormalMapping
+
+            sProgram.SetUniformValue("height_scale", 0.1f); //ParallaxMapping
+            sProgram.SetUniformValue("DepthMapTex", 2); //ParallaxMapping
 
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)

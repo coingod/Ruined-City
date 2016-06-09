@@ -16,6 +16,7 @@ using CGUNS.Primitives;
 using CGUNS.Meshes;
 using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace cg2016
 {
@@ -27,7 +28,13 @@ namespace cg2016
         }
 
         private System.Timers.Timer timer; // From System.Timers
-        private float time = 0;
+        private double timeSinceStartup = 0; //Tiempo total desde el inicio del programa (En segundos)
+        private double deltaTime = 0;   //Tiempo que tomo completar el ultimo frame (En segundos)
+        private int frameCount = 0; //Cantidad de frames en el ultimo segundo
+        //private long fps_startTime = 0;
+        private int fps = 0;    //FramesPorSegundo
+        private Stopwatch stopWatch = new Stopwatch();
+        private double fps_timeInterval = 0;
 
         private ShaderProgram sProgram; //Nuestro programa de shaders.
         private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
@@ -145,6 +152,7 @@ namespace cg2016
             timer.Elapsed += Update;
             timer.AutoReset = true;
             timer.Enabled = true;
+            stopWatch.Start();
         }
 
         //Se ejecuta cada tick del Timer, actualiza a las entidades dinamicas y redibuja la escena.
@@ -152,11 +160,12 @@ namespace cg2016
         {
             //Console.WriteLine("Timer");
             //Incremento el tiempo transcurrido
-            time += 0.01f;
+            timeSinceStartup += deltaTime;
 
             //Animacion de una luz
-            float blend = ((float)Math.Sin(time) + 1)/2;
+            float blend = ((float)Math.Sin(timeSinceStartup/2) + 1)/2;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 2.0f, 0.0f), new Vector3(4.0f, 2.0f, 0.0f), blend);
+            //Vector3 pos = Vector3.Lerp(new Vector3(0.0f, 2.0f, -4.0f), new Vector3(0.0f, 2.0f, 4.0f), blend);
             luces[1].Position = new Vector4(pos, 1.0f);
 
             //Actualizo los sistemas de particulas
@@ -164,8 +173,44 @@ namespace cg2016
 
             //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
             glControl3.Invalidate();
+
+            //Terminamos de procesar el frame, calculamos el FPS
+            //UpdateFramesPerSecond(); //Si lo llamo aca no tiene en cuenta el tiempo que tarda Paint
         }
 
+        //FramesPerSecond con Stopwatch
+        private void UpdateFramesPerSecond()
+        {
+            frameCount++;
+            stopWatch.Stop();
+            //Tiempo que tomo procesar el frame
+            deltaTime = stopWatch.Elapsed.TotalSeconds;//stopWatch.Elapsed.TotalMilliseconds;
+            stopWatch.Reset();
+            stopWatch.Start();
+            //Acumulo el tiempo hasta que pase 1 segundo
+            fps_timeInterval += deltaTime;
+            if (fps_timeInterval >= 1)//1000)
+            {
+                fps = frameCount;
+                frameCount = 0;
+                fps_timeInterval = 0;//-= 1000;
+            }
+        }
+        /*
+        //FramesPerSecond con DateTime.Now (Poca presicion)
+        private void UpdateFramesPerSecond()
+        {
+            frameCount++;
+            long currentTime = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+            if (currentTime >= (fps_startTime + 1000))
+            {
+                fps = frameCount;
+                frameCount = 0;
+
+                fps_startTime = currentTime;
+            }
+        }
+        */
         private void updateDebugInfo()
         {
             //Muestro informacion de Debugeo en el titulo de la ventana
@@ -177,7 +222,7 @@ namespace cg2016
                 normalCount += m.VertexNormalList.Count;
             }
 
-            String title = "CGLabo2016 [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
+            String title = "CGLabo2016 [FPS:"+fps+"] [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
                 "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos + 
                 "] [Lights: ";
 
@@ -216,7 +261,7 @@ namespace cg2016
             //Configuracion de los valores uniformes del shader
             sProgram.SetUniformValue("projMatrix", projMatrix);
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
-            sProgram.SetUniformValue("normalMatrix", normalMatrix);
+            //sProgram.SetUniformValue("normalMatrix", normalMatrix);
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
             //sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
             sProgram.SetUniformValue("A", 0.3f);
@@ -295,6 +340,12 @@ namespace cg2016
             }
 
             glControl3.SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
+
+            //Actualizamos la informacion de debugeo
+            updateDebugInfo();
+
+            //Terminamos de procesar el frame, calculamos el FPS
+            UpdateFramesPerSecond();
         }
 
 		private int CargarTextura(String imagenTex)
@@ -421,7 +472,7 @@ namespace cg2016
 
             glControl3.Invalidate(); //Notar que renderizamos para CUALQUIER tecla que sea presionada.
             //Actualizar la info de debugeo
-            updateDebugInfo();
+            //updateDebugInfo();
         }
 
         private void ToggleLight(int i)
