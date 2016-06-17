@@ -27,5 +27,6 @@ namespace CGUNS.Meshes
 
         public abstract void Build(ShaderProgram sProgram);
 
+        public abstract void SetModelMatrix(Matrix4 model);
     }
 }

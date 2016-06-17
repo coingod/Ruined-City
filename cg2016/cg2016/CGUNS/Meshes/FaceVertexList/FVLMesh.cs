@@ -15,6 +15,7 @@ namespace CGUNS.Meshes.FaceVertexList
         private List<Vector3> vertexList;
         private List<Vector2> texCordList;
         private List<Vector3> vertexNormalList;
+        private Matrix4 localModelMatrix;
 
         public FVLMesh()
         {
@@ -449,9 +450,14 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindVertexArray(0);
         }
 
+        public override void SetModelMatrix(Matrix4 model)
+        {
+            localModelMatrix = model;       
+        }
+
         public override void Dibujar(ShaderProgram sProgram, Matrix4 viewMatrix)
         {
-            sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
+            sProgram.SetUniformValue("modelMatrix", transform.localToWorld * localModelMatrix);
             //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?

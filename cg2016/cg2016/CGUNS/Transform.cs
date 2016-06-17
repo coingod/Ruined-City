@@ -70,6 +70,11 @@ namespace CGUNS.Meshes
             get { return Matrix4.Invert(modelMatrix); }
         }
 
+        public Matrix4 getset {
+            get { return modelMatrix; }
+            set { modelMatrix = value; }
+        }
+
         /// <summary>
         /// The position of the transform in world space.
         /// </summary>

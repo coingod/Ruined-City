@@ -33,28 +33,29 @@
             // 
             // glControl3
             // 
-            this.glControl3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.glControl3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.glControl3.BackColor = System.Drawing.Color.Black;
-            this.glControl3.Location = new System.Drawing.Point(12, 12);
+            this.glControl3.Location = new System.Drawing.Point(16, 15);
+            this.glControl3.Margin = new System.Windows.Forms.Padding(5);
             this.glControl3.Name = "glControl3";
-            this.glControl3.Size = new System.Drawing.Size(260, 238);
+            this.glControl3.Size = new System.Drawing.Size(347, 293);
             this.glControl3.TabIndex = 0;
             this.glControl3.VSync = false;
             this.glControl3.Load += new System.EventHandler(this.glControl3_Load);
             this.glControl3.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl3_Paint);
-            this.glControl3.Resize += new System.EventHandler(this.glControl3_Resize);
-            //Agrego los eventos para controlar la camara.
-            this.glControl3.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.glControl3_PreviewKeyDown);
             this.glControl3.KeyDown += new System.Windows.Forms.KeyEventHandler(this.glControl3_KeyPressed);
+            this.glControl3.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.glControl3_PreviewKeyDown);
+            this.glControl3.Resize += new System.EventHandler(this.glControl3_Resize);
             // 
-            // MainWindow
+            // MapTestScene
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(379, 322);
             this.Controls.Add(this.glControl3);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MapTestScene";
             this.Text = "MapTestScene";
             this.ResumeLayout(false);
@@ -64,8 +65,6 @@
         #endregion
 
         private CGUNS.GLControl3 glControl3;
-
-
     }
 }
 

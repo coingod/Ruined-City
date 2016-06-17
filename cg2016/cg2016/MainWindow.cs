@@ -17,7 +17,7 @@ using CGUNS.Meshes;
 using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
 using System.Diagnostics;
-
+using BulletSharp;
 namespace cg2016
 {
     public partial class MainWindow : Form

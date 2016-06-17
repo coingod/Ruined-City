@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BulletSharp">
+      <HintPath>libs\BulletSharp.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\OpenTK.dll</HintPath>
@@ -78,6 +81,7 @@
     <Compile Include="CGUNS\Shaders\ShaderProgram.cs" />
     <Compile Include="CGUNS\ParticleEmitter.cs" />
     <Compile Include="CGUNS\Transform.cs" />
+    <Compile Include="fisica.cs" />
     <Compile Include="MainSupercube.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +104,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CGUNS\GLControl3.resx">
       <DependentUpon>GLControl3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MapTestScene.resx">
+      <DependentUpon>MapTestScene.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -278,6 +285,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\ruble_n.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libs\BulletSharp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="libs\OpenTK.dll" />

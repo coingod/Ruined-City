@@ -17,6 +17,7 @@ using CGUNS.Meshes;
 using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using BulletSharp;
 
 namespace cg2016
 {
@@ -26,8 +27,9 @@ namespace cg2016
         {
             InitializeComponent();
         }
-
+        private int jkl=0;
         private System.Timers.Timer timer; // From System.Timers
+
         private double timeSinceStartup = 0; //Tiempo total desde el inicio del programa (En segundos)
         private double deltaTime = 0;   //Tiempo que tomo completar el ultimo frame (En segundos)
         private int frameCount = 0; //Cantidad de frames en el ultimo segundo
@@ -51,6 +53,7 @@ namespace cg2016
         private Rectangle viewport; //Viewport a utilizar (Porcion del glControl en donde voy a dibujar).
         private Ejes ejes_globales; // Ejes de referencia globales
         private Ejes ejes_locales; // Ejes de referencia locales al objeto
+        private fisica fisica;
 
         private bool toggleNormals = false;
         private bool toggleWires = false;
@@ -63,6 +66,9 @@ namespace cg2016
         {
             logContextInfo(); //Mostramos info de contexto.
 
+            //Arrancamos la clase fisica (Mirá como está esa modularización papa)
+            fisica = new fisica();
+            
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
             //SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
@@ -78,7 +84,6 @@ namespace cg2016
             mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tanktest.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-            //objeto.transform.position = new Vector3(-1f, 1f, 0f);
 
             //Carga de Texturas
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -150,21 +155,25 @@ namespace cg2016
             material = materiales[materialIndex];
             
             updateDebugInfo();
-
+            
             //Configuracion del Timer para redibujar la escena cada 10ms
             timer = new System.Timers.Timer(10);
             timer.Elapsed += Update;
             timer.AutoReset = true;
             timer.Enabled = true;
             stopWatch.Start();
+            
         }
 
         //Se ejecuta cada tick del Timer, actualiza a las entidades dinamicas y redibuja la escena.
         private void Update(Object source, System.Timers.ElapsedEventArgs e)
         {
-            //Console.WriteLine("Timer");
-            //Incremento el tiempo transcurrido
-            timeSinceStartup += deltaTime;
+            fisica.dynamicsWorld.StepSimulation(10);
+        
+
+        //Console.WriteLine("Timer");
+        //Incremento el tiempo transcurrido
+        timeSinceStartup += deltaTime;
 
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup/4) + 1)/2;
@@ -212,10 +221,10 @@ namespace cg2016
                 normalCount += m.VertexNormalList.Count;
             }
 
-            String title = "CGLabo2016 [FPS:"+fps+"] [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
+            String title = "CGProy2016 [FPS:"+fps+"] [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount + " - Material:" + materialIndex +
                 "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos + 
                 "] [Lights: ";
-
+                
             for (int i = 0; i < luces.Length; i++)
             {
                 bool onoff = luces[i].Enabled == 1 ? true : false;
@@ -226,6 +235,7 @@ namespace cg2016
             title += "]";
 
             this.Text = title;
+            
         }
 
         private void glControl3_Paint(object sender, PaintEventArgs e)
@@ -284,6 +294,7 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }*/
 
+            
             // MULTIPLES LUCES
             //Configuracion de los valores uniformes del shader
             sProgram.SetUniformValue("projMatrix", projMatrix);
@@ -312,14 +323,19 @@ namespace cg2016
                 //sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
             #endregion
-            
+
+
+            //Dibujamos el Objeto
+            objeto.setModelsMatrix(fisica.tank.MotionState.WorldTransform);
+            objeto.transform.getset = fisica.tank.MotionState.WorldTransform;
+            objeto.Dibujar(sProgram, viewMatrix);
+            if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
+
             //Dibujamos el Mapa
+            mapa.setModelsMatrix(fisica.map.MotionState.WorldTransform);
             mapa.Dibujar(sProgram, viewMatrix);
             if (toggleNormals) mapa.DibujarNormales(sProgram, viewMatrix);
 
-            //Dibujamos el Objeto
-            objeto.Dibujar(sProgram, viewMatrix);
-            if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
             
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
@@ -433,18 +449,26 @@ namespace cg2016
                         switch (e.KeyCode)
                         {
                             case Keys.Down:
+                                fisica.tank.LinearVelocity+=(-objeto.transform.forward);
+                                break;
+                            case Keys.Up:
+                                fisica.tank.LinearVelocity+=(objeto.transform.forward);
+                                break;
+                            case Keys.Right:
+                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, 1f, 0));
+                                break;
+                            case Keys.Left:
+                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, -1f, 0));
+                                break;
                             case Keys.S:
                                 myCamera.Abajo();
                                 break;
-                            case Keys.Up:
                             case Keys.W:
                                 myCamera.Arriba();
                                 break;
-                            case Keys.Right:
                             case Keys.D:
                                 myCamera.Derecha();
                                 break;
-                            case Keys.Left:
                             case Keys.A:
                                 myCamera.Izquierda();
                                 break;
@@ -535,6 +559,7 @@ namespace cg2016
             fShader.Delete();
         }
 
+    
         private void logContextInfo()
         {
             String version, renderer, shaderVer, vendor;//, extensions;
