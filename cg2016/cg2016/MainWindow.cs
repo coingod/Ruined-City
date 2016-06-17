@@ -72,20 +72,20 @@ namespace cg2016
             particles.Build(sProgramParticles);
             
             //Carga y configuracion de Objetos
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/humbird.obj"); //Construimos los objetos que voy a dibujar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Stuff/humbird.obj"); //Construimos los objetos que voy a dibujar.
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             objeto.transform.position = new Vector3(-1f, 1f, 0f);
 
             //Carga de Texturas
             GL.ActiveTexture(TextureUnit.Texture0);
-			//tex1 = CargarTextura("files/Texturas/BrickWallHD_d.png");
-            tex1 = CargarTextura("files/Texturas/no_s.jpg");
+            //tex1 = CargarTextura("files/Texturas/Map/BrickWallHD_d.png");
+            tex1 = CargarTextura("files/Texturas/Helper/no_s.jpg");
             GL.ActiveTexture(TextureUnit.Texture1);
-            //tex2 = CargarTextura("files/Texturas/BrickWallHD_n.png");
-            tex2 = CargarTextura("files/Texturas/no_n.jpg");
+            //tex2 = CargarTextura("files/Texturas/Map/BrickWallHD_n.png");
+            tex2 = CargarTextura("files/Texturas/Helper/no_n.jpg");
             GL.ActiveTexture(TextureUnit.Texture2);
-            //tex3 = CargarTextura("files/Texturas/BrickWallHD_s.png");
-            tex3 = CargarTextura("files/Texturas/no_s.jpg");
+            //tex3 = CargarTextura("files/Texturas/Map/BrickWallHD_s.png");
+            tex3 = CargarTextura("files/Texturas/Helper/no_s.jpg");
 
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(); //Creo una camara.

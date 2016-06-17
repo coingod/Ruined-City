@@ -13,8 +13,9 @@ namespace cg2016
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MapTestScene());
             //Application.Run(new MainWindow());
-            Application.Run(new MainSupercube());
+            //Application.Run(new MainSupercube());
         }
     }
 }

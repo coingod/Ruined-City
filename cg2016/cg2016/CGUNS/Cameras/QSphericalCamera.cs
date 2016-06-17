@@ -29,19 +29,20 @@ namespace CGUNS.Cameras
         private Quaternion cameraRot, qAux;
         private Vector3 cameraPos; 
 
-        public QSphericalCamera()
+        public QSphericalCamera(float radius = 5.0f, float theta = 45.0f, float phi = 30.0f,
+            float zNear = 0.1f, float zFar = 100f, float fovy = 50 * DEG2RAD, float aspectRatio = 1)
         {
             //Por ahora la matriz de proyeccion queda fija. :)
-            float fovy = 50 * DEG2RAD; //50 grados de angulo.
-            float aspectRadio = 1; //Cuadrado
-            float zNear = 0.1f; //Plano Near
-            float zFar = 100f;  //Plano Far
-            projMatrix = Matrix4.CreatePerspectiveFieldOfView(fovy, aspectRadio, zNear, zFar);
+            //float fovy = 50 * DEG2RAD; //50 grados de angulo.
+            //float aspectRatio = 1; //Cuadrado
+            //float zNear = 0.1f; //Plano Near
+            //float zFar = 100f;  //Plano Far
+            projMatrix = Matrix4.CreatePerspectiveFieldOfView(fovy, aspectRatio, zNear, zFar);
 
             //Posicion inicial de la camara.
-            radius = 5.0f;
-            theta = 45.0f;
-            phi = 30.0f;
+            this.radius = radius;
+            this.theta = theta;
+            this.phi = phi;
 
             cameraPos = new Vector3(0, 0, -radius);
             cameraRot = Quaternion.FromAxisAngle(new Vector3(0, 0, 0), 1.0f);   //Quat identidad

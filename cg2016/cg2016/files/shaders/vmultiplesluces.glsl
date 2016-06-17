@@ -10,7 +10,7 @@ in vec3 vPos;
 in vec3 vNormal;
 
 in vec3 vTangente;
-in vec3 vBitangente;
+//in vec3 vBitangente;
 
 out vec2 f_TexCoord;
 out vec3 fragPos;
@@ -19,7 +19,7 @@ out vec3 fragNormal;
 void main(){
 	
 	//Tengo que usar tang y bitang para que no las descarte y falle al compilar
-	vec3 alpedo = (vTangente + vBitangente) * 0.0001;
+	vec3 alpedo = (vTangente) * 0.0001;
 
 	fragPos = vPos + alpedo*0.0001;
 	fragNormal = vNormal;
