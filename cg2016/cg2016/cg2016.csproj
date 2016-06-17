@@ -84,6 +84,12 @@
     <Compile Include="MainSupercube.Designer.cs">
       <DependentUpon>MainSupercube.cs</DependentUpon>
     </Compile>
+    <Compile Include="MapTestScene.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MapTestScene.Designer.cs">
+      <DependentUpon>MapTestScene.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -105,46 +111,40 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="App.config" />
-    <None Include="CGUNS\ModelosOBJ\cube.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\cube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\cubosfera.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\cubosfera.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\DancingBanana.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\humbird.OBJ">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\homer.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\IronMan.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\homer_hp.obj">
+    <None Include="CGUNS\ModelosOBJ\Map\maptest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\humbird.OBJ">
+    <None Include="CGUNS\ModelosOBJ\Stuff\mono.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\IronMan.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\moto.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\mono.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\plane.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\moto.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\sphere.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\plane.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\sphere_flat.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\sonic.obj">
+    <None Include="CGUNS\ModelosOBJ\Stuff\supercube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\sphere.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\sphere_flat.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CGUNS\ModelosOBJ\supercube.obj">
+    <None Include="CGUNS\ModelosOBJ\Vehicles\tanktest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fparallaxmapping - Copy.glsl">
@@ -224,72 +224,69 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="files\Texturas\bricks2.jpg">
+    <Content Include="files\Texturas\Map\bricks2.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\bricks2_disp.jpg">
+    <Content Include="files\Texturas\Map\bricks2_disp.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\bricks2_normal.jpg">
+    <Content Include="files\Texturas\Map\bricks2_normal.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\brickwall.jpg" />
-    <Content Include="files\Texturas\BrickWallHD_d.png">
+    <Content Include="files\Texturas\Map\brickwall.jpg" />
+    <Content Include="files\Texturas\Map\BrickWallHD_d.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\BrickWallHD_n.png">
+    <Content Include="files\Texturas\Map\BrickWallHD_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\BrickWallHD_s.png">
+    <Content Include="files\Texturas\Map\BrickWallHD_s.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\BrickWallHD_g.png">
+    <Content Include="files\Texturas\Map\BrickWallHD_g.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\BrickWallHD_h.png">
+    <Content Include="files\Texturas\Map\BrickWallHD_h.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\brickwall_normal.jpg" />
-    <Content Include="files\Texturas\checker.jpeg">
+    <Content Include="files\Texturas\Map\brickwall_normal.jpg" />
+    <Content Include="files\Texturas\Helper\checker.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\checker.png">
+    <Content Include="files\Texturas\Helper\checker.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\chesterfield_d.png">
+    <Content Include="files\Texturas\Helper\depth2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\depth2.png">
+    <Content Include="files\Texturas\Helper\normal2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\flash_n.jpg">
+    <Content Include="files\Texturas\Helper\normalMap.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\DancingBanana.png">
+    <Content Include="files\Texturas\Helper\no_n.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\normal2.png">
+    <Content Include="files\Texturas\Helper\no_s.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\normalMap.png">
+    <Content Include="files\Texturas\Map\ruble_d.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\chesterfield_n.png">
+    <Content Include="files\Texturas\Map\ruble_h.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\no_n.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\no_s.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\sonic.png">
+    <Content Include="files\Texturas\Map\ruble_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="libs\OpenTK.dll" />
     <Content Include="libs\OpenTK.GLControl.dll" />
     <Content Include="libs\OpenTK.GLControl.xml" />
     <Content Include="libs\OpenTK.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="files\Texturas\Vehicles\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
