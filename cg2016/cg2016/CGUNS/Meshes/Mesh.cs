@@ -26,7 +26,5 @@ namespace CGUNS.Meshes
         public abstract void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix);
 
         public abstract void Build(ShaderProgram sProgram);
-
-        public abstract void SetModelMatrix(Matrix4 model);
     }
 }
