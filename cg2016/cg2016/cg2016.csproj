@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />
     <Compile Include="CGUNS\Cameras\SphericalCamera.cs" />
+    <Compile Include="CGUNS\Explosiones.cs" />
     <Compile Include="CGUNS\GLControl3.cs">
       <SubType>UserControl</SubType>
     </Compile>
