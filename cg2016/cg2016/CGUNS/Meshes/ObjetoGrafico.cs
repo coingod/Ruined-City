@@ -85,11 +85,6 @@ namespace CGUNS.Meshes
             }
         }
 
-        public void setModelsMatrix(Matrix4 modelMat) {
-            foreach (Mesh m in meshes)
-                m.SetModelMatrix(modelMat);
-        }
-
         public void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix)
         {
             int i = 0;

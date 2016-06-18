@@ -60,6 +60,7 @@ namespace CGUNS.Meshes
         public Matrix4 localToWorld
         {
             get { return modelMatrix; }
+            set { modelMatrix = value; }
         }
 
         /// <summary>
@@ -68,11 +69,6 @@ namespace CGUNS.Meshes
         public Matrix4 worldToLocal
         {
             get { return Matrix4.Invert(modelMatrix); }
-        }
-
-        public Matrix4 getset {
-            get { return modelMatrix; }
-            set { modelMatrix = value; }
         }
 
         /// <summary>

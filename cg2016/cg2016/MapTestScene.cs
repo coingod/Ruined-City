@@ -347,13 +347,12 @@ namespace cg2016
 
 
             //Dibujamos el Objeto
-            objeto.setModelsMatrix(fisica.tank.MotionState.WorldTransform);
-            objeto.transform.getset = fisica.tank.MotionState.WorldTransform;
+            objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             objeto.Dibujar(sProgram, viewMatrix);
             if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
-            mapa.setModelsMatrix(fisica.map.MotionState.WorldTransform);
+            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             mapa.Dibujar(sProgram, viewMatrix);
             if (toggleNormals) mapa.DibujarNormales(sProgram, viewMatrix);
 
