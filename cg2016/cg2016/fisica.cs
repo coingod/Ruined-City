@@ -42,8 +42,8 @@ namespace cg2016
             //aca se realizan las acciones
             CollisionShape tankShape = new ConvexHullShape();
             DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 5, 0));
-            Vector3 localInertia2 = tankShape.CalculateLocalInertia(10000f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(1f, myMotionState, tankShape, localInertia2);
+            Vector3 localInertia2 = tankShape.CalculateLocalInertia(10f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0.1f, myMotionState, tankShape, localInertia2);
 
             tank = new RigidBody(rbInfo);
             dynamicsWor.AddRigidBody(tank);

@@ -185,7 +185,9 @@ namespace cg2016
         //Se ejecuta cada tick del Timer, actualiza a las entidades dinamicas y redibuja la escena.
         private void Update(Object source, System.Timers.ElapsedEventArgs e)
         {
-            fisica.dynamicsWorld.StepSimulation(10);
+            fisica.dynamicsWorld.StepSimulation(1);
+            //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
+            fisica.tank.AngularVelocity=fisica.tank.AngularVelocity/10;
         
 
         //Console.WriteLine("Timer");
@@ -478,16 +480,16 @@ namespace cg2016
                         switch (e.KeyCode)
                         {
                             case Keys.Down:
-                                fisica.tank.LinearVelocity+=(-objeto.transform.forward);
+                                fisica.tank.LinearVelocity-=(objeto.transform.forward);
                                 break;
                             case Keys.Up:
                                 fisica.tank.LinearVelocity+=(objeto.transform.forward);
                                 break;
                             case Keys.Right:
-                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, 1f, 0));
+                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, -0.5f, 0));
                                 break;
                             case Keys.Left:
-                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, -1f, 0));
+                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, 0.5f, 0));
                                 break;
                             case Keys.S:
                                 myCamera.Abajo();
