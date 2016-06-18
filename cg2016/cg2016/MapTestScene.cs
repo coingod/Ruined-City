@@ -268,8 +268,8 @@ namespace cg2016
               else gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill); 
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            viewMatrix = myCamera.getViewMatrix();
-            projMatrix = myCamera.getProjectionMatrix();
+            viewMatrix = myCamera.viewMatrix;
+            projMatrix = myCamera.projectionMatrix;
             Matrix4 mvMatrix = Matrix4.Mult(viewMatrix, modelMatrix);
             //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix))); //En Espacio de OJO
             Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix))); //En Espacio de MUNDO
@@ -324,7 +324,7 @@ namespace cg2016
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             sProgram.SetUniformValue("normalMatrix", normalMatrix);
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
+            sProgram.SetUniformValue("cameraPosition", myCamera.position);
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
@@ -630,10 +630,10 @@ namespace cg2016
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
 
-                float rToSphere = rayToSphere(myCamera.getPosition(), ray_wor, sphereCenters, sphereRadius);
+                float rToSphere = rayToSphere(myCamera.position, ray_wor, sphereCenters, sphereRadius);
                 if (rToSphere != -1.0f)
                 {
-                    Vector3 origenParticulas = proyeccion(myCamera.getPosition(), ray_wor * 10);
+                    Vector3 origenParticulas = proyeccion(myCamera.position, ray_wor * 10);
 
                     double tiempoAux = inicioExplosiones[0]; //se busca un lugar para la explosion en el arreglo o se remplaza el mas antiguo
                     int masAntigua = 0;

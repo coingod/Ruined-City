@@ -199,8 +199,8 @@ namespace cg2016
             else gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            Matrix4 viewMatrix = myCamera.getViewMatrix();
-            Matrix4 projMatrix = myCamera.getProjectionMatrix();
+            Matrix4 viewMatrix = myCamera.viewMatrix;
+            Matrix4 projMatrix = myCamera.projectionMatrix;
             Matrix4 mvMatrix = Matrix4.Mult(viewMatrix, modelMatrix);
             Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
             //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
@@ -232,7 +232,7 @@ namespace cg2016
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             //sProgram.SetUniformValue("normalMatrix", normalMatrix); //No lo usamos
             sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            sProgram.SetUniformValue("cameraPosition", myCamera.getPosition()); //ParallaxMapping
+            sProgram.SetUniformValue("cameraPosition", myCamera.position); //ParallaxMapping
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);

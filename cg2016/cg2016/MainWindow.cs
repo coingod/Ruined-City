@@ -245,8 +245,8 @@ namespace cg2016
               else gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill); 
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            Matrix4 viewMatrix = myCamera.getViewMatrix();
-            Matrix4 projMatrix = myCamera.getProjectionMatrix();
+            Matrix4 viewMatrix = myCamera.viewMatrix;
+            Matrix4 projMatrix = myCamera.projectionMatrix;
             Matrix4 mvMatrix = Matrix4.Mult(viewMatrix, modelMatrix);
             Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
             //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));

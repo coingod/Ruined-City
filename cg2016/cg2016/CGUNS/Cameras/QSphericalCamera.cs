@@ -21,6 +21,12 @@ namespace CGUNS.Cameras
         private float theta; //Angulo en el plano horizontal (XZ) desde el eje X+ (grados)
         private float phi; //Angulo desde el eje Y+. (0, 180)  menos un epsilon. (grados)
 
+        //Configuracion de la matriz de proyeccion
+        private float _fieldOfView;
+        private float _aspect;
+        private float _nearClipPlane;
+        private float _farClipPlane;
+
         //Valores necesarios para calcular la Matriz de Vista.
         private Vector3 eye = new Vector3(0.0f, 0.0f, 0.0f);
         private Vector3 target = new Vector3(0, 0, 0);
@@ -32,17 +38,17 @@ namespace CGUNS.Cameras
         public QSphericalCamera(float radius = 5.0f, float theta = 45.0f, float phi = 30.0f,
             float zNear = 0.1f, float zFar = 100f, float fovy = 50 * DEG2RAD, float aspectRatio = 1)
         {
-            //Por ahora la matriz de proyeccion queda fija. :)
-            //float fovy = 50 * DEG2RAD; //50 grados de angulo.
-            //float aspectRatio = 1; //Cuadrado
-            //float zNear = 0.1f; //Plano Near
-            //float zFar = 100f;  //Plano Far
-            projMatrix = Matrix4.CreatePerspectiveFieldOfView(fovy, aspectRatio, zNear, zFar);
-
             //Posicion inicial de la camara.
             this.radius = radius;
             this.theta = theta;
             this.phi = phi;
+            //Matriz
+            _fieldOfView = fovy;
+            _aspect = aspectRatio;
+            _nearClipPlane = zNear;
+            _farClipPlane = zFar;
+
+            projMatrix = Matrix4.CreatePerspectiveFieldOfView(_fieldOfView, _aspect, _nearClipPlane, _farClipPlane);
 
             cameraPos = new Vector3(0, 0, -radius);
             cameraRot = Quaternion.FromAxisAngle(new Vector3(0, 0, 0), 1.0f);   //Quat identidad
@@ -53,46 +59,68 @@ namespace CGUNS.Cameras
             cameraRot = Quaternion.Multiply(qAux, cameraRot);
         }
 
-        public Vector3 getPosition()
+        public Vector3 position
         {
-            //Matris de Transformacion del Espacio del Ojo al espacio del Mundo
-            Matrix4 viewToWorld = getViewMatrix().Inverted();
-            //Posicion de la camara en el espacio del ojo (Osea el origen)
-            Vector4 eyePos = new Vector4(0,0,0,1);
-            //Transformo el origen de la camara en espacio del ojo al espacio del mundo
-            return new Vector3(
-              Vector4.Dot(viewToWorld.Column0, eyePos),
-              Vector4.Dot(viewToWorld.Column1, eyePos),
-              Vector4.Dot(viewToWorld.Column2, eyePos)
-              );
+            get
+            {
+                //Matris de Transformacion del Espacio del Ojo al espacio del Mundo
+                Matrix4 viewToWorld = viewMatrix.Inverted();
+                //Posicion de la camara en el espacio del ojo (Osea el origen)
+                Vector4 eyePos = new Vector4(0, 0, 0, 1);
+                //Transformo el origen de la camara en espacio del ojo al espacio del mundo
+                return new Vector3(
+                  Vector4.Dot(viewToWorld.Column0, eyePos),
+                  Vector4.Dot(viewToWorld.Column1, eyePos),
+                  Vector4.Dot(viewToWorld.Column2, eyePos)
+                );
+            }
         }
     
         /// <summary>
         /// Retorna la Matriz de Projeccion que esta utilizando esta camara.
         /// </summary>
         /// <returns></returns>
-        public Matrix4 getProjectionMatrix()
+        public Matrix4 projectionMatrix
         {
-            return projMatrix;
+            get { return projMatrix; }
+            set { projMatrix = value; }
         }
         /// <summary>
         /// Retorna la Matriz de Vista que representa esta camara.
         /// </summary>
         /// <returns></returns>
-        public Matrix4 getViewMatrix()
+        public Matrix4 viewMatrix
         {   
-            //Pasamos de sistema esferico, a sistema cartesiano
-            //eye.Y = (float)(radius * Math.Cos(phi * DEG2RAD));
-            //eye.X = (float)(radius * Math.Sin(phi * DEG2RAD) * Math.Cos(theta * DEG2RAD));
-            //eye.Z = (float)(radius * Math.Sin(phi * DEG2RAD) * Math.Sin(theta * DEG2RAD));
-            //Construimos la matriz y la devolvemos.
-            Matrix4 posicion = Matrix4.CreateTranslation(cameraPos);
-            Matrix4 rotacion = Matrix4.CreateFromQuaternion(cameraRot);
-            //return Matrix4.LookAt(eye, target, up);
-            return Matrix4.Mult(rotacion, posicion);
+            get
+            {
+                //Construimos la matriz y la devolvemos.
+                Matrix4 posicion = Matrix4.CreateTranslation(cameraPos);
+                Matrix4 rotacion = Matrix4.CreateFromQuaternion(cameraRot);
+                //return Matrix4.LookAt(eye, target, up);
+                return Matrix4.Mult(rotacion, posicion);
+            }
         }
 
+        public float aspect
+        {
+            get { return _aspect; }
+            set
+            {
+                _aspect = value;
+                projMatrix = Matrix4.CreatePerspectiveFieldOfView(_fieldOfView, _aspect, _nearClipPlane, _farClipPlane);
+            }
+        }
 
+        public float fieldOfView
+        {
+            get { return _fieldOfView; }
+            set
+            {
+                _fieldOfView = value;
+                projMatrix = Matrix4.CreatePerspectiveFieldOfView(_fieldOfView, _aspect, _nearClipPlane, _farClipPlane);
+            }
+        }
+        
         public void Acercar(float distance)
         {
             if ((distance > 0) && (distance < radius))
@@ -118,70 +146,36 @@ namespace CGUNS.Cameras
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -deltaPhi);
             cameraRot = Quaternion.Multiply(qAux, cameraRot);
-            /*
-            phi = phi - deltaPhi;
-            if (phi < 10)
-            {
-                phi = 10;
-            }
-             */
         }
 
         public void Abajo()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), deltaPhi);
             cameraRot = Quaternion.Multiply(qAux, cameraRot);
-            /*
-            phi = phi + deltaPhi;
-            if (phi > 170)
-            {
-                phi = 170;
-            }
-             */
         }
 
         public void Arriba2()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 0, 1), -deltaPhi);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
-            /*
-            phi = phi - deltaPhi;
-            if (phi < 10)
-            {
-                phi = 10;
-            }
-             */
         }
 
         public void Abajo2()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 0, 1), deltaPhi);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
-            /*
-            phi = phi + deltaPhi;
-            if (phi > 170)
-            {
-                phi = 170;
-            }
-             */
         }
 
         public void Izquierda()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 1, 0), -deltaTheta);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
-            /*
-            theta = theta + deltaTheta;
-             */
         }
 
         public void Derecha()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 1, 0), deltaTheta);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
-            /*
-            theta = theta - deltaTheta;
-             */
         }
 
 

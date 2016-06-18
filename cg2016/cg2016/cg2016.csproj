@@ -82,6 +82,7 @@
     <Compile Include="CGUNS\ParticleEmitter.cs" />
     <Compile Include="CGUNS\Transform.cs" />
     <Compile Include="fisica.cs" />
+    <Compile Include="MainGameWindow.cs" />
     <Compile Include="MainSupercube.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -154,6 +155,8 @@
     <None Include="CGUNS\ModelosOBJ\Vehicles\tanktest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
     <None Include="files\shaders\fparallaxmapping - Copy.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -13,9 +13,13 @@ namespace cg2016
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MapTestScene());
+            //Application.Run(new MapTestScene());
             //Application.Run(new MainWindow());
             //Application.Run(new MainSupercube());
+            using (MainGameWindow mw = new MainGameWindow())
+            {
+                mw.Run();
+            }
         }
     }
 }
