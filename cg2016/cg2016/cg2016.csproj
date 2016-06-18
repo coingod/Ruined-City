@@ -90,12 +90,6 @@
     <Compile Include="MainSupercube.Designer.cs">
       <DependentUpon>MainSupercube.cs</DependentUpon>
     </Compile>
-    <Compile Include="MapTestScene.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MapTestScene.Designer.cs">
-      <DependentUpon>MapTestScene.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,9 +100,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CGUNS\GLControl3.resx">
       <DependentUpon>GLControl3.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MapTestScene.resx">
-      <DependentUpon>MapTestScene.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
