@@ -58,10 +58,20 @@ namespace cg2016
         private bool toggleNormals = false;
         private bool toggleWires = false;
         private bool drawGizmos = true;
-        private bool toggleParticles = true;
+        private bool toggleParticles = false;
 
         private int transformaciones = 0;
         private int tex1, tex2, tex3;
+
+        private Cube cubo;
+        Matrix4 viewMatrix;
+        Matrix4 projMatrix;
+        private Vector3 sphereCenters = new Vector3(2.0f, 0.0f, 0.0f);
+        private float sphereRadius = 3f;
+        private double[] inicioExplosiones;
+        static int maxExplosiones = 5;
+        private ParticleEmitter[] explosiones = new ParticleEmitter[maxExplosiones];
+
         private void glControl3_Load(object sender, EventArgs e)
         {
             logContextInfo(); //Mostramos info de contexto.
@@ -78,6 +88,13 @@ namespace cg2016
             //Configuracion de los sistemas de particulas
             particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
             particles.Build(sProgramParticles);
+
+            cubo = new Cube(0.1f, 0.1f, 0.1f);
+            cubo.Build(sProgramUnlit);
+
+            inicioExplosiones = new double[maxExplosiones];
+            for (int i = 0; i < maxExplosiones; i++)
+                inicioExplosiones[i] = -3;
 
             //Carga y configuracion de Objetos
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj"); //Construimos los objetos que voy a dibujar.
@@ -117,7 +134,7 @@ namespace cg2016
             luces[0].Ipuntual = new Vector3(1.0f, 0.0f, 0.0f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
-            luces[0].Enabled = 1;
+            luces[0].Enabled = 0;
             luces[0].Direccional = 0;
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Direccional blanca
@@ -127,7 +144,7 @@ namespace cg2016
             luces[1].Ipuntual = new Vector3(0.75f, 0.75f, 0.75f);
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
-            luces[1].Enabled = 0;
+            luces[1].Enabled = 1;
             luces[1].Direccional = 1;
             luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Amarilla
@@ -183,6 +200,10 @@ namespace cg2016
 
             //Actualizo los sistemas de particulas
             particles.Update();
+
+            for (int i = 0; i < maxExplosiones; i++)
+                if (timeSinceStartup > inicioExplosiones[i] && timeSinceStartup < inicioExplosiones[i] + 2)
+                    explosiones[i].Update();
 
             //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
             glControl3.Invalidate();
@@ -245,8 +266,8 @@ namespace cg2016
               else gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill); 
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            Matrix4 viewMatrix = myCamera.getViewMatrix();
-            Matrix4 projMatrix = myCamera.getProjectionMatrix();
+            viewMatrix = myCamera.getViewMatrix();
+            projMatrix = myCamera.getProjectionMatrix();
             Matrix4 mvMatrix = Matrix4.Mult(viewMatrix, modelMatrix);
             //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix))); //En Espacio de OJO
             Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix))); //En Espacio de MUNDO
@@ -346,7 +367,12 @@ namespace cg2016
             sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
             sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
             //Dibujamos el sistema de particulas
-            if(toggleParticles)
+
+            for (int i = 0; i < maxExplosiones; i++)
+                if (timeSinceStartup > inicioExplosiones[i] && timeSinceStartup < inicioExplosiones[i] + 2)
+                    explosiones[i].Dibujar(sProgramParticles);
+
+            if (toggleParticles)
                 particles.Dibujar(sProgramParticles);
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
 
@@ -363,6 +389,10 @@ namespace cg2016
                 //Dibujamos la representacion visual de la luz.
                 for (int i = 0; i < luces.Length; i++)
                     luces[i].gizmo.Dibujar(sProgramUnlit);
+
+                sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(sphereCenters));
+                cubo.Dibujar(sProgramUnlit);
+
                 sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
             }
 
@@ -474,11 +504,11 @@ namespace cg2016
                                 break;
                             case Keys.Add:
                             case Keys.I:
-                                myCamera.Acercar(0.05f);
+                                myCamera.Acercar(0.5f);
                                 break;
                             case Keys.Subtract:
                             case Keys.O:
-                                myCamera.Alejar(0.05f);
+                                myCamera.Alejar(0.5f);
                                 break;
                             //Teclas para activar/desactivar funciones
                             case Keys.F3:
@@ -501,6 +531,9 @@ namespace cg2016
                                 break;
                             case Keys.P:
                                 toggleParticles = !toggleParticles;
+                                break;
+                            case Keys.J:
+                                myCamera= new QSphericalCamera(10, 270, 10, 0.1f, 250); 
                                 break;
                 }
                     }
@@ -581,5 +614,132 @@ namespace cg2016
         {
             System.Diagnostics.Debug.WriteLine(String.Format(format, args), "[CGUNS]");
         }
-    }
+
+
+
+        private void glControl3_Click(object sender, EventArgs e)
+        {
+            MouseEventArgs mouse = (MouseEventArgs)e;
+            int Xopengl = mouse.X;
+            int Yopengl = glControl3.Height - mouse.Y; //change Y axis
+            if (viewport.Contains(Xopengl, Yopengl))
+            { //Inside viewport?
+                int Xviewport = Xopengl - viewport.X;
+                int Yviewport = Yopengl - viewport.Y;
+                Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
+
+
+                float rToSphere = rayToSphere(myCamera.getPosition(), ray_wor, sphereCenters, sphereRadius);
+                if (rToSphere != -1.0f)
+                {
+                    Vector3 origenParticulas = proyeccion(myCamera.getPosition(), ray_wor * 10);
+
+                    double tiempoAux = inicioExplosiones[0]; //se busca un lugar para la explosion en el arreglo o se remplaza el mas antiguo
+                    int masAntigua = 0;
+                    for (int i = 0; i < maxExplosiones; i++)
+                        if (inicioExplosiones[i] < tiempoAux)
+                        {
+                            tiempoAux = inicioExplosiones[i];
+                            masAntigua = i;
+                        }
+                    explosiones[masAntigua] = new ParticleEmitter(origenParticulas, Vector3.UnitY * 0.25f, 500);
+                    explosiones[masAntigua].Build(sProgramParticles);
+                    inicioExplosiones[masAntigua] = timeSinceStartup;
+                }
+
+            }
+
+            glControl3.Invalidate(); //Ask for Redrawing.
+        }
+
+
+        private Vector3 getRayFromMouse(int x_viewport, int y_viewport)
+        {
+            // mouse_x, mouse_y are on screen space (viewport coordinates)
+            float x = (2.0f * x_viewport) / viewport.Width - 1.0f;
+            float y = (2.0f * y_viewport) / viewport.Height - 1.0f;
+            float z = 1.0f;
+            // normalised device space
+            Vector3 ray_nds = new Vector3(x, y, z);
+            // clip space
+            Vector4 ray_clip = new Vector4(ray_nds.X, ray_nds.Y, -1.0f, 0.0f);
+            // eye space
+            Vector4 ray_eye = Vector4.Transform(ray_clip, Matrix4.Invert(projMatrix)); //inverse(projMat) * ray_clip
+            ray_eye = new Vector4(ray_eye.X, ray_eye.Y, -1.0f, 0.0f);
+            // world space
+            Vector4 aux = Vector4.Transform(ray_eye, Matrix4.Invert(viewMatrix)); //inverse(viewMat) * ray_eye
+            Vector3 ray_wor = new Vector3(aux.X, aux.Y, aux.Z);
+            ray_wor = Vector3.Normalize(ray_wor);
+            return ray_wor;
+        }
+
+        private Vector3 proyeccion(Vector3 rayOrigin, Vector3 rayDir)
+        {
+            Vector3 pendiente = rayDir - rayOrigin;
+            //recta se expresa como origen+ t*pendiente. Calculo para que valor de t va a dar y=0 (q punto esta dentro del plano)
+            // 0 = rayOrigin.Y + t * pendiente.Y            
+            float t = -rayOrigin.Y / pendiente.Y;
+            float x = rayOrigin.X + t * pendiente.X;
+            float z = rayOrigin.Z + t * pendiente.Z;
+
+
+            //return new Vector3(x,0, z);
+            return rayOrigin + t * pendiente;
+        }
+
+        /*
+        check if a ray and a sphere intersect. if not hit, returns -1. it rejects
+        intersections behind the ray caster's origin, and sets intersection_distance to
+        the closest intersection (ALL PARAMETERS ARE ON WORLD SPACE!) */
+        private float rayToSphere(Vector3 rayOrigin, Vector3 rayDir, Vector3 sphereCenter, float sphereRadius)
+        {
+            // work out components of quadratic
+            Vector3 distToSphere = rayOrigin - sphereCenter;
+            float b = Vector3.Dot(rayDir, distToSphere);
+            float c = Vector3.Dot(distToSphere, distToSphere) - sphereRadius * sphereRadius;
+            float b_2_minus_c = b * b - c;
+            // check for "imaginary" answer. == ray completely misses sphere
+            if (b_2_minus_c < 0.0f)
+            {
+                return -1;
+            }
+            // check for ray hitting twice (in and out of the sphere)
+            if (b_2_minus_c > 0.0f)
+            {
+                // get the 2 intersection distances along ray
+                float t_a = -b + (float)Math.Sqrt(b_2_minus_c);
+                float t_b = -b - (float)Math.Sqrt(b_2_minus_c);
+                float result = t_b;
+                // if behind viewer, throw one or both away
+                if (t_a < 0.0)
+                {
+                    if (t_b < 0.0)
+                    {
+                        return -1;
+                    }
+                }
+                else if (t_b < 0.0)
+                {
+                    result = t_a;
+                }
+                return result;
+            }
+            // check for ray hitting once (skimming the surface)
+            if (0.0f == b_2_minus_c)
+            {
+                // if behind viewer, throw away
+                float t = -b + (float)Math.Sqrt(b_2_minus_c);
+                if (t < 0.0f)
+                {
+                    return -1;
+                }
+                return t;
+            }
+            return -1;
+        }
+
+
+    
+
+}
 }

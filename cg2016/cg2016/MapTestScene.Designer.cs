@@ -48,6 +48,7 @@
             this.glControl3.KeyDown += new System.Windows.Forms.KeyEventHandler(this.glControl3_KeyPressed);
             this.glControl3.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.glControl3_PreviewKeyDown);
             this.glControl3.Resize += new System.EventHandler(this.glControl3_Resize);
+            this.glControl3.Click += new System.EventHandler(this.glControl3_Click);
             // 
             // MapTestScene
             // 
