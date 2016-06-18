@@ -66,11 +66,8 @@ namespace cg2016
         private Cube cubo;
         Matrix4 viewMatrix;
         Matrix4 projMatrix;
-        private Vector3 sphereCenters = new Vector3(2.0f, 0.0f, 0.0f);
-        private float sphereRadius = 3f;
-        private double[] inicioExplosiones;
-        static int maxExplosiones = 5;
-        private ParticleEmitter[] explosiones = new ParticleEmitter[maxExplosiones];
+        Explosiones explosiones;
+
 
         private void glControl3_Load(object sender, EventArgs e)
         {
@@ -92,9 +89,7 @@ namespace cg2016
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
 
-            inicioExplosiones = new double[maxExplosiones];
-            for (int i = 0; i < maxExplosiones; i++)
-                inicioExplosiones[i] = -3;
+            explosiones = new Explosiones(5);
 
             //Carga y configuracion de Objetos
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj"); //Construimos los objetos que voy a dibujar.
@@ -185,9 +180,7 @@ namespace cg2016
         //Se ejecuta cada tick del Timer, actualiza a las entidades dinamicas y redibuja la escena.
         private void Update(Object source, System.Timers.ElapsedEventArgs e)
         {
-            fisica.dynamicsWorld.StepSimulation(1);
-            //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
-            fisica.tank.AngularVelocity=fisica.tank.AngularVelocity/10;
+            fisica.dynamicsWorld.StepSimulation(10);
         
 
         //Console.WriteLine("Timer");
@@ -203,10 +196,8 @@ namespace cg2016
             //Actualizo los sistemas de particulas
             particles.Update();
 
-            for (int i = 0; i < maxExplosiones; i++)
-                if (timeSinceStartup > inicioExplosiones[i] && timeSinceStartup < inicioExplosiones[i] + 2)
-                    explosiones[i].Update();
 
+            explosiones.Actualizar(timeSinceStartup);
             //Invalidamos el glControl para que se redibuje.(llama al metodo Paint)
             glControl3.Invalidate();
 
@@ -369,9 +360,8 @@ namespace cg2016
             sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
             //Dibujamos el sistema de particulas
 
-            for (int i = 0; i < maxExplosiones; i++)
-                if (timeSinceStartup > inicioExplosiones[i] && timeSinceStartup < inicioExplosiones[i] + 2)
-                    explosiones[i].Dibujar(sProgramParticles);
+            explosiones.Dibujar(timeSinceStartup, sProgramParticles);
+
 
             if (toggleParticles)
                 particles.Dibujar(sProgramParticles);
@@ -391,7 +381,7 @@ namespace cg2016
                 for (int i = 0; i < luces.Length; i++)
                     luces[i].gizmo.Dibujar(sProgramUnlit);
 
-                sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(sphereCenters));
+                sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
                 cubo.Dibujar(sProgramUnlit);
 
                 sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
@@ -480,16 +470,16 @@ namespace cg2016
                         switch (e.KeyCode)
                         {
                             case Keys.Down:
-                                fisica.tank.LinearVelocity-=(objeto.transform.forward);
+                                fisica.tank.LinearVelocity+=(-objeto.transform.forward);
                                 break;
                             case Keys.Up:
                                 fisica.tank.LinearVelocity+=(objeto.transform.forward);
                                 break;
                             case Keys.Right:
-                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, -0.5f, 0));
+                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, 1f, 0));
                                 break;
                             case Keys.Left:
-                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, 0.5f, 0));
+                                fisica.tank.ApplyTorqueImpulse(new Vector3(0, -1f, 0));
                                 break;
                             case Keys.S:
                                 myCamera.Abajo();
@@ -630,22 +620,12 @@ namespace cg2016
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
 
-                float rToSphere = rayToSphere(myCamera.position, ray_wor, sphereCenters, sphereRadius);
+                float rToSphere = rayToSphere(myCamera.getPosition(), ray_wor, sphereCenters, sphereRadius);
                 if (rToSphere != -1.0f)
                 {
                     Vector3 origenParticulas = proyeccion(myCamera.position, ray_wor * 10);
 
-                    double tiempoAux = inicioExplosiones[0]; //se busca un lugar para la explosion en el arreglo o se remplaza el mas antiguo
-                    int masAntigua = 0;
-                    for (int i = 0; i < maxExplosiones; i++)
-                        if (inicioExplosiones[i] < tiempoAux)
-                        {
-                            tiempoAux = inicioExplosiones[i];
-                            masAntigua = i;
-                        }
-                    explosiones[masAntigua] = new ParticleEmitter(origenParticulas, Vector3.UnitY * 0.25f, 500);
-                    explosiones[masAntigua].Build(sProgramParticles);
-                    inicioExplosiones[masAntigua] = timeSinceStartup;
+                    explosiones.CrearExplosion(timeSinceStartup, origenParticulas, sProgramParticles);
                 }
 
             }
