@@ -37,6 +37,10 @@
     <Reference Include="BulletSharp">
       <HintPath>libs\BulletSharp.dll</HintPath>
     </Reference>
+    <Reference Include="irrKlang.NET4, Version=1.0.5235.17346, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\irrKlang.NET4.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\OpenTK.dll</HintPath>
@@ -148,6 +152,10 @@
     <None Include="CGUNS\ModelosOBJ\Vehicles\tanktest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\audio\getout.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\audio\getout.ogg.sfk" />
     <None Include="files\shaders\fparallaxmapping - Copy.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -225,6 +233,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="files\audio\bell.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\audio\explosion.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\FX\smoke.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -299,6 +313,7 @@
     <Content Include="libs\BulletSharp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="libs\irrKlang.NET4.dll" />
     <Content Include="libs\OpenTK.dll" />
     <Content Include="libs\OpenTK.GLControl.dll" />
     <Content Include="libs\OpenTK.GLControl.xml" />

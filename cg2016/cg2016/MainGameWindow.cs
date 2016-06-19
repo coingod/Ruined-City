@@ -20,6 +20,7 @@ using System.Drawing.Imaging;
 using System.Diagnostics;
 using BulletSharp;
 using CGUNS.Particles;
+using IrrKlang;
 
 namespace cg2016
 {
@@ -61,6 +62,9 @@ namespace cg2016
         //BulletSharp
         private fisica fisica;
 
+        //Irrklang. Para audio
+        ISoundEngine engine;
+
         //Opciones
         private bool toggleNormals = false;
         private bool toggleWires = false;
@@ -86,6 +90,9 @@ namespace cg2016
 
             //Arrancamos la clase fisica
             fisica = new fisica();
+
+            engine = new ISoundEngine();
+            engine.Play2D("files/audio/getout.ogg", true);
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
@@ -445,8 +452,10 @@ namespace cg2016
                 int Yviewport = Yopengl - viewport.Y;
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
+                engine.Play2D("files/audio/explosion.wav");
 
-                float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
+
+               float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
                 if (rToSphere != -1.0f)
                 {
                     Vector3 origenParticulas = proyeccion(myCamera.position, ray_wor * 10);
