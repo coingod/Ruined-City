@@ -19,6 +19,7 @@ using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using BulletSharp;
+using CGUNS.Particles;
 
 namespace cg2016
 {
@@ -50,15 +51,12 @@ namespace cg2016
 
         //Efectos de Particulas
         private ParticleEmitter particles;
+        private Smoke smokeParticles;
 
         private Cube cubo;
         Matrix4 viewMatrix;
         Matrix4 projMatrix;
-        private Vector3 sphereCenters = new Vector3(2.0f, 0.0f, 0.0f);
-        private float sphereRadius = 3f;
-        private double[] inicioExplosiones;
-        static int maxExplosiones = 5;
-        private ParticleEmitter[] explosiones = new ParticleEmitter[maxExplosiones];
+        Explosiones explosiones;
 
         //BulletSharp
         private fisica fisica;
@@ -96,15 +94,15 @@ namespace cg2016
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
 
             //Configuracion de los sistemas de particulas
-            particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
+            particles = new ParticleEmitter(Vector3.Zero);//, Vector3.UnitY * 5f, 500);
             particles.Build(sProgramParticles);
+            smokeParticles = new Smoke(new Vector3(50, 0, 50));//, Vector3.UnitY * 5f, 100);
+            smokeParticles.Build(sProgramParticles);
 
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
 
-            inicioExplosiones = new double[maxExplosiones];
-            for (int i = 0; i < maxExplosiones; i++)
-                inicioExplosiones[i] = -3;
+            explosiones = new Explosiones(5);
 
             //Carga y configuracion de Objetos
             SetupObjects();
@@ -173,10 +171,9 @@ namespace cg2016
 
             //Actualizo los sistemas de particulas
             particles.Update();
+            smokeParticles.Update();
 
-            for (int i = 0; i < maxExplosiones; i++)
-                if (timeSinceStartup > inicioExplosiones[i] && timeSinceStartup < inicioExplosiones[i] + 2)
-                    explosiones[i].Update();
+            explosiones.Actualizar(timeSinceStartup);
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
@@ -287,8 +284,8 @@ namespace cg2016
 
             //Dibujamos el Objeto
             objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            objeto.Dibujar(sProgram, viewMatrix);
-            if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
+            //objeto.Dibujar(sProgram, viewMatrix);
+            //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
@@ -304,13 +301,15 @@ namespace cg2016
             sProgramParticles.SetUniformValue("projMatrix", projMatrix);
             sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
             sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
+            sProgramParticles.SetUniformValue("ColorTex", 0);
             //Dibujamos el sistema de particulas
-            for (int i = 0; i < maxExplosiones; i++)
-                if (timeSinceStartup > inicioExplosiones[i] && timeSinceStartup < inicioExplosiones[i] + 2)
-                    explosiones[i].Dibujar(sProgramParticles);
-
+            explosiones.Dibujar(timeSinceStartup, sProgramParticles);
             if (toggleParticles)
+            {
                 particles.Dibujar(sProgramParticles);
+                sProgramParticles.SetUniformValue("ColorTex", 3);
+                smokeParticles.Dibujar(sProgramParticles);
+            }
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
 
             if (drawGizmos)
@@ -327,7 +326,7 @@ namespace cg2016
                 for (int i = 0; i < luces.Length; i++)
                     luces[i].gizmo.Dibujar(sProgramUnlit);
 
-                sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(sphereCenters));
+                sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
                 cubo.Dibujar(sProgramUnlit);
 
                 sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
@@ -447,22 +446,11 @@ namespace cg2016
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
 
-                float rToSphere = rayToSphere(myCamera.position, ray_wor, sphereCenters, sphereRadius);
+                float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
                 if (rToSphere != -1.0f)
                 {
                     Vector3 origenParticulas = proyeccion(myCamera.position, ray_wor * 10);
-
-                    double tiempoAux = inicioExplosiones[0]; //se busca un lugar para la explosion en el arreglo o se remplaza el mas antiguo
-                    int masAntigua = 0;
-                    for (int i = 0; i < maxExplosiones; i++)
-                        if (inicioExplosiones[i] < tiempoAux)
-                        {
-                            tiempoAux = inicioExplosiones[i];
-                            masAntigua = i;
-                        }
-                    explosiones[masAntigua] = new ParticleEmitter(origenParticulas, Vector3.UnitY * 0.25f, 500);
-                    explosiones[masAntigua].Build(sProgramParticles);
-                    inicioExplosiones[masAntigua] = timeSinceStartup;
+                    explosiones.CrearExplosion(timeSinceStartup, origenParticulas, sProgramParticles);
                 }
 
             }
@@ -572,12 +560,17 @@ namespace cg2016
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
 
             //Carga de Texturas
-            GL.ActiveTexture(TextureUnit.Texture0);
+            gl.ActiveTexture(TextureUnit.Texture0);
             CargarTextura("files/Texturas/Helper/no_s.jpg");
-            GL.ActiveTexture(TextureUnit.Texture1);
+            gl.ActiveTexture(TextureUnit.Texture1);
             CargarTextura("files/Texturas/Helper/no_n.jpg");
-            GL.ActiveTexture(TextureUnit.Texture2);
+            gl.ActiveTexture(TextureUnit.Texture2);
             CargarTextura("files/Texturas/Helper/no_s.jpg");
+
+            gl.ActiveTexture(TextureUnit.Texture3);
+            CargarTextura("files/Texturas/FX/smoke3.png");
+            //CargarTextura("files/Texturas/FX/smoke_fondonegro.png");
+            //CargarTextura("files/Texturas/FX/smoke_fondoblanco.png");
         }
 
         protected void SetupLights()

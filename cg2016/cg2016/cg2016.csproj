@@ -80,7 +80,8 @@
     <Compile Include="CGUNS\Shaders\Exceptions.cs" />
     <Compile Include="CGUNS\Shaders\Shader.cs" />
     <Compile Include="CGUNS\Shaders\ShaderProgram.cs" />
-    <Compile Include="CGUNS\ParticleEmitter.cs" />
+    <Compile Include="CGUNS\Particles\ParticleEmitter.cs" />
+    <Compile Include="CGUNS\Particles\Smoke.cs" />
     <Compile Include="CGUNS\Transform.cs" />
     <Compile Include="fisica.cs" />
     <Compile Include="MainGameWindow.cs" />
@@ -147,8 +148,6 @@
     <None Include="CGUNS\ModelosOBJ\Vehicles\tanktest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram2.cd" />
     <None Include="files\shaders\fparallaxmapping - Copy.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -226,6 +225,21 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="files\Texturas\FX\smoke.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\FX\smoke2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\FX\smoke3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\FX\smoke_fondoblanco.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\FX\smoke_fondonegro.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\Map\bricks2.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

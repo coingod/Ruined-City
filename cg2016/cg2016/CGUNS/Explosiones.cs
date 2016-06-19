@@ -5,6 +5,7 @@ using System.Text;
 using CGUNS.Shaders;
 using CGUNS.Meshes;
 using OpenTK;
+using CGUNS.Particles;
 
 namespace CGUNS
 {
@@ -36,7 +37,7 @@ namespace CGUNS
                     tiempoAux = inicioExplosiones[i];
                     masAntigua = i;
                 }
-            explosiones[masAntigua] = new ParticleEmitter(posOrigen, Vector3.UnitY * 0.25f, 500);
+            explosiones[masAntigua] = new ParticleEmitter(posOrigen);//, Vector3.UnitY * 0.25f, 500);
             explosiones[masAntigua].Build(sProgramParticles);
             inicioExplosiones[masAntigua] = tiempoInicio;
         }

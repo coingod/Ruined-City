@@ -1,12 +1,14 @@
 #version 330
 
-//in vec2 TexCoords;
+in vec2 f_TexCoords;
 in vec4 ParticleColor;
-out vec4 fragColor;
 
-//uniform sampler2D sprite;
+uniform sampler2D ColorTex;
+
+out vec4 fragColor;
 
 void main()
 {
-    fragColor = ParticleColor;//(texture(sprite, TexCoords) * ParticleColor);
+	vec4 texture = texture2D(ColorTex, f_TexCoords);
+	fragColor = texture * ParticleColor;
 }  

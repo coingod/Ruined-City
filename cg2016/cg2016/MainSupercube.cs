@@ -16,6 +16,7 @@ using CGUNS.Primitives;
 using CGUNS.Meshes;
 using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
+using CGUNS.Particles;
 
 namespace cg2016
 {
@@ -67,7 +68,7 @@ namespace cg2016
             //ejes_locales.Build(sProgramUnlit);
 
             //Configuracion de los sistemas de particulas
-            particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
+            particles = new ParticleEmitter(Vector3.Zero);//, Vector3.UnitY * 0.25f, 500);
             particles.Build(sProgramParticles);
 
             //Carga y configuracion de Objetos

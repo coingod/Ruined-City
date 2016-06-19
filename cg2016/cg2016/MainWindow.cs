@@ -18,6 +18,8 @@ using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using BulletSharp;
+using CGUNS.Particles;
+
 namespace cg2016
 {
     public partial class MainWindow : Form
@@ -66,9 +68,9 @@ namespace cg2016
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
             SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
-                        
+
             //Configuracion de los sistemas de particulas
-            particles = new ParticleEmitter(Vector3.Zero, Vector3.UnitY * 0.25f, 500);
+            particles = new ParticleEmitter(Vector3.Zero);//, Vector3.UnitY * 0.25f, 500);
             particles.Build(sProgramParticles);
             
             //Carga y configuracion de Objetos
