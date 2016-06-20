@@ -58,6 +58,10 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 
 	//Obtenemos el color de la textura
 	vec4 colorTex=texture2D(ColorTex, f_TexCoord);
+
+	//Descarto los fragmentos con valor de transparencia
+	if(colorTex.a < 0.5)
+		discard;
 	//vec4 colorTex=colorTex2 * texture2D(gSampler2, f_TexCoord);
 
 	//AMBIENT

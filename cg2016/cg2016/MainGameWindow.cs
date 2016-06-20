@@ -92,7 +92,7 @@ namespace cg2016
             fisica = new fisica();
 
             engine = new ISoundEngine();
-            engine.Play2D("files/audio/getout.ogg", true);
+            engine.Play2D("files/audio/ambience.ogg", true);
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
@@ -296,7 +296,17 @@ namespace cg2016
 
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
-            mapa.Dibujar(sProgram, viewMatrix);
+            //sProgram.SetUniformValue("ColorTex", 4);
+            //mapa.Meshes[0].Dibujar(sProgram, viewMatrix);
+            sProgram.SetUniformValue("ColorTex", 0);
+            for(int i = 0; i < mapa.Meshes.Count; i++)
+            {
+                if (i == 23)
+                    sProgram.SetUniformValue("ColorTex", 4);
+                else
+                    sProgram.SetUniformValue("ColorTex", 0);
+                mapa.Meshes[i].Dibujar(sProgram, viewMatrix);
+            }
             if (toggleNormals) mapa.DibujarNormales(sProgram, viewMatrix);
 
 
@@ -578,8 +588,13 @@ namespace cg2016
 
             gl.ActiveTexture(TextureUnit.Texture3);
             CargarTextura("files/Texturas/FX/smoke3.png");
-            //CargarTextura("files/Texturas/FX/smoke_fondonegro.png");
-            //CargarTextura("files/Texturas/FX/smoke_fondoblanco.png");
+
+            gl.ActiveTexture(TextureUnit.Texture4);
+            CargarTextura("files/Texturas/Map/ambientruins.png");
+            gl.ActiveTexture(TextureUnit.Texture5);
+            CargarTextura("files/Texturas/Map/distantbuilding.png");
+            gl.ActiveTexture(TextureUnit.Texture6);
+            CargarTextura("files/Texturas/Map/distantroof.png");
         }
 
         protected void SetupLights()
