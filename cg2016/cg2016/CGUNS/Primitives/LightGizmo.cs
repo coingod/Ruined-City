@@ -14,7 +14,7 @@ namespace CGUNS.Primitives
         private uint[] indices;  //Los indices para formar las caras.
         private Light light;
 
-        public LightGizmo( Light l,  float s = 0.5f )
+        public LightGizmo( Light l,  float s = 0.1f )
         {
             light = l;
 

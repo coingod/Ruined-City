@@ -155,6 +155,18 @@
     <None Include="files\audio\ambience.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\audio\FarExplosionA.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\audio\FarExplosionB.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\audio\NearExplosionA.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\audio\NearExplosionB.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\fparallaxmapping - Copy.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

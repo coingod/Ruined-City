@@ -49,7 +49,7 @@ namespace cg2016
             dynamicsWor.AddRigidBody(tank);
 
             myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
-            CollisionShape mapShape = new StaticPlaneShape(new Vector3 (0,1,0), 1f);
+            CollisionShape mapShape = new StaticPlaneShape(new Vector3 (0, 1, 0), 0.01f);
             rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape, new Vector3(0, 0, 0));
 
             map = new RigidBody(rbInfo);

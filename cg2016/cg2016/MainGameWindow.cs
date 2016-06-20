@@ -64,6 +64,7 @@ namespace cg2016
 
         //Irrklang. Para audio
         ISoundEngine engine;
+        ISound sonidoAmbiente;
 
         //Opciones
         private bool toggleNormals = false;
@@ -78,6 +79,7 @@ namespace cg2016
         int FrameCount = 0;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
 
+
         #endregion
 
         #region Funciones de GameWindow
@@ -91,8 +93,10 @@ namespace cg2016
             //Arrancamos la clase fisica
             fisica = new fisica();
 
+            //objeto.transform.position;
             engine = new ISoundEngine();
-            engine.Play2D("files/audio/ambience.ogg", true);
+            sonidoAmbiente = engine.Play2D("files/audio/ambience.ogg", true);
+            sonidoAmbiente.Volume = sonidoAmbiente.Volume / 4;
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
@@ -103,7 +107,7 @@ namespace cg2016
             //Configuracion de los sistemas de particulas
             particles = new ParticleEmitter(Vector3.Zero);//, Vector3.UnitY * 5f, 500);
             particles.Build(sProgramParticles);
-            smokeParticles = new Smoke(new Vector3(50, 0, 50));//, Vector3.UnitY * 5f, 100);
+            smokeParticles = new Smoke(new Vector3(5, 0, 5));//, Vector3.UnitY * 5f, 100);
             smokeParticles.Build(sProgramParticles);
 
             cubo = new Cube(0.1f, 0.1f, 0.1f);
@@ -115,7 +119,7 @@ namespace cg2016
             SetupObjects();
 
             //Configuracion de la Camara
-            myCamera = new QSphericalCamera(50, 45, 30, 0.1f, 250); //Creo una camara.
+            myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
 
             // Setup OpenGL capabilities
@@ -173,7 +177,7 @@ namespace cg2016
 
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
-            Vector3 pos = Vector3.Lerp(new Vector3(-40.0f, 10.0f, 0.0f), new Vector3(40.0f, 10.0f, 0.0f), blend);
+            Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 1.0f, 0.0f), new Vector3(4.0f, 1.0f, 0.0f), blend);
             luces[0].Position = new Vector4(pos, 1.0f);
 
             //Actualizo los sistemas de particulas
@@ -219,14 +223,15 @@ namespace cg2016
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
 
+            //audio
+            Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
+            engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
+
             //FIRST SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
 
-            //Configuracion de las transformaciones del objeto en espacio de mundo
-            //mapa.transform.scale = new Vector3(0.25f, 0.25f, 0.25f);
-            //objeto.transform.scale = new Vector3(0.25f, 0.25f, 0.25f);
-
             #region Configuracion de Uniforms
+
             /*
             /// BUMPED SCPECULAR PHONG
             //Configuracion de los valores uniformes del shader
@@ -291,11 +296,15 @@ namespace cg2016
 
             //Dibujamos el Objeto
             objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            //objeto.Dibujar(sProgram, viewMatrix);
+            //Cambio la escala de los objetos para evitar el bug de serruchos.
+            objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            objeto.Dibujar(sProgram, viewMatrix);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
+            //Cambio la escala de los objetos para evitar el bug de serruchos.
+            mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             //sProgram.SetUniformValue("ColorTex", 4);
             //mapa.Meshes[0].Dibujar(sProgram, viewMatrix);
             sProgram.SetUniformValue("ColorTex", 0);
@@ -381,10 +390,10 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity -= (objeto.transform.forward);
+                        fisica.tank.LinearVelocity -= (objeto.transform.forward) * 0.5f;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity += (objeto.transform.forward);
+                        fisica.tank.LinearVelocity += (objeto.transform.forward) * 0.5f;
                         break;
                     case Key.Right:
                         fisica.tank.ApplyTorqueImpulse(new Vector3(0, -0.5f, 0));
@@ -406,11 +415,11 @@ namespace cg2016
                         break;
                     case Key.KeypadAdd:
                     case Key.I:
-                        myCamera.Acercar(0.5f);
+                        myCamera.Acercar(0.1f);
                         break;
                     case Key.KeypadMinus:
                     case Key.O:
-                        myCamera.Alejar(0.5f);
+                        myCamera.Alejar(0.1f);
                         break;
                     //Teclas para activar/desactivar funciones
                     case Key.F1:
@@ -439,16 +448,24 @@ namespace cg2016
                         break;
                     case Key.J:
                         {
-                            myCamera = new QSphericalCamera(10, 270, 10, 0.1f, 250);
+                            myCamera = new QSphericalCamera(1, 270, 10, 0.1f, 250);
                             OnResize(null);
                         }
                         break;
                     case Key.K:
                         {
-                            myCamera = new QSphericalCamera(50, 45, 30, 0.1f, 250);
+                            myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250);
                             OnResize(null);
                         }
                         break;
+                    /*case Key.N:
+                        Vector3D pos = musicAmbiente.Position + new Vector3D(0, 1, 0) ;
+                        musicAmbiente.Position = pos;
+                        break;
+                    case Key.M:
+                        pos = musicAmbiente.Position + new Vector3D(0, -1, 0);
+                        musicAmbiente.Position = pos;
+                        break;*/
                 }
             }
         }
@@ -462,8 +479,12 @@ namespace cg2016
                 int Yviewport = Yopengl - viewport.Y;
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
-                engine.Play2D("files/audio/explosion.wav");
-
+                ISound sound;
+                sound = engine.Play3D("files/audio/NearExplosionA.ogg", objeto.transform.position.X, objeto.transform.position.Y, objeto.transform.position.Z, false);
+                
+                if (sound != null)
+                    sound.MaxDistance = 10.0f;
+                
 
                float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
                 if (rToSphere != -1.0f)

@@ -40,13 +40,13 @@ namespace CGUNS.Particles
         //Origen de las particulas
         protected Vector3 Position;
         public bool enabled = false;                     //If enabled, the emitter will emit particles.
-        public float minSize = 1f;//0.1f                //The minimum size each particle can be at the time when it is spawned.
-        public float maxSize = 1f;//0.1f                //The maximum size each particle can be at the time when it is spawned.
+        public float minSize = 0.1f;             //The minimum size each particle can be at the time when it is spawned.
+        public float maxSize = 0.1f;               //The maximum size each particle can be at the time when it is spawned.
         public int minEnergy = 3;                       //The minimum lifetime of each particle, measured in seconds.
         public int maxEnergy = 3;                       //The maximum lifetime of each particle, measured in seconds.
         //private int minEmission = 1;//50;                    //The minimum number of particles that will be spawned every second.
         protected int maxEmission = 50;                    //The maximum number of particles that will be spawned.
-        public Vector3 worldVelocity = Vector3.UnitY * 5f;     //The starting speed of particles in world space, along X, Y, and Z.
+        public Vector3 worldVelocity = Vector3.UnitY;     //The starting speed of particles in world space, along X, Y, and Z.
         protected Vector3 localVelocity = Vector3.Zero;    //The starting speed of particles along X, Y, and Z, measured in the object’s orientation.
         protected Vector3 rndVelocity = Vector3.Zero;      //A random speed along X, Y, and Z that is added to the velocity.
         public float rndVelocityScale = 2;                ////The amount of random noise in the particles initial velocity.
@@ -204,7 +204,7 @@ namespace CGUNS.Particles
                                 2 * (float)rand.NextDouble() - 1,
                                 2 * (float)rand.NextDouble() - 1,
                                 2 * (float)rand.NextDouble() - 1
-                            );
+                            )*0.1f;
                             SpawnParticle(i);
                             lastSpawnTime = time;
                         }
