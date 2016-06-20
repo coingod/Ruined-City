@@ -64,7 +64,7 @@ namespace cg2016
 
         //Irrklang. Para audio
         ISoundEngine engine;
-
+        //ISound musicAmbiente;
         //Opciones
         private bool toggleNormals = false;
         private bool toggleWires = false;
@@ -77,6 +77,7 @@ namespace cg2016
         private int fps = 0; //FramesPorSegundo
         int FrameCount = 0;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
+        
 
         #endregion
 
@@ -90,9 +91,14 @@ namespace cg2016
 
             //Arrancamos la clase fisica
             fisica = new fisica();
-
+          
+            //objeto.transform.position;
             engine = new ISoundEngine();
-            engine.Play2D("files/audio/getout.ogg", true);
+            //engine.Play2D("files/audio/getout.ogg", true);
+            ISound musicAmbiente = engine.Play3D("files/audio/getout.ogg", 0, 0, 0, true);
+            if (musicAmbiente != null)
+                musicAmbiente.MaxDistance = 20.0f;
+            
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
@@ -219,6 +225,10 @@ namespace cg2016
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
 
+            //audio
+            Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
+            engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
+
             //FIRST SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
 
@@ -291,7 +301,7 @@ namespace cg2016
 
             //Dibujamos el Objeto
             objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            //objeto.Dibujar(sProgram, viewMatrix);
+            objeto.Dibujar(sProgram, viewMatrix);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
@@ -439,6 +449,14 @@ namespace cg2016
                             OnResize(null);
                         }
                         break;
+                    /*case Key.N:
+                        Vector3D pos = musicAmbiente.Position + new Vector3D(0, 1, 0) ;
+                        musicAmbiente.Position = pos;
+                        break;
+                    case Key.M:
+                        pos = musicAmbiente.Position + new Vector3D(0, -1, 0);
+                        musicAmbiente.Position = pos;
+                        break;*/
                 }
             }
         }
@@ -452,10 +470,13 @@ namespace cg2016
                 int Yviewport = Yopengl - viewport.Y;
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
-                engine.Play2D("files/audio/explosion.wav");
+                //engine.Play2D("files/audio/explosion.wav");
+                ISound music= engine.Play3D("files/audio/explosion.wav", objeto.transform.position.X, objeto.transform.position.Y, objeto.transform.position.Z, false);
+                if (music != null)
+                     music.MaxDistance = 20.0f;
 
 
-               float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
+                float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
                 if (rToSphere != -1.0f)
                 {
                     Vector3 origenParticulas = proyeccion(myCamera.position, ray_wor * 10);
