@@ -75,25 +75,16 @@ namespace CGUNS.Meshes
 
         public void Dibujar(ShaderProgram sProgram, Matrix4 mvMatrix)
         {
-            int i = 0;
             foreach (Mesh m in meshes)
             {
-                //sProgram.SetUniformValue("figureColor", new Vector4(meshesColor[i++]));
-                //sProgram.SetUniformValue("kd", meshesColor[i] * 0.6f);
-                //sProgram.SetUniformValue("ka", meshesColor[i++] * 0.1f);
                 m.Dibujar(sProgram, mvMatrix);
             }
         }
 
         public void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix)
         {
-            int i = 0;
             foreach (Mesh m in meshes)
             {
-                //sProgram.SetUniformValue("figureColor", new Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-                //sProgram.SetUniformValue("ka", new Vector3(1.0f, 0.0f, 0.0f));
-                //sProgram.SetUniformValue("kd", new Vector3(1.0f, 0.0f, 0.0f));
-                //sProgram.SetUniformValue("ks", new Vector3(0.0f, 0.0f, 0.0f));
                 m.DibujarNormales(sProgram, mvMatrix);
             }
         }

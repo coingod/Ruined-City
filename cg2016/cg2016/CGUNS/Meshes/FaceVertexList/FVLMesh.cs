@@ -11,10 +11,24 @@ namespace CGUNS.Meshes.FaceVertexList
 {
     public class FVLMesh : Mesh
     {
+        //Triangulos
         private List<FVLFace> faceList;
+        //Vertices
         private List<Vector3> vertexList;
+        //Coordenadas de textura
         private List<Vector2> texCordList;
+
+        //Vectores Normales de a pares (Origen, Extremo)
         private List<Vector3> vertexNormalList;
+
+        public FVLMesh(string name) : base(name)
+        {
+            faceList = new List<FVLFace>();
+            vertexList = new List<Vector3>();
+            vertexNormalList = new List<Vector3>();
+            texCordList = new List<Vector2>();
+
+        }
 
         public FVLMesh()
         {
@@ -453,6 +467,11 @@ namespace CGUNS.Meshes.FaceVertexList
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
             //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
+
+            //Si tiene una textura especial, asignarla
+            if (textures.Count > 0)
+                sProgram.SetUniformValue("ColorTex", textures[0]);
+            
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?
             int count;  // Cuantos?
@@ -466,6 +485,9 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindVertexArray(h_VAO); //Seleccionamos el VAO a utilizar.
             gl.DrawElements(primitive, count, indexType, offset); //Dibujamos utilizando los indices del VAO.
             gl.BindVertexArray(0); //Deseleccionamos el VAO
+
+            //Reseteamos la textura por defecto
+            sProgram.SetUniformValue("ColorTex", 0);
         }
 
         public override void DibujarNormales(ShaderProgram sProgram, Matrix4 viewMatrix)

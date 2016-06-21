@@ -53,6 +53,7 @@ namespace cg2016
         //Efectos de Particulas
         private ParticleEmitter particles;
         private Smoke smokeParticles;
+        private Fire fireParticles;
 
         private Cube cubo;
         Matrix4 viewMatrix;
@@ -93,7 +94,6 @@ namespace cg2016
             //Arrancamos la clase fisica
             fisica = new fisica();
 
-            //objeto.transform.position;
             engine = new ISoundEngine();
             sonidoAmbiente = engine.Play2D("files/audio/ambience.ogg", true);
             sonidoAmbiente.Volume = sonidoAmbiente.Volume / 4;
@@ -105,10 +105,12 @@ namespace cg2016
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
 
             //Configuracion de los sistemas de particulas
-            particles = new ParticleEmitter(Vector3.Zero);//, Vector3.UnitY * 5f, 500);
+            particles = new ParticleEmitter(Vector3.Zero);
             particles.Build(sProgramParticles);
-            smokeParticles = new Smoke(new Vector3(5, 0, 5));//, Vector3.UnitY * 5f, 100);
+            smokeParticles = new Smoke(new Vector3(5, 0, 5));
             smokeParticles.Build(sProgramParticles);
+            fireParticles = new Fire(new Vector3(7.5f, 2.5f, 2));
+            fireParticles.Build(sProgramParticles);
 
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
@@ -183,6 +185,7 @@ namespace cg2016
             //Actualizo los sistemas de particulas
             particles.Update();
             smokeParticles.Update();
+            fireParticles.Update();
 
             explosiones.Actualizar(timeSinceStartup);
 
@@ -305,17 +308,7 @@ namespace cg2016
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
-            //sProgram.SetUniformValue("ColorTex", 4);
-            //mapa.Meshes[0].Dibujar(sProgram, viewMatrix);
-            sProgram.SetUniformValue("ColorTex", 0);
-            for(int i = 0; i < mapa.Meshes.Count; i++)
-            {
-                if (i == 23)
-                    sProgram.SetUniformValue("ColorTex", 4);
-                else
-                    sProgram.SetUniformValue("ColorTex", 0);
-                mapa.Meshes[i].Dibujar(sProgram, viewMatrix);
-            }
+            mapa.Dibujar(sProgram, viewMatrix);
             if (toggleNormals) mapa.DibujarNormales(sProgram, viewMatrix);
 
 
@@ -327,14 +320,24 @@ namespace cg2016
             sProgramParticles.SetUniformValue("projMatrix", projMatrix);
             sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
             sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
+            sProgramParticles.SetUniformValue("uvOffset", new Vector2(1f, 1f));
+            sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);
+            sProgramParticles.SetUniformValue("animated", 0);
             sProgramParticles.SetUniformValue("ColorTex", 0);
             //Dibujamos el sistema de particulas
             explosiones.Dibujar(timeSinceStartup, sProgramParticles);
             if (toggleParticles)
             {
+                //Test
                 particles.Dibujar(sProgramParticles);
+                //Humo
                 sProgramParticles.SetUniformValue("ColorTex", 3);
                 smokeParticles.Dibujar(sProgramParticles);
+                //Fuego animado
+                sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
+                sProgramParticles.SetUniformValue("ColorTex", 7);
+                sProgramParticles.SetUniformValue("animated", 1);
+                fireParticles.Dibujar(sProgramParticles);
             }
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
 
@@ -352,6 +355,7 @@ namespace cg2016
                 for (int i = 0; i < luces.Length; i++)
                     luces[i].gizmo.Dibujar(sProgramUnlit);
 
+                //Area de clickeo para explosion
                 sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
                 cubo.Dibujar(sProgramUnlit);
 
@@ -390,10 +394,10 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity -= (objeto.transform.forward) * 0.5f;
+                        fisica.tank.LinearVelocity -= (objeto.transform.forward);
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity += (objeto.transform.forward) * 0.5f;
+                        fisica.tank.LinearVelocity += (objeto.transform.forward);
                         break;
                     case Key.Right:
                         fisica.tank.ApplyTorqueImpulse(new Vector3(0, -0.5f, 0));
@@ -594,11 +598,6 @@ namespace cg2016
 
         protected void SetupObjects()
         {
-            mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj"); //Construimos los objetos que voy a dibujar.
-            mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tanktest.obj"); //Construimos los objetos que voy a dibujar.
-            objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-
             //Carga de Texturas
             gl.ActiveTexture(TextureUnit.Texture0);
             CargarTextura("files/Texturas/Helper/no_s.jpg");
@@ -608,7 +607,7 @@ namespace cg2016
             CargarTextura("files/Texturas/Helper/no_s.jpg");
 
             gl.ActiveTexture(TextureUnit.Texture3);
-            CargarTextura("files/Texturas/FX/smoke3.png");
+            CargarTextura("files/Texturas/FX/smoke.png");
 
             gl.ActiveTexture(TextureUnit.Texture4);
             CargarTextura("files/Texturas/Map/ambientruins.png");
@@ -616,6 +615,43 @@ namespace cg2016
             CargarTextura("files/Texturas/Map/distantbuilding.png");
             gl.ActiveTexture(TextureUnit.Texture6);
             CargarTextura("files/Texturas/Map/distantroof.png");
+
+            gl.ActiveTexture(TextureUnit.Texture7);
+            CargarTextura("files/Texturas/FX/fire.png");
+
+            gl.ActiveTexture(TextureUnit.Texture8);
+            CargarTextura("files/Texturas/Map/ground.png");
+
+            //Construimos los objetos que vamos a dibujar.
+            mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
+            foreach(Mesh m in mapa.Meshes)
+            {
+                Char[] separator = { '.' };
+                string prefijo = m.Name.Split(separator)[0];
+                switch (prefijo)
+                {
+                    case "Background_Cube":
+                        m.AddTexture(4);
+                        break;
+                    case "Facade":
+                    case "Window":
+                    case "Chimney":
+                        m.AddTexture(5);
+                        break;
+                    case "Roof":
+                        m.AddTexture(6);
+                        break;
+                    case "Ground_Plane":
+                        m.AddTexture(8);
+                        break;
+                    default:
+                        m.AddTexture(0);
+                        break;
+                }
+            }
+            mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tanktest.obj");
+            objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
         }
 
         protected void SetupLights()

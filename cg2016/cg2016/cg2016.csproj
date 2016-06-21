@@ -78,6 +78,7 @@
     <Compile Include="CGUNS\Meshes\Mesh.cs" />
     <Compile Include="CGUNS\Meshes\ObjetoGrafico.cs" />
     <Compile Include="CGUNS\Parsers\ObjFileParser.cs" />
+    <Compile Include="CGUNS\Particles\Fire.cs" />
     <Compile Include="CGUNS\Primitives\Cube.cs" />
     <Compile Include="CGUNS\Primitives\LightGizmo.cs" />
     <Compile Include="CGUNS\Primitives\Ejes.cs" />
@@ -250,19 +251,10 @@
     <Content Include="files\audio\explosion.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\FX\fire.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\FX\smoke.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\FX\smoke2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\FX\smoke3.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\FX\smoke_fondoblanco.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\FX\smoke_fondonegro.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\ambientruins.png">
@@ -319,6 +311,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\distantroof.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\ground.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\ruble_d.png">
