@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CGUNS\Aviones.cs" />
     <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />
     <Compile Include="CGUNS\Cameras\SphericalCamera.cs" />
     <Compile Include="CGUNS\Explosiones.cs" />
@@ -156,6 +157,9 @@
     <None Include="files\audio\ambience.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\audio\audioclip-1466523676.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\audio\FarExplosionA.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -245,6 +249,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="files\audio\avion.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\audio\bell.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

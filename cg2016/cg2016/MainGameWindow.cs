@@ -59,6 +59,7 @@ namespace cg2016
         Matrix4 viewMatrix;
         Matrix4 projMatrix;
         Explosiones explosiones;
+        private Aviones aviones;
 
         //BulletSharp
         private fisica fisica;
@@ -115,6 +116,7 @@ namespace cg2016
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
 
+            aviones = new Aviones(sProgram,3, engine);
             explosiones = new Explosiones(5);
 
             //Carga y configuracion de Objetos
@@ -179,6 +181,7 @@ namespace cg2016
 
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
+         //   float blend = (float)timeSinceStartup % 1 ;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 1.0f, 0.0f), new Vector3(4.0f, 1.0f, 0.0f), blend);
             luces[0].Position = new Vector4(pos, 1.0f);
 
@@ -186,6 +189,7 @@ namespace cg2016
             particles.Update();
             smokeParticles.Update();
             fireParticles.Update();
+            aviones.Actualizar(timeSinceStartup);
 
             explosiones.Actualizar(timeSinceStartup);
 
@@ -229,7 +233,7 @@ namespace cg2016
             //audio
             Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
-
+                        
             //FIRST SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
 
@@ -302,6 +306,7 @@ namespace cg2016
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             objeto.Dibujar(sProgram, viewMatrix);
+            aviones.Dibujar(sProgram, viewMatrix);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
@@ -358,6 +363,7 @@ namespace cg2016
                 //Area de clickeo para explosion
                 sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
                 cubo.Dibujar(sProgramUnlit);
+                
 
                 sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
             }
