@@ -18,7 +18,8 @@ namespace cg2016
         private DynamicsWorld dynamicsWor;
         public RigidBody tank; //para modificar desde mainwindow
         public RigidBody map;  //para modificar desde mainwindow
-
+        ConvexHullShape tankShape;
+        ConvexHullShape mapShape;
         public DynamicsWorld dynamicsWorld{
             get{return dynamicsWor;}
             set{dynamicsWor = value;}
@@ -40,21 +41,37 @@ namespace cg2016
             dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
             dynamicsWor.Gravity = new Vector3(0, -10, 0);
             //aca se realizan las acciones
-            CollisionShape tankShape = new ConvexHullShape();
-            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 5, 0));
+            tankShape = new ConvexHullShape();
+            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
             Vector3 localInertia2 = tankShape.CalculateLocalInertia(10f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0.1f, myMotionState, tankShape, localInertia2);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(10f, myMotionState, tankShape, localInertia2);
 
             tank = new RigidBody(rbInfo);
             dynamicsWor.AddRigidBody(tank);
 
             myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
-            CollisionShape mapShape = new StaticPlaneShape(new Vector3 (0, 1, 0), 0.01f);
+            mapShape = new ConvexHullShape();
             rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape, new Vector3(0, 0, 0));
 
             map = new RigidBody(rbInfo);
             dynamicsWor.AddRigidBody(map);
 
+
+        }
+        
+        public void addMeshMap( List<Vector3> lista){
+            int i = 0;
+            for (i = 0; i < lista.Count; i++) {
+                mapShape.AddPoint(lista[i]);                
+            }
+        }
+
+        public void addMeshTank(List<Vector3> lista) {
+            int i = 0;
+            for (i = 0; i < lista.Count; i++)
+            {
+                tankShape.AddPoint(lista[i]);
+            }
         }
 
         void myTickCallback()

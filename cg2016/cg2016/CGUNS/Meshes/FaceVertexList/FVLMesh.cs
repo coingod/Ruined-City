@@ -21,6 +21,8 @@ namespace CGUNS.Meshes.FaceVertexList
         //Vectores Normales de a pares (Origen, Extremo)
         private List<Vector3> vertexNormalList;
 
+        Vector3[] posiciones;
+
         public FVLMesh(string name) : base(name)
         {
             faceList = new List<FVLFace>();
@@ -130,6 +132,10 @@ namespace CGUNS.Meshes.FaceVertexList
             CrearVAO(sProgram);
         }
 
+        public override Vector3[] getVertices() {
+            return posiciones;
+        }
+
         //Buffers para la Mesh
         private int h_VBO;                  //Handle del Vertex Buffer Object (posiciones de los vertices)
         private int n_VBO;                  //Handle del Vertex Buffer Object (normales de los vertices)
@@ -155,7 +161,7 @@ namespace CGUNS.Meshes.FaceVertexList
             int[] indices;  //Los indices para formar las caras.
             int[] indicesNormalVectors;
 
-            Vector3[] posiciones;
+            
             Vector2[] texturas;
             Vector3[] NormalVectors;
             Vector3[] normales;

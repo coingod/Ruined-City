@@ -55,5 +55,7 @@ namespace CGUNS.Meshes
         public abstract void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix);
 
         public abstract void Build(ShaderProgram sProgram);
+
+        public abstract Vector3[] getVertices();
     }
 }

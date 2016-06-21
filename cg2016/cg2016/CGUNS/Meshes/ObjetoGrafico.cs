@@ -95,5 +95,31 @@ namespace CGUNS.Meshes
                 m.Build(sProgram);
         }
 
+        public List<Vector3> getMeshVertices(String name){
+            List<Vector3> aux = new List<Vector3>();
+            foreach (Mesh m in meshes)
+            {
+                if (m.Name.Equals(name))
+                    foreach (Vector3 vertex in m.getVertices())
+                    {
+                        aux.Add(vertex);
+                    }
+            }
+            return aux;
+        }
+
+        public List<Vector3> getAllMeshVertices() {
+            List<Vector3> aux = new List<Vector3>();
+            Vector3[] verticesDeM;
+            foreach (Mesh m in meshes)
+            {
+                verticesDeM = m.getVertices();
+                foreach (Vector3 vertex in verticesDeM)
+                {
+                    aux.Add(vertex);
+                }
+            }
+            return aux;
+        }
     }
 }

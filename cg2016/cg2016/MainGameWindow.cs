@@ -46,7 +46,7 @@ namespace cg2016
         private Light[] luces;
 
         //Materiales
-        private Material[] materiales = new Material[] { Material.Default, Material.WhiteRubber, Material.Obsidian, Material.Bronze, Material.Gold, Material.Jade, Material.Brass };
+        private Material[] materiales = new Material[] { Material.Default, Material.WhiteRubber, Material.Obsidian, Material.Bronze, Material.Gold, Material.Jade, Material.Brass};
         private Material material;
         private int materialIndex = 0;
 
@@ -120,10 +120,14 @@ namespace cg2016
             //Carga y configuracion de Objetos
             SetupObjects();
 
+            //Mesh necesarias en fisica
+            fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"));
+            fisica.addMeshTank(objeto.getAllMeshVertices());
+            //fisica.addMeshMap(mapa.getAllMeshVertices());
             //Configuracion de la Camara
-            myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250); //Creo una camara.
+            myCamera = new QSphericalCamera(10, 45, 30, 0.1f, 250); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
-
+            
             // Setup OpenGL capabilities
             gl.Enable(EnableCap.DepthTest);
             //gl.Enable(EnableCap.CullFace);
@@ -173,7 +177,7 @@ namespace cg2016
             //Console.WriteLine(timeSinceStartup);
 
             //Simular la fisica
-            fisica.dynamicsWorld.StepSimulation(1);
+            fisica.dynamicsWorld.StepSimulation(10);
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
 
@@ -298,16 +302,18 @@ namespace cg2016
 
 
             //Dibujamos el Objeto
-            objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+
             objeto.Dibujar(sProgram, viewMatrix);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
-            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
+            
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             mapa.Dibujar(sProgram, viewMatrix);
             if (toggleNormals) mapa.DibujarNormales(sProgram, viewMatrix);
 
@@ -394,16 +400,16 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity -= (objeto.transform.forward);
+                        fisica.tank.LinearVelocity = -(objeto.transform.forward);
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity += (objeto.transform.forward);
+                        fisica.tank.LinearVelocity = (objeto.transform.forward);
                         break;
                     case Key.Right:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -0.5f, 0));
+                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -1f, 0));
                         break;
                     case Key.Left:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 0.5f, 0));
+                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 1f, 0));
                         break;
                     case Key.S:
                         myCamera.Abajo();
