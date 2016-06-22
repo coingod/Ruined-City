@@ -42,7 +42,7 @@ namespace cg2016
             dynamicsWor.Gravity = new Vector3(0, -10, 0);
             //aca se realizan las acciones
             tankShape = new ConvexHullShape();
-            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
+            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 3, 0));
             Vector3 localInertia2 = tankShape.CalculateLocalInertia(10f);
             RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(10f, myMotionState, tankShape, localInertia2);
 

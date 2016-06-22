@@ -13,6 +13,7 @@ using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
 using CGUNS.Particles;
 using IrrKlang;
+using BulletSharp;
 
 namespace cg2016
 {
@@ -113,6 +114,10 @@ namespace cg2016
             //Carga y configuracion de Objetos
             SetupObjects();
 
+            //Meshes Convex Fisica 
+            fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"));
+            fisica.addMeshTank(objeto.getAllMeshVertices());
+
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -162,7 +167,7 @@ namespace cg2016
             //Console.WriteLine(timeSinceStartup);
 
             //Simular la fisica
-            fisica.dynamicsWorld.StepSimulation(1);
+            fisica.dynamicsWorld.StepSimulation(10);
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
 
