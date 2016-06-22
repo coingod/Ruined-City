@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using OpenTK; //La matematica
 using OpenTK.Input;
 using OpenTK.Graphics.OpenGL;
@@ -17,8 +11,6 @@ using CGUNS.Primitives;
 using CGUNS.Meshes;
 using CGUNS.Meshes.FaceVertexList;
 using System.Drawing.Imaging;
-using System.Diagnostics;
-using BulletSharp;
 using CGUNS.Particles;
 using IrrKlang;
 
@@ -81,6 +73,11 @@ namespace cg2016
         int FrameCount = 0;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
 
+        //Skybox
+        private int mSkyBoxTextureUnit = 9;
+        private int mSkyboxTextureId;
+        private ShaderProgram mSkyBoxProgram;
+        private Skybox mSkyBox;
 
         #endregion
 
@@ -104,6 +101,7 @@ namespace cg2016
             //SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
             SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
+            SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
 
             //Configuracion de los sistemas de particulas
             particles = new ParticleEmitter(Vector3.Zero);
@@ -228,8 +226,12 @@ namespace cg2016
             Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
             Matrix4 MVP = Matrix4.Mult(mvMatrix, projMatrix);
 
-            gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.
+            gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
 
+            DibujarSkyBox();
+
+            GL.Enable(EnableCap.DepthTest);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
             //audio
             Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
@@ -374,7 +376,38 @@ namespace cg2016
             // Display the new frame
             SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
         }
-        
+
+        /// <summary>
+        /// Dibujo un skybox en la escena.
+        /// </summary>
+        private void DibujarSkyBox()
+        {
+            //gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            // --- SETEO EL ESTADO ---
+            // No necesito el depth test.
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, mSkyboxTextureId);
+
+            // TRUCO: Remuevo los componentes de traslacion asi parece un skybox infinito.
+            Matrix4 viewMatrix = myCamera.viewMatrix;
+            viewMatrix = viewMatrix.ClearTranslation();
+
+            Matrix4 projMatrix = myCamera.projectionMatrix;
+
+            //Activamos el programa de shaders
+            mSkyBoxProgram.Activate();
+
+            mSkyBoxProgram.SetUniformValue("projMat", projMatrix);
+            mSkyBoxProgram.SetUniformValue("vMat", viewMatrix);
+            mSkyBoxProgram.SetUniformValue("uSamplerSkybox", mSkyBoxTextureUnit);
+            mSkyBox.Dibujar(sProgram);
+
+            mSkyBoxProgram.Deactivate();
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+        }
+
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             if (e.Key == Key.Escape)
@@ -658,6 +691,79 @@ namespace cg2016
             mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tanktest.obj");
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+
+            mSkyBox = new Skybox();
+            mSkyBox.Build(mSkyBoxProgram);
+            //Importa el orden, ver crearTexturaSkybox
+            mSkyboxTextureId = CrearTexturaSkybox(
+                new string[]
+                {
+                    "files/Texturas/Skybox/right.png",
+                    "files/Texturas/Skybox/left.png",
+                    "files/Texturas/Skybox/top.png",
+                    "files/Texturas/Skybox/bottom.png",
+                    "files/Texturas/Skybox/back.png",
+                    "files/Texturas/Skybox/front.png",
+                },
+                mSkyBoxTextureUnit);
+        }
+
+        private int CrearTexturaSkybox(string[] paths, int unit)
+        {
+            int textId = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, textId);
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                Bitmap bitmap = new Bitmap(Image.FromFile(paths[i]));
+
+                BitmapData data = bitmap.LockBits(
+                    new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                    ImageLockMode.ReadOnly,
+                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                GL.TexImage2D(
+                   TextureTarget.TextureCubeMapPositiveX + i,
+                   0,
+                   PixelInternalFormat.Rgba,
+                   data.Width,
+                   data.Height,
+                   0,
+                   OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                   PixelType.UnsignedByte,
+                   data.Scan0);
+            }
+
+            GL.TexParameter(
+                TextureTarget.TextureCubeMap,
+                TextureParameterName.TextureMinFilter,
+                (int)TextureMinFilter.Linear);
+
+            GL.TexParameter(
+                TextureTarget.TextureCubeMap,
+                TextureParameterName.TextureMagFilter,
+                (int)TextureMagFilter.Linear);
+
+            GL.TexParameter(
+                TextureTarget.TextureCubeMap,
+                TextureParameterName.TextureWrapS,
+                (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexParameter(
+                TextureTarget.TextureCubeMap,
+                TextureParameterName.TextureWrapT,
+                (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexParameter(
+                TextureTarget.TextureCubeMap,
+                TextureParameterName.TextureWrapR,
+                (int)TextureWrapMode.ClampToEdge);
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+
+            return textId;
         }
 
         protected void SetupLights()
