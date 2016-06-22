@@ -28,6 +28,8 @@ namespace cg2016
         private ShaderProgram sProgram; //Nuestro programa de shaders.
         private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
         private ShaderProgram sProgramParticles; //Nuestro programa de shaders.
+        private ShaderProgram sProgramTerrain; //Nuestro programa de shaders.
+        private ShaderProgram mSkyBoxProgram;
 
         //Modelos
         private Ejes ejes_globales; // Ejes de referencia globales
@@ -73,10 +75,9 @@ namespace cg2016
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
 
         //Skybox
-        private int mSkyBoxTextureUnit = 9;
-        private int mSkyboxTextureId;
-        private ShaderProgram mSkyBoxProgram;
         private Skybox mSkyBox;
+        private int mSkyBoxTextureUnit = 12;
+        private int mSkyboxTextureId;
 
         #endregion
 
@@ -99,11 +100,12 @@ namespace cg2016
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
             //SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
             SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
+            SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
 
             //Configuracion de los sistemas de particulas
-            setupParticles();
+            SetupParticles();
 
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
@@ -126,7 +128,7 @@ namespace cg2016
             gl.Enable(EnableCap.DepthTest);
             //gl.Enable(EnableCap.CullFace);
 
-            setupEjes();
+            SetupEjes();
 
             //Configuracion de las Luces
             SetupLights();
@@ -214,18 +216,18 @@ namespace cg2016
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
 
-            dibujarSkyBox();
+            DibujarSkyBox();
             
             //audio
             Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
 
-            dibujarEscena(toggleNormals);
+            DibujarEscena(toggleNormals);
 
-            dibujarParticles();                                   
+            DibujarParticles();                                   
 
             if (drawGizmos)
-                dibujarGizmos();
+                DibujarGizmos();
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
@@ -461,7 +463,7 @@ namespace cg2016
 
         #region Dibujado
 
-        private void dibujarSkyBox()
+        private void DibujarSkyBox()
         {
             //gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             // --- SETEO EL ESTADO ---
@@ -488,7 +490,7 @@ namespace cg2016
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
         }
 
-        private void dibujarEscena(bool normals)
+        private void DibujarEscena(bool normals)
         {
             GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.DepthBufferBit);
@@ -575,14 +577,59 @@ namespace cg2016
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
-            mapa.Dibujar(sProgram);
+            //mapa.Dibujar(sProgram);
+            foreach (Mesh m in mapa.Meshes)
+                if (m.Name != "Ground_Plane")
+                    m.Dibujar(sProgram);
             if (toggleNormals) mapa.DibujarNormales(sProgram);
 
 
             sProgram.Deactivate(); //Desactivamos el programa de shader.
+
+            //SHADER PARA EL TERRENO
+            sProgramTerrain.Activate();
+            // TERRAIN MULTIPLES LUCES
+            //Configuracion de los valores uniformes del shader
+            sProgramTerrain.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgramTerrain.SetUniformValue("modelMatrix", modelMatrix);
+            sProgramTerrain.SetUniformValue("normalMatrix", normalMatrix);
+            sProgramTerrain.SetUniformValue("viewMatrix", myCamera.viewMatrix);
+            sProgramTerrain.SetUniformValue("cameraPosition", myCamera.position);
+            sProgramTerrain.SetUniformValue("A", 0.3f);
+            sProgramTerrain.SetUniformValue("B", 0.007f);
+            sProgramTerrain.SetUniformValue("C", 0.00008f);
+            sProgramTerrain.SetUniformValue("material.Ka", material.Kambient);
+            sProgramTerrain.SetUniformValue("material.Kd", material.Kdiffuse);
+            sProgramTerrain.SetUniformValue("material.Ks", material.Kspecular);
+            sProgramTerrain.SetUniformValue("material.Shininess", material.Shininess);
+
+            //SplatMap (Para indicar que porcentaje de cada textura utilizar por fragmento)
+            sProgramTerrain.SetUniformValue("ColorTex", 9);
+
+            //Texturas
+            sProgramTerrain.SetUniformValue("Texture1", 8);
+            sProgramTerrain.SetUniformValue("Texture2", 11);
+            sProgramTerrain.SetUniformValue("Texture3", 10);
+
+            sProgramTerrain.SetUniformValue("numLights", luces.Length);
+            for (int i = 0; i < luces.Length; i++)
+            {
+                sProgramTerrain.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
+                sProgramTerrain.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
+                sProgramTerrain.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
+                sProgramTerrain.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                sProgramTerrain.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgramTerrain.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+                //sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
+            }
+            //Dibujo el terreno
+            foreach (Mesh m in mapa.Meshes)
+                if (m.Name == "Ground_Plane")
+                    m.Dibujar(sProgramTerrain);
+            sProgramTerrain.Deactivate();
         } 
 
-        private void dibujarParticles()
+        private void DibujarParticles()
         {
             //SECOND SHADER (Para dibujar las particulas)
             sProgramParticles.Activate(); //Activamos el programa de shaders
@@ -611,7 +658,7 @@ namespace cg2016
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
         }
 
-        private void dibujarGizmos()
+        private void DibujarGizmos()
         {
             sProgramUnlit.Activate(); //Activamos el programa de shaders
             sProgramUnlit.SetUniformValue("projMatrix", myCamera.projectionMatrix);
@@ -659,7 +706,17 @@ namespace cg2016
             gl.ActiveTexture(TextureUnit.Texture8);
             CargarTextura("files/Texturas/Map/ground.png");
 
+            gl.ActiveTexture(TextureUnit.Texture9);
+            CargarTextura("files/Texturas/Map/splatmap.png");
+            gl.ActiveTexture(TextureUnit.Texture10);
+            CargarTextura("files/Texturas/Map/ladrillos.png");
+            gl.ActiveTexture(TextureUnit.Texture11);
+            CargarTextura("files/Texturas/Map/ruble_d.png");
+
+            //TextureUnit.Texture12 -> Skybox
+
             //Construimos los objetos que vamos a dibujar.
+            //TODO Separar el ground del mapa para evitar esto de los builds
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
             foreach(Mesh m in mapa.Meshes)
             {
@@ -669,24 +726,29 @@ namespace cg2016
                 {
                     case "Background_Cube":
                         m.AddTexture(4);
+                        m.Build(sProgram);
                         break;
                     case "Facade":
                     case "Window":
                     case "Chimney":
                         m.AddTexture(5);
+                        m.Build(sProgram);
                         break;
                     case "Roof":
                         m.AddTexture(6);
+                        m.Build(sProgram);
                         break;
                     case "Ground_Plane":
-                        m.AddTexture(8);
+                        m.AddTexture(9);
+                        m.Build(sProgramTerrain); //El terreno usa un shader especial
                         break;
                     default:
                         m.AddTexture(0);
+                        m.Build(sProgram);
                         break;
                 }
             }
-            mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            //mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tanktest.obj");
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
 
@@ -764,7 +826,7 @@ namespace cg2016
             return textId;
         }
 
-        private void setupEjes()
+        private void SetupEjes()
         {
             ejes_globales = new Ejes();
             ejes_locales = new Ejes(0.5f, objeto);
@@ -834,7 +896,7 @@ namespace cg2016
             fShader.Delete();
         }
 
-        private void setupParticles()
+        private void SetupParticles()
         {
             particles = new ParticleEmitter(Vector3.Zero);
             particles.Build(sProgramParticles);
