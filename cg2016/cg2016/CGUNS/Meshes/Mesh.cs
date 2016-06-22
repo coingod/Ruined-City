@@ -50,9 +50,9 @@ namespace CGUNS.Meshes
             return textures.Count - 1;
         }
 
-        public abstract void Dibujar(ShaderProgram sProgram, Matrix4 mvMatrix);
+        public abstract void Dibujar(ShaderProgram sProgram);
 
-        public abstract void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix);
+        public abstract void DibujarNormales(ShaderProgram sProgram);
 
         public abstract void Build(ShaderProgram sProgram);
 

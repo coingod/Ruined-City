@@ -469,7 +469,7 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindVertexArray(0);
         }
 
-        public override void Dibujar(ShaderProgram sProgram, Matrix4 viewMatrix)
+        public override void Dibujar(ShaderProgram sProgram)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
             //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
@@ -496,7 +496,7 @@ namespace CGUNS.Meshes.FaceVertexList
             sProgram.SetUniformValue("ColorTex", 0);
         }
 
-        public override void DibujarNormales(ShaderProgram sProgram, Matrix4 viewMatrix)
+        public override void DibujarNormales(ShaderProgram sProgram)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
             //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));

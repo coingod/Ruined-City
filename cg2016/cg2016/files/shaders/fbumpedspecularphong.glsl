@@ -15,7 +15,6 @@ struct Light {
 	float coneAngle;
 	vec3 coneDirection; //Cone direction in World Space
 	int enabled;
-	int direccional;
 };
 
 struct Material {
@@ -110,7 +109,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 
 	//vec3 fPos_CS = (viewMatrix * vec4(fPos_WS, 1.0)).xyz;
 
-	if(light.direccional==1)
+	if(light.position.w == 0)
 	{ 
 		//LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
 		LightPos = normalize( transpose(inverse(TBN)) * (-light.position).xyz);

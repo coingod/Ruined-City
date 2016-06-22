@@ -34,7 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BulletSharp">
+    <Reference Include="BulletSharp, Version=2.83.7.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="irrKlang.NET4, Version=1.0.5235.17346, Culture=neutral, processorArchitecture=x86">
@@ -61,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CGUNS\Aviones.cs" />
     <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />
     <Compile Include="CGUNS\Cameras\SphericalCamera.cs" />
     <Compile Include="CGUNS\Explosiones.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="CGUNS\Primitives\Cube.cs" />
     <Compile Include="CGUNS\Primitives\LightGizmo.cs" />
     <Compile Include="CGUNS\Primitives\Ejes.cs" />
+    <Compile Include="CGUNS\Primitives\Skybox.cs" />
     <Compile Include="CGUNS\Shaders\Exceptions.cs" />
     <Compile Include="CGUNS\Shaders\Shader.cs" />
     <Compile Include="CGUNS\Shaders\ShaderProgram.cs" />
@@ -156,6 +159,9 @@
     <None Include="files\audio\ambience.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\audio\audioclip-1466523676.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\audio\FarExplosionA.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -178,6 +184,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fbumpedphong.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fSkybox.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vparallaxmapping - Copy.glsl">
@@ -231,6 +240,9 @@
     <None Include="files\shaders\vphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\shaders\vSkyBox.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\vunlit.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -245,6 +257,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="files\audio\avion.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\audio\bell.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -325,9 +340,25 @@
     <Content Include="files\Texturas\Map\ruble_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\BulletSharp.dll">
+    <Content Include="files\Texturas\Skybox\back.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\Skybox\bottom.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Skybox\front.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Skybox\left.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Skybox\right.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Skybox\top.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libs\BulletSharp.dll" />
     <Content Include="libs\irrKlang.NET4.dll" />
     <Content Include="libs\OpenTK.dll" />
     <Content Include="libs\OpenTK.GLControl.dll" />

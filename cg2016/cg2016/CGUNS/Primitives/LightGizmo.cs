@@ -18,7 +18,7 @@ namespace CGUNS.Primitives
         {
             light = l;
 
-            if(light.Direccional == 1)
+            if(light.Position.W == 0)
             {
                 //El gizmo para las luces direccionales es una flecha.
                 vPos = new Vector3[13];
@@ -155,7 +155,7 @@ namespace CGUNS.Primitives
             Matrix4 modelMatrix;
 
             //Si es Direccional, la roto para que apunte en la direccion correcta
-            if (light.Direccional == 1 || light.ConeAngle < 180)
+            if (light.Position.W == 0 || light.ConeAngle < 180)
             {
                 //Direccion a la cual debe apuntar el nuevo eje Y (UP) local
                 Vector3 upDir = new Vector3(light.Position.X, light.Position.Y, light.Position.Z).Normalized();

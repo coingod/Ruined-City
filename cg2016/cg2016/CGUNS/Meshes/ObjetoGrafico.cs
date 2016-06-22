@@ -73,19 +73,19 @@ namespace CGUNS.Meshes
             meshes.Clear();
         }
 
-        public void Dibujar(ShaderProgram sProgram, Matrix4 mvMatrix)
+        public void Dibujar(ShaderProgram sProgram)
         {
             foreach (Mesh m in meshes)
             {
-                m.Dibujar(sProgram, mvMatrix);
+                m.Dibujar(sProgram);
             }
         }
 
-        public void DibujarNormales(ShaderProgram sProgram, Matrix4 mvMatrix)
+        public void DibujarNormales(ShaderProgram sProgram)
         {
             foreach (Mesh m in meshes)
             {
-                m.DibujarNormales(sProgram, mvMatrix);
+                m.DibujarNormales(sProgram);
             }
         }
 
