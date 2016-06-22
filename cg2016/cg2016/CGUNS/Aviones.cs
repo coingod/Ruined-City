@@ -51,7 +51,7 @@ namespace CGUNS
 
         }
 
-        public void Dibujar(ShaderProgram sProgram, Matrix4 viewMatrix)
+        public void Dibujar(ShaderProgram sProgram)
         {
             objetos[0].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion);
             objetos[1].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion + desplazamiento1);
@@ -59,7 +59,7 @@ namespace CGUNS
 
             for (int i = 0; i < objetos.Length; i++)
             {
-                objetos[i].Dibujar(sProgram, viewMatrix);
+                objetos[i].Dibujar(sProgram);
             }
         }
 

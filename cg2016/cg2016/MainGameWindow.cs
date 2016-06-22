@@ -18,7 +18,7 @@ namespace cg2016
 {
     public class MainGameWindow : GameWindow
     {
-        #region Variables
+        #region Variables de clase
         //MainCamara
         private QSphericalCamera myCamera;
         private Rectangle viewport; //Viewport a utilizar.
@@ -48,8 +48,6 @@ namespace cg2016
         private Fire fireParticles;
 
         private Cube cubo;
-        Matrix4 viewMatrix;
-        Matrix4 projMatrix;
         Explosiones explosiones;
         private Aviones aviones;
 
@@ -81,7 +79,7 @@ namespace cg2016
 
         #endregion
 
-        #region Funciones de GameWindow
+        #region Funciones de GameWindow (por eventos)
         /// <summary>
         /// Game window initialisation
         /// </summary>
@@ -104,12 +102,7 @@ namespace cg2016
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
 
             //Configuracion de los sistemas de particulas
-            particles = new ParticleEmitter(Vector3.Zero);
-            particles.Build(sProgramParticles);
-            smokeParticles = new Smoke(new Vector3(5, 0, 5));
-            smokeParticles.Build(sProgramParticles);
-            fireParticles = new Fire(new Vector3(7.5f, 2.5f, 2));
-            fireParticles.Build(sProgramParticles);
+            setupParticles();
 
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
@@ -128,11 +121,7 @@ namespace cg2016
             gl.Enable(EnableCap.DepthTest);
             //gl.Enable(EnableCap.CullFace);
 
-            //Configuracion de Ejes
-            ejes_globales = new Ejes();
-            ejes_locales = new Ejes(0.5f, objeto);
-            ejes_globales.Build(sProgramUnlit);
-            ejes_locales.Build(sProgramUnlit);
+            setupEjes();
 
             //Configuracion de las Luces
             SetupLights();
@@ -218,195 +207,27 @@ namespace cg2016
                 WindowState = WindowState.Normal;
             }
 
-            Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            viewMatrix = myCamera.viewMatrix;
-            projMatrix = myCamera.projectionMatrix;
-            Matrix4 mvMatrix = Matrix4.Mult(viewMatrix, modelMatrix);
-            //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
-            Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
-            Matrix4 MVP = Matrix4.Mult(mvMatrix, projMatrix);
-
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
 
-            DibujarSkyBox();
-
-            GL.Enable(EnableCap.DepthTest);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            dibujarSkyBox();
+            
             //audio
             Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
-                        
-            //FIRST SHADER (Para dibujar objetos)
-            sProgram.Activate(); //Activamos el programa de shaders
 
-            #region Configuracion de Uniforms
+            dibujarEscena(toggleNormals);
 
-            /*
-            /// BUMPED SCPECULAR PHONG
-            //Configuracion de los valores uniformes del shader
-            sProgram.SetUniformValue("projMatrix", projMatrix);
-            sProgram.SetUniformValue("modelMatrix", modelMatrix);
-            //sProgram.SetUniformValue("normalMatrix", normalMatrix);
-            sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            //sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
-            sProgram.SetUniformValue("A", 0.3f);
-            sProgram.SetUniformValue("B", 0.007f);
-            sProgram.SetUniformValue("C", 0.00008f);
-            sProgram.SetUniformValue("material.Ka", material.Kambient);
-            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
-            //sProgram.SetUniformValue("material.Ks", material.Kspecular);
-            sProgram.SetUniformValue("material.Shininess", material.Shininess);
-            sProgram.SetUniformValue("ColorTex", 0);
-            sProgram.SetUniformValue("NormalMapTex", 1);
-            sProgram.SetUniformValue("SpecularMapTex", 2);
-            
-            sProgram.SetUniformValue("numLights", luces.Length);
-            for (int i = 0; i < luces.Length; i++)
-            {
-                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
-                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
-                sProgram.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
-                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
-                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
-                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
-                sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
-            }*/
-
-
-            // MULTIPLES LUCES
-            //Configuracion de los valores uniformes del shader
-            sProgram.SetUniformValue("projMatrix", projMatrix);
-            sProgram.SetUniformValue("modelMatrix", modelMatrix);
-            sProgram.SetUniformValue("normalMatrix", normalMatrix);
-            sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            sProgram.SetUniformValue("cameraPosition", myCamera.position);
-            sProgram.SetUniformValue("A", 0.3f);
-            sProgram.SetUniformValue("B", 0.007f);
-            sProgram.SetUniformValue("C", 0.00008f);
-            sProgram.SetUniformValue("material.Ka", material.Kambient);
-            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
-            sProgram.SetUniformValue("material.Ks", material.Kspecular);
-            sProgram.SetUniformValue("material.Shininess", material.Shininess);
-            sProgram.SetUniformValue("ColorTex", 0);
-
-            sProgram.SetUniformValue("numLights", luces.Length);
-            for (int i = 0; i < luces.Length; i++)
-            {
-                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
-                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
-                sProgram.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
-                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
-                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
-                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
-                //sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
-            }
-            #endregion
-
-
-            //Dibujamos el Objeto
-            objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            //Cambio la escala de los objetos para evitar el bug de serruchos.
-            objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
-            objeto.Dibujar(sProgram, viewMatrix);
-            aviones.Dibujar(sProgram, viewMatrix);
-            //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
-
-            //Dibujamos el Mapa
-            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
-            //Cambio la escala de los objetos para evitar el bug de serruchos.
-            mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
-            mapa.Dibujar(sProgram, viewMatrix);
-            if (toggleNormals) mapa.DibujarNormales(sProgram, viewMatrix);
-
-
-            sProgram.Deactivate(); //Desactivamos el programa de shader.
-
-
-            //SECOND SHADER (Para dibujar las particulas)
-            sProgramParticles.Activate(); //Activamos el programa de shaders
-            sProgramParticles.SetUniformValue("projMatrix", projMatrix);
-            sProgramParticles.SetUniformValue("modelMatrix", modelMatrix);
-            sProgramParticles.SetUniformValue("viewMatrix", viewMatrix);
-            sProgramParticles.SetUniformValue("uvOffset", new Vector2(1f, 1f));
-            sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);
-            sProgramParticles.SetUniformValue("animated", 0);
-            sProgramParticles.SetUniformValue("ColorTex", 0);
-            //Dibujamos el sistema de particulas
-            explosiones.Dibujar(timeSinceStartup, sProgramParticles);
-            if (toggleParticles)
-            {
-                //Test
-                particles.Dibujar(sProgramParticles);
-                //Humo
-                sProgramParticles.SetUniformValue("ColorTex", 3);
-                smokeParticles.Dibujar(sProgramParticles);
-                //Fuego animado
-                sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
-                sProgramParticles.SetUniformValue("ColorTex", 7);
-                sProgramParticles.SetUniformValue("animated", 1);
-                fireParticles.Dibujar(sProgramParticles);
-            }
-            sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
+            dibujarParticles();                                   
 
             if (drawGizmos)
-            {
-                //THIRD SHADER (Para dibujar los gizmos)
-                sProgramUnlit.Activate(); //Activamos el programa de shaders
-                sProgramUnlit.SetUniformValue("projMatrix", projMatrix);
-                sProgramUnlit.SetUniformValue("modelMatrix", modelMatrix);
-                sProgramUnlit.SetUniformValue("viewMatrix", viewMatrix);
-                //Dibujamos los ejes de referencia.
-                ejes_globales.Dibujar(sProgramUnlit);
-                ejes_locales.Dibujar(sProgramUnlit);
-                //Dibujamos la representacion visual de la luz.
-                for (int i = 0; i < luces.Length; i++)
-                    luces[i].gizmo.Dibujar(sProgramUnlit);
-
-                //Area de clickeo para explosion
-                sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
-                cubo.Dibujar(sProgramUnlit);
-                
-
-                sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
-            }
+                dibujarGizmos();
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
 
             // Display the new frame
             SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
-        }
-
-        /// <summary>
-        /// Dibujo un skybox en la escena.
-        /// </summary>
-        private void DibujarSkyBox()
-        {
-            //gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            // --- SETEO EL ESTADO ---
-            // No necesito el depth test.
-            GL.Disable(EnableCap.DepthTest);
-
-            GL.BindTexture(TextureTarget.TextureCubeMap, mSkyboxTextureId);
-
-            // TRUCO: Remuevo los componentes de traslacion asi parece un skybox infinito.
-            Matrix4 viewMatrix = myCamera.viewMatrix;
-            viewMatrix = viewMatrix.ClearTranslation();
-
-            Matrix4 projMatrix = myCamera.projectionMatrix;
-
-            //Activamos el programa de shaders
-            mSkyBoxProgram.Activate();
-
-            mSkyBoxProgram.SetUniformValue("projMat", projMatrix);
-            mSkyBoxProgram.SetUniformValue("vMat", viewMatrix);
-            mSkyBoxProgram.SetUniformValue("uSamplerSkybox", mSkyBoxTextureUnit);
-            mSkyBox.Dibujar(sProgram);
-
-            mSkyBoxProgram.Deactivate();
-
-            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
-        }
+        }        
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
@@ -512,6 +333,7 @@ namespace cg2016
                 }
             }
         }
+
         protected override void OnMouseDown(MouseButtonEventArgs mouse)
         {
             int Xopengl = mouse.X;
@@ -539,7 +361,6 @@ namespace cg2016
             }
         }
 
-
         private Vector3 getRayFromMouse(int x_viewport, int y_viewport)
         {
             // mouse_x, mouse_y are on screen space (viewport coordinates)
@@ -551,10 +372,10 @@ namespace cg2016
             // clip space
             Vector4 ray_clip = new Vector4(ray_nds.X, ray_nds.Y, -1.0f, 0.0f);
             // eye space
-            Vector4 ray_eye = Vector4.Transform(ray_clip, Matrix4.Invert(projMatrix)); //inverse(projMat) * ray_clip
+            Vector4 ray_eye = Vector4.Transform(ray_clip, Matrix4.Invert(myCamera.projectionMatrix)); //inverse(projMat) * ray_clip
             ray_eye = new Vector4(ray_eye.X, ray_eye.Y, -1.0f, 0.0f);
             // world space
-            Vector4 aux = Vector4.Transform(ray_eye, Matrix4.Invert(viewMatrix)); //inverse(viewMat) * ray_eye
+            Vector4 aux = Vector4.Transform(ray_eye, Matrix4.Invert(myCamera.viewMatrix)); //inverse(viewMat) * ray_eye
             Vector3 ray_wor = new Vector3(aux.X, aux.Y, aux.Z);
             ray_wor = Vector3.Normalize(ray_wor);
             return ray_wor;
@@ -630,6 +451,178 @@ namespace cg2016
         {
             base.OnClosed(e);
             fisica.dynamicsWorld.Dispose();
+        }
+        #endregion
+
+        #region Dibujado
+
+        private void dibujarSkyBox()
+        {
+            //gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            // --- SETEO EL ESTADO ---
+            // No necesito el depth test.
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, mSkyboxTextureId);
+
+            // TRUCO: Remuevo los componentes de traslacion asi parece un skybox infinito.
+            Matrix4 viewMatrix = myCamera.viewMatrix;
+            viewMatrix = viewMatrix.ClearTranslation();
+            Matrix4 projMatrix = myCamera.projectionMatrix;
+
+            //Activamos el programa de shaders
+            mSkyBoxProgram.Activate();
+
+            mSkyBoxProgram.SetUniformValue("projMat", projMatrix);
+            mSkyBoxProgram.SetUniformValue("vMat", viewMatrix);
+            mSkyBoxProgram.SetUniformValue("uSamplerSkybox", mSkyBoxTextureUnit);
+            mSkyBox.Dibujar(sProgram);
+
+            mSkyBoxProgram.Deactivate();
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+        }
+
+        private void dibujarEscena(bool normals)
+        {
+            GL.Enable(EnableCap.DepthTest);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
+            Matrix4 mvMatrix = Matrix4.Mult(myCamera.viewMatrix, modelMatrix);
+            //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
+            Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
+            Matrix4 MVP = Matrix4.Mult(mvMatrix, myCamera.projectionMatrix);
+
+            //FIRST SHADER (Para dibujar objetos)
+            sProgram.Activate(); //Activamos el programa de shaders
+
+            #region Configuracion de Uniforms
+
+            /*
+            /// BUMPED SCPECULAR PHONG
+            //Configuracion de los valores uniformes del shader
+            sProgram.SetUniformValue("projMatrix", projMatrix);
+            sProgram.SetUniformValue("modelMatrix", modelMatrix);
+            //sProgram.SetUniformValue("normalMatrix", normalMatrix);
+            sProgram.SetUniformValue("viewMatrix", viewMatrix);
+            //sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
+            sProgram.SetUniformValue("A", 0.3f);
+            sProgram.SetUniformValue("B", 0.007f);
+            sProgram.SetUniformValue("C", 0.00008f);
+            sProgram.SetUniformValue("material.Ka", material.Kambient);
+            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
+            //sProgram.SetUniformValue("material.Ks", material.Kspecular);
+            sProgram.SetUniformValue("material.Shininess", material.Shininess);
+            sProgram.SetUniformValue("ColorTex", 0);
+            sProgram.SetUniformValue("NormalMapTex", 1);
+            sProgram.SetUniformValue("SpecularMapTex", 2);
+            
+            sProgram.SetUniformValue("numLights", luces.Length);
+            for (int i = 0; i < luces.Length; i++)
+            {
+                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
+                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
+                sProgram.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
+                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+            }*/
+
+            // MULTIPLES LUCES
+            //Configuracion de los valores uniformes del shader
+            sProgram.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgram.SetUniformValue("modelMatrix", modelMatrix);
+            sProgram.SetUniformValue("normalMatrix", normalMatrix);
+            sProgram.SetUniformValue("viewMatrix", myCamera.viewMatrix);
+            sProgram.SetUniformValue("cameraPosition", myCamera.position);
+            sProgram.SetUniformValue("A", 0.3f);
+            sProgram.SetUniformValue("B", 0.007f);
+            sProgram.SetUniformValue("C", 0.00008f);
+            sProgram.SetUniformValue("material.Ka", material.Kambient);
+            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
+            sProgram.SetUniformValue("material.Ks", material.Kspecular);
+            sProgram.SetUniformValue("material.Shininess", material.Shininess);
+            sProgram.SetUniformValue("ColorTex", 0);
+
+            sProgram.SetUniformValue("numLights", luces.Length);
+            for (int i = 0; i < luces.Length; i++)
+            {
+                sProgram.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
+                sProgram.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
+                sProgram.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
+                sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+            }
+            #endregion
+
+
+            //Dibujamos el Objeto
+            objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            //Cambio la escala de los objetos para evitar el bug de serruchos.
+            objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            objeto.Dibujar(sProgram);
+            aviones.Dibujar(sProgram);
+            //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
+
+            //Dibujamos el Mapa
+            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
+            //Cambio la escala de los objetos para evitar el bug de serruchos.
+            mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            mapa.Dibujar(sProgram);
+            if (toggleNormals) mapa.DibujarNormales(sProgram);
+
+
+            sProgram.Deactivate(); //Desactivamos el programa de shader.
+        } 
+
+        private void dibujarParticles()
+        {
+            //SECOND SHADER (Para dibujar las particulas)
+            sProgramParticles.Activate(); //Activamos el programa de shaders
+            sProgramParticles.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgramParticles.SetUniformValue("modelMatrix", Matrix4.Identity);
+            sProgramParticles.SetUniformValue("viewMatrix", myCamera.viewMatrix);
+            sProgramParticles.SetUniformValue("uvOffset", new Vector2(1f, 1f));
+            sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);
+            sProgramParticles.SetUniformValue("animated", 0);
+            sProgramParticles.SetUniformValue("ColorTex", 0);
+            //Dibujamos el sistema de particulas
+            explosiones.Dibujar(timeSinceStartup, sProgramParticles);
+            if (toggleParticles)
+            {
+                //Test
+                particles.Dibujar(sProgramParticles);
+                //Humo
+                sProgramParticles.SetUniformValue("ColorTex", 3);
+                smokeParticles.Dibujar(sProgramParticles);
+                //Fuego animado
+                sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
+                sProgramParticles.SetUniformValue("ColorTex", 7);
+                sProgramParticles.SetUniformValue("animated", 1);
+                fireParticles.Dibujar(sProgramParticles);
+            }
+            sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
+        }
+
+        private void dibujarGizmos()
+        {
+            sProgramUnlit.Activate(); //Activamos el programa de shaders
+            sProgramUnlit.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.Identity);
+            sProgramUnlit.SetUniformValue("viewMatrix", myCamera.viewMatrix);
+            //Dibujamos los ejes de referencia.
+            ejes_globales.Dibujar(sProgramUnlit);
+            ejes_locales.Dibujar(sProgramUnlit);
+            //Dibujamos la representacion visual de la luz.
+            for (int i = 0; i < luces.Length; i++)
+                luces[i].gizmo.Dibujar(sProgramUnlit);
+
+            //Area de clickeo para explosion
+            sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
+            cubo.Dibujar(sProgramUnlit);
+            sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
         }
         #endregion
 
@@ -766,6 +759,14 @@ namespace cg2016
             return textId;
         }
 
+        private void setupEjes()
+        {
+            ejes_globales = new Ejes();
+            ejes_locales = new Ejes(0.5f, objeto);
+            ejes_globales.Build(sProgramUnlit);
+            ejes_locales.Build(sProgramUnlit);
+        }
+
         protected void SetupLights()
         {
             luces = new Light[4];
@@ -777,7 +778,6 @@ namespace cg2016
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[0].Enabled = 0;
-            luces[0].Direccional = 0;
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Direccional blanca
             luces[1] = new Light();
@@ -787,7 +787,6 @@ namespace cg2016
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 1;
-            luces[1].Direccional = 1;
             luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Amarilla
             luces[2] = new Light();
@@ -797,7 +796,6 @@ namespace cg2016
             luces[2].ConeAngle = 10.0f;
             luces[2].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[2].Enabled = 0;
-            luces[2].Direccional = 0;
             luces[2].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Azul
             luces[3] = new Light();
@@ -807,7 +805,6 @@ namespace cg2016
             luces[3].ConeAngle = 20.0f;
             luces[3].ConeDirection = new Vector3(0.0f, 0.0f, 1.0f);
             luces[3].Enabled = 0;
-            luces[3].Direccional = 0;
             luces[3].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
         }
 
@@ -830,6 +827,16 @@ namespace cg2016
             //5. Ya podemos eliminar los shaders compilados. (Si no los vamos a usar en otro programa)
             vShader.Delete();
             fShader.Delete();
+        }
+
+        private void setupParticles()
+        {
+            particles = new ParticleEmitter(Vector3.Zero);
+            particles.Build(sProgramParticles);
+            smokeParticles = new Smoke(new Vector3(5, 0, 5));
+            smokeParticles.Build(sProgramParticles);
+            fireParticles = new Fire(new Vector3(7.5f, 2.5f, 2));
+            fireParticles.Build(sProgramParticles);
         }
 
         private int CargarTextura(String imagenTex)
@@ -865,7 +872,7 @@ namespace cg2016
 
         private void ModificarCono(float deltaGrados, int luz)
         {
-            if (luces.Length >= luz && luces.Length >= 1 && luces[luz].Enabled == 1 && luces[luz].Direccional != 1)
+            if (luces.Length >= luz && luces.Length >= 1 && luces[luz].Enabled == 1 && luces[luz].Position.W != 0)
             {
                 float coneAngle = luces[luz].ConeAngle;
                 coneAngle = coneAngle + deltaGrados;

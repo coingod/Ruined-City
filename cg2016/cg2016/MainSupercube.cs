@@ -102,7 +102,6 @@ namespace cg2016
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
             luces[0].Enabled = 1;
-            luces[0].Direccional = 0;
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Direccional blanca
             luces[1] = new Light();
@@ -112,7 +111,6 @@ namespace cg2016
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 0;
-            luces[1].Direccional = 1;
             luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Amarilla
             luces[2] = new Light();
@@ -122,7 +120,6 @@ namespace cg2016
             luces[2].ConeAngle = 10.0f;
             luces[2].ConeDirection = new Vector3(0.0f, 1.0f, 0.0f);
             luces[2].Enabled = 0;
-            luces[2].Direccional = 0;
             luces[2].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Azul
             luces[3] = new Light();
@@ -132,7 +129,6 @@ namespace cg2016
             luces[3].ConeAngle = 20.0f;
             luces[3].ConeDirection = new Vector3(0.0f, 0.0f, 1.0f);
             luces[3].Enabled = 0;
-            luces[3].Direccional = 0;
             luces[3].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
             //Configuracion de Materiales
@@ -257,12 +253,11 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
                 sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
-                sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
 
             //Dibujamos el Objeto
-            objeto.Dibujar(sProgram, mvMatrix);
-            if (toggleNormals) objeto.DibujarNormales(sProgram, mvMatrix);
+            objeto.Dibujar(sProgram);
+            if (toggleNormals) objeto.DibujarNormales(sProgram);
 
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
@@ -411,7 +406,7 @@ namespace cg2016
 
         private void ModificarCono(float deltaGrados, int luz)
         {
-            if (luces.Length >= luz && luces.Length >= 1 && luces[luz].Enabled == 1 && luces[luz].Direccional != 1)
+            if (luces.Length >= luz && luces.Length >= 1 && luces[luz].Enabled == 1 && luces[luz].Position.W != 0)
             {
                 float coneAngle = luces[luz].ConeAngle;
                 coneAngle = coneAngle + deltaGrados;
