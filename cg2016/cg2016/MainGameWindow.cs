@@ -349,11 +349,13 @@ namespace cg2016
                             {
                                 freeOn = true;                                
                                 myCamera = new FreeCamera(myCamera.Position(), new Vector3(0, 0, 0));
+                                OnResize(null);
                             }
                             else
                             {
                                 freeOn = false;                                
                                 myCamera = myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250);//Inicial.
+                                OnResize(null);
                             }                            
                         }
                         break;
