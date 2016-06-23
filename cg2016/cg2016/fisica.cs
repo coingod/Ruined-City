@@ -38,7 +38,7 @@ namespace cg2016
             dispatcher = new CollisionDispatcher(collisionConfiguration);
             solver = new SequentialImpulseConstraintSolver();
             //mundo
-            dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+            dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, null, collisionConfiguration);
             dynamicsWor.Gravity = new Vector3(0, -10, 0);
         }
         
@@ -56,20 +56,29 @@ namespace cg2016
         }
 
         public void addMeshTank(List<Vector3> listaVertices, List<int> listaIndices) {
-            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 2, 0));
-            //  TriangleMesh aux = new TriangleMesh();
-            //int i = 0;
-            //for (i = 0; i < listaIndices.Count; i = i + 3)
-            //{
-            //   aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
-            //}
-            //tankShape = new BvhTriangleMeshShape(aux, true);
-            tankShape=new BoxShape(1);
+            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 4, 0));
+            TriangleMesh aux = new TriangleMesh();
+            int i = 0;
+            for (i = 0; i < listaIndices.Count; i = i + 3)
+            {
+               aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
+            }
+            tankShape = new ConvexTriangleMeshShape(aux, true);
+            //tankShape=new BoxShape(1);
             Vector3 localInertia = tankShape.CalculateLocalInertia(1000f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(10f, myMotionState, tankShape, localInertia);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(1000f, myMotionState, tankShape, localInertia);
             tank = new RigidBody(rbInfo);
             dynamicsWor.AddRigidBody(tank);
 
+        }
+
+        public void createTank(MotionState estado) {
+            dynamicsWor.RemoveRigidBody(tank);
+            MotionState myMotionState = estado;
+            Vector3 localInertia = tankShape.CalculateLocalInertia(1000f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(1000f, myMotionState, tankShape, localInertia);
+            tank = new RigidBody(rbInfo);
+            dynamicsWor.AddRigidBody(tank);
         }
 
         void myTickCallback()
