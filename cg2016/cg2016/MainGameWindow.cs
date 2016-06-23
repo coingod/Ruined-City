@@ -21,8 +21,9 @@ namespace cg2016
     {
         #region Variables de clase
         //MainCamara
-        private QSphericalCamera myCamera;
+        private Camera myCamera;
         private Rectangle viewport; //Viewport a utilizar.
+        bool freeOn;
 
         //Shaders
         private ShaderProgram sProgram; //Nuestro programa de shaders.
@@ -74,10 +75,13 @@ namespace cg2016
         int FrameCount = 0;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
 
+        //Pressed/released para movimientos suaves.
+        bool[] keys = new bool[1024];
+
         //Skybox
         private Skybox mSkyBox;
         private int mSkyBoxTextureUnit = 12;
-        private int mSkyboxTextureId;
+        private int mSkyboxTextureId;      
 
         #endregion
 
@@ -151,7 +155,7 @@ namespace cg2016
                 aspect = (float)w / (float)h;
             }
             //Configuro la camara principal para este aspect ratio.
-            myCamera.aspect = aspect;
+            myCamera.Aspect = aspect;
             
             //Configuro el tamaño del viewport
             viewport.X = 0;
@@ -195,6 +199,8 @@ namespace cg2016
         /// </summary>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            MoverCamara();
+
             // Clear the screen
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -219,7 +225,7 @@ namespace cg2016
             DibujarSkyBox();
             
             //audio
-            Vector3D posOyente = new Vector3D(myCamera.position.X, myCamera.position.Y, myCamera.position.Z);
+            Vector3D posOyente = new Vector3D(myCamera.Position().X, myCamera.Position().Y, myCamera.Position().Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
 
             DibujarEscena(toggleNormals);
@@ -273,24 +279,24 @@ namespace cg2016
                         fisica.tank.ApplyTorqueImpulse(new Vector3(0, 0.5f, 0));
                         break;
                     case Key.S:
-                        myCamera.Abajo();
+                        keys[(int)Key.S] = true;
                         break;
                     case Key.W:
-                        myCamera.Arriba();
+                        keys[(int)Key.W] = true;
                         break;
                     case Key.D:
-                        myCamera.Izquierda();
+                        keys[(int)Key.D] = true;
                         break;
                     case Key.A:
-                        myCamera.Derecha();
+                        keys[(int)Key.A] = true;
                         break;
                     case Key.KeypadAdd:
                     case Key.I:
-                        myCamera.Acercar(0.1f);
+                        myCamera.Acercar();
                         break;
                     case Key.KeypadMinus:
                     case Key.O:
-                        myCamera.Alejar(0.1f);
+                        myCamera.Alejar();
                         break;
                     //Teclas para activar/desactivar funciones
                     case Key.F1:
@@ -337,7 +343,86 @@ namespace cg2016
                         pos = musicAmbiente.Position + new Vector3D(0, -1, 0);
                         musicAmbiente.Position = pos;
                         break;*/
+                    case Key.C:
+                        {
+                            if (!freeOn)
+                            {
+                                freeOn = true;                                
+                                myCamera = new FreeCamera(myCamera.Position(), new Vector3(0, 0, 0));
+                            }
+                            else
+                            {
+                                freeOn = false;                                
+                                myCamera = myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250);//Inicial.
+                            }                            
+                        }
+                        break;
                 }
+            }
+        }
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            CursorVisible = false;
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            CursorVisible = true;
+        }
+
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.S:
+                    keys[(int)Key.S] = false;
+                    break;
+                case Key.W:
+                    keys[(int)Key.W] = false;
+                    break;
+                case Key.D:
+                    keys[(int)Key.D] = false;
+                    break;
+                case Key.A:
+                    keys[(int)Key.A] = false;
+                    break;
+            }
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            if (freeOn)
+            {
+                FreeCamera aux = (FreeCamera)myCamera;
+                aux.MouseCoords(e.X, e.Y);
+            }            
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            if (freeOn)
+            {
+                FreeCamera aux = (FreeCamera)myCamera;
+                aux.MouseScroll(e.Delta);
+            }
+        }
+
+        private void MoverCamara()
+        {
+            if (freeOn)
+            {
+                if (keys[(int)Key.S]) myCamera.Alejar();
+                if (keys[(int)Key.W]) myCamera.Acercar();
+                if (keys[(int)Key.D]) myCamera.Derecha();
+                if (keys[(int)Key.A]) myCamera.Izquierda();                
+            }
+            else
+            {
+                if (keys[(int)Key.S]) myCamera.Abajo();
+                if (keys[(int)Key.W]) myCamera.Arriba();
+                if (keys[(int)Key.D]) myCamera.Izquierda();
+                if (keys[(int)Key.A]) myCamera.Derecha();
             }
         }
 
@@ -358,10 +443,10 @@ namespace cg2016
                     sound.MaxDistance = 10.0f;
                 
 
-               float rToSphere = rayToSphere(myCamera.position, ray_wor, explosiones.getCentro(), explosiones.getRadio());
+               float rToSphere = rayToSphere(myCamera.Position(), ray_wor, explosiones.getCentro(), explosiones.getRadio());
                 if (rToSphere != -1.0f)
                 {
-                    Vector3 origenParticulas = proyeccion(myCamera.position, ray_wor * 10);
+                    Vector3 origenParticulas = proyeccion(myCamera.Position(), ray_wor * 10);
                     explosiones.CrearExplosion(timeSinceStartup, origenParticulas, sProgramParticles);
                 }
 
@@ -379,10 +464,10 @@ namespace cg2016
             // clip space
             Vector4 ray_clip = new Vector4(ray_nds.X, ray_nds.Y, -1.0f, 0.0f);
             // eye space
-            Vector4 ray_eye = Vector4.Transform(ray_clip, Matrix4.Invert(myCamera.projectionMatrix)); //inverse(projMat) * ray_clip
+            Vector4 ray_eye = Vector4.Transform(ray_clip, Matrix4.Invert(myCamera.ProjectionMatrix())); //inverse(projMat) * ray_clip
             ray_eye = new Vector4(ray_eye.X, ray_eye.Y, -1.0f, 0.0f);
             // world space
-            Vector4 aux = Vector4.Transform(ray_eye, Matrix4.Invert(myCamera.viewMatrix)); //inverse(viewMat) * ray_eye
+            Vector4 aux = Vector4.Transform(ray_eye, Matrix4.Invert(myCamera.ViewMatrix())); //inverse(viewMat) * ray_eye
             Vector3 ray_wor = new Vector3(aux.X, aux.Y, aux.Z);
             ray_wor = Vector3.Normalize(ray_wor);
             return ray_wor;
@@ -473,9 +558,9 @@ namespace cg2016
             GL.BindTexture(TextureTarget.TextureCubeMap, mSkyboxTextureId);
 
             // TRUCO: Remuevo los componentes de traslacion asi parece un skybox infinito.
-            Matrix4 viewMatrix = myCamera.viewMatrix;
+            Matrix4 viewMatrix = myCamera.ViewMatrix();
             viewMatrix = viewMatrix.ClearTranslation();
-            Matrix4 projMatrix = myCamera.projectionMatrix;
+            Matrix4 projMatrix = myCamera.ProjectionMatrix();
 
             //Activamos el programa de shaders
             mSkyBoxProgram.Activate();
@@ -496,10 +581,10 @@ namespace cg2016
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            Matrix4 mvMatrix = Matrix4.Mult(myCamera.viewMatrix, modelMatrix);
+            Matrix4 mvMatrix = Matrix4.Mult(myCamera.ViewMatrix(), modelMatrix);
             //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
             Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
-            Matrix4 MVP = Matrix4.Mult(mvMatrix, myCamera.projectionMatrix);
+            Matrix4 MVP = Matrix4.Mult(mvMatrix, myCamera.ProjectionMatrix());
 
             //FIRST SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
@@ -538,11 +623,11 @@ namespace cg2016
 
             // MULTIPLES LUCES
             //Configuracion de los valores uniformes del shader
-            sProgram.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgram.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             sProgram.SetUniformValue("normalMatrix", normalMatrix);
-            sProgram.SetUniformValue("viewMatrix", myCamera.viewMatrix);
-            sProgram.SetUniformValue("cameraPosition", myCamera.position);
+            sProgram.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
+            sProgram.SetUniformValue("cameraPosition", myCamera.Position());
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
@@ -590,11 +675,11 @@ namespace cg2016
             sProgramTerrain.Activate();
             // TERRAIN MULTIPLES LUCES
             //Configuracion de los valores uniformes del shader
-            sProgramTerrain.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgramTerrain.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramTerrain.SetUniformValue("modelMatrix", modelMatrix);
             sProgramTerrain.SetUniformValue("normalMatrix", normalMatrix);
-            sProgramTerrain.SetUniformValue("viewMatrix", myCamera.viewMatrix);
-            sProgramTerrain.SetUniformValue("cameraPosition", myCamera.position);
+            sProgramTerrain.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
+            sProgramTerrain.SetUniformValue("cameraPosition", myCamera.Position());
             sProgramTerrain.SetUniformValue("A", 0.3f);
             sProgramTerrain.SetUniformValue("B", 0.007f);
             sProgramTerrain.SetUniformValue("C", 0.00008f);
@@ -633,9 +718,9 @@ namespace cg2016
         {
             //SECOND SHADER (Para dibujar las particulas)
             sProgramParticles.Activate(); //Activamos el programa de shaders
-            sProgramParticles.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgramParticles.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramParticles.SetUniformValue("modelMatrix", Matrix4.Identity);
-            sProgramParticles.SetUniformValue("viewMatrix", myCamera.viewMatrix);
+            sProgramParticles.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             sProgramParticles.SetUniformValue("uvOffset", new Vector2(1f, 1f));
             sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);
             sProgramParticles.SetUniformValue("animated", 0);
@@ -661,9 +746,9 @@ namespace cg2016
         private void DibujarGizmos()
         {
             sProgramUnlit.Activate(); //Activamos el programa de shaders
-            sProgramUnlit.SetUniformValue("projMatrix", myCamera.projectionMatrix);
+            sProgramUnlit.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.Identity);
-            sProgramUnlit.SetUniformValue("viewMatrix", myCamera.viewMatrix);
+            sProgramUnlit.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             //Dibujamos los ejes de referencia.
             ejes_globales.Dibujar(sProgramUnlit);
             ejes_locales.Dibujar(sProgramUnlit);
