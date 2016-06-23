@@ -41,6 +41,16 @@ namespace CGUNS.Meshes.FaceVertexList
 
         }
 
+        public override List<int> IndicesDeMesh() {
+            List<int> toReturn = new List<int>();
+            foreach (FVLFace f in faceList) {
+                toReturn.Add(f.VerticesDeCara()[0]);
+                toReturn.Add(f.VerticesDeCara()[1]);
+                toReturn.Add(f.VerticesDeCara()[2]);
+            }
+            return toReturn;
+        }
+
         public List<Vector3> VertexList
         {
             get { return vertexList; }
@@ -133,7 +143,7 @@ namespace CGUNS.Meshes.FaceVertexList
         }
 
         public override Vector3[] getVertices() {
-            return posiciones;
+            return vertexList.ToArray();
         }
 
         //Buffers para la Mesh

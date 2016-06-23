@@ -121,8 +121,9 @@ namespace cg2016
             SetupObjects();
 
             //Meshes Convex Fisica 
-            fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"));
-            fisica.addMeshTank(objeto.getAllMeshVertices());
+            fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
+            fisica.addMeshTank(objeto.getAllMeshVertices(), objeto.getIndicesDeMeshes());
+
 
             //Configuracion de la Camara
             myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250); //Creo una camara.
@@ -175,7 +176,7 @@ namespace cg2016
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10);
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
-            fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
+            //fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
 
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
@@ -655,7 +656,7 @@ namespace cg2016
             //Dibujamos el Objeto
             objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
-            objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            //objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             objeto.Dibujar(sProgram);
             aviones.Dibujar(sProgram);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
@@ -663,7 +664,7 @@ namespace cg2016
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
-            mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            //mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             //mapa.Dibujar(sProgram);
             foreach (Mesh m in mapa.Meshes)
                 if (m.Name != "Ground_Plane")

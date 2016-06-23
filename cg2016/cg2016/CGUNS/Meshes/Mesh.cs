@@ -57,5 +57,8 @@ namespace CGUNS.Meshes
         public abstract void Build(ShaderProgram sProgram);
 
         public abstract Vector3[] getVertices();
+
+        public abstract List<int> IndicesDeMesh();
+
     }
 }
