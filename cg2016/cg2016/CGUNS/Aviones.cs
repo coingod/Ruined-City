@@ -15,13 +15,14 @@ namespace CGUNS
     {
         private ObjetoGrafico[] objetos;
         private ISound[] sonidoAviones; //uno para cada uno por si se quiere usar distintos o en momentos diferentes
-        private static Vector3 origen = new Vector3(-15.0f, 1.0f, 0.0f); //de donde sale el avion y fin hasta donde llega
-        private Vector3 fin = new Vector3(25.0f, 1.0f, 0.0f);
+        private static Vector3 origen = new Vector3(-75.0f, 2.0f, 0.0f); //de donde sale el avion y fin hasta donde llega
+        private Vector3 fin = new Vector3(75.0f, 1.0f, 0.0f);
         private Vector3 posicion = origen;
-        private Vector3 desplazamiento1 = new Vector3(-1.0f, 0.0f, 1.0f); //utilizados para los otros dos aviones
-        private Vector3 desplazamiento2 = new Vector3(-1.0f, 0.0f, -1.0f);
+        private Vector3 desplazamiento1 = new Vector3(-1.0f, 0.0f, 2.0f); //utilizados para los otros dos aviones
+        private Vector3 desplazamiento2 = new Vector3(-1.0f, 0.0f, -2.0f);
 
-        private static Matrix4 escala = Matrix4.CreateScale(0.1f);
+        private static Matrix4 escala = Matrix4.CreateScale(0.1f)* Matrix4.CreateRotationY(3.14f/2);
+        
 
         public Aviones(ShaderProgram sProgram, int cantAviones, ISoundEngine engine)
         {
@@ -34,7 +35,7 @@ namespace CGUNS
 
             for (int i = 0; i < cantAviones; i++)
             {
-                objetos[i] = new ObjetoGrafico("CGUNS/ModelosOBJ/Stuff/cube.obj");
+                objetos[i] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj");
                 objetos[i].Build(sProgram);     
                 
             }
@@ -67,7 +68,7 @@ namespace CGUNS
         public void Actualizar(Double timeSinceStartup) {
             for (int i = 0; i < objetos.Length; i++)
             {
-                float blend = (float)timeSinceStartup/4 % 1;
+                float blend = (float)timeSinceStartup/12 % 1;
                 posicion = Vector3.Lerp(origen, fin, blend);
             }
 
