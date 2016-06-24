@@ -39,7 +39,7 @@ namespace cg2016
             solver = new SequentialImpulseConstraintSolver();
             //mundo
             dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, null, collisionConfiguration);
-            dynamicsWor.Gravity = new Vector3(0, -10, 0);
+            dynamicsWor.Gravity = new Vector3(0, -98, 0);
         }
         
         public void addMeshMap( List<Vector3> listaVertices, List<int> listaIndices){

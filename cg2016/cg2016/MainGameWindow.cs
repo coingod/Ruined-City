@@ -277,16 +277,16 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -(objeto.transform.forward)*5;
+                        fisica.tank.LinearVelocity = -(objeto.transform.forward)*3;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = (objeto.transform.forward)*5;
+                        fisica.tank.LinearVelocity = (objeto.transform.forward)*3;
                         break;
                     case Key.Right:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -5000f, 0));
+                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -10000f, 0));
                         break;
                     case Key.Left:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 5000f, 0));
+                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 10000f, 0));
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;
