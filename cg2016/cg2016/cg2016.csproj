@@ -110,6 +110,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="App.config" />
+    <None Include="CGUNS\ModelosOBJ\Colisiones\tankcoll.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="CGUNS\ModelosOBJ\Stuff\cube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -124,6 +128,7 @@
     </None>
     <None Include="CGUNS\ModelosOBJ\Map\maptest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="CGUNS\ModelosOBJ\Stuff\mono.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -148,6 +153,7 @@
     </None>
     <None Include="CGUNS\ModelosOBJ\Vehicles\tanktest.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="files\audio\ambience.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

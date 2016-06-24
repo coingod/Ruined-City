@@ -121,5 +121,24 @@ namespace CGUNS.Meshes
             }
             return aux;
         }
+
+        public List<int> getIndicesDeMesh(String name) {
+            foreach (Mesh m in meshes)
+            {
+                if (m.Name.Equals(name))
+                    return m.IndicesDeMesh();
+            }
+            return new List<int>();
+        }
+
+        public List<int> getIndicesDeMeshes()
+        {
+            List<int> toReturn = new List<int>();
+            foreach (Mesh m in meshes)
+            {
+                toReturn.Concat(m.IndicesDeMesh());
+            }
+            return toReturn;
+        }
     }
 }

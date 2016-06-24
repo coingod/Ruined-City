@@ -57,7 +57,7 @@ namespace cg2016
 
         //BulletSharp
         private fisica fisica;
-
+        private int tanksleeping = 0;
         //Irrklang. Para audio
         ISoundEngine engine;
         ISound sonidoAmbiente;
@@ -121,11 +121,12 @@ namespace cg2016
             SetupObjects();
 
             //Meshes Convex Fisica 
-            fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"));
-            fisica.addMeshTank(objeto.getAllMeshVertices());
+            fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
+            fisica.addMeshTank(objeto.getMeshVertices("Cube.002"), objeto.getIndicesDeMesh("Cube.002"));
+
 
             //Configuracion de la Camara
-            myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250); //Creo una camara.
+            myCamera = new QSphericalCamera(50, 45, 30, 0.1f, 250); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
 
             // Setup OpenGL capabilities
@@ -174,12 +175,21 @@ namespace cg2016
 
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10);
+
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
 
+            if (fisica.tank.LinearVelocity == new Vector3(0, 0, 0)) {
+                tanksleeping++;
+                if (tanksleeping == 20) {
+                    fisica.createTank(fisica.tank.MotionState);
+                    tanksleeping = 0;
+                }
+            }
+
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
-         //   float blend = (float)timeSinceStartup % 1 ;
+            //float blend = (float)timeSinceStartup % 1 ;
             Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 1.0f, 0.0f), new Vector3(4.0f, 1.0f, 0.0f), blend);
             luces[0].Position = new Vector4(pos, 1.0f);
 
@@ -267,16 +277,16 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity -= (objeto.transform.forward);
+                        fisica.tank.LinearVelocity = -(objeto.transform.forward)*3;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity += (objeto.transform.forward);
+                        fisica.tank.LinearVelocity = (objeto.transform.forward)*3;
                         break;
                     case Key.Right:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -0.5f, 0));
+                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -10000f, 0));
                         break;
                     case Key.Left:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 0.5f, 0));
+                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 10000f, 0));
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;
@@ -655,7 +665,7 @@ namespace cg2016
             //Dibujamos el Objeto
             objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
-            objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            //objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             objeto.Dibujar(sProgram);
             aviones.Dibujar(sProgram);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
@@ -663,7 +673,7 @@ namespace cg2016
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
-            mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            //mapa.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             //mapa.Dibujar(sProgram);
             foreach (Mesh m in mapa.Meshes)
                 if (m.Name != "Ground_Plane")
@@ -836,7 +846,7 @@ namespace cg2016
                 }
             }
             //mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tanktest.obj");
+            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tankcoll.obj");
             objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
 
             mSkyBox = new Skybox();
