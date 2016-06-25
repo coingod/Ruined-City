@@ -14,6 +14,7 @@ using System.Drawing.Imaging;
 using CGUNS.Particles;
 using IrrKlang;
 using BulletSharp;
+using System.Collections.Generic;
 
 namespace cg2016
 {
@@ -22,6 +23,7 @@ namespace cg2016
         #region Variables de clase
         //MainCamara
         private Camera myCamera;
+        private List<Camera> camaras;
         private Rectangle viewport; //Viewport a utilizar.
         bool freeOn;
 
@@ -132,7 +134,12 @@ namespace cg2016
 
 
             //Configuracion de la Camara
-            myCamera = new QSphericalCamera(50, 45, 30, 0.01f, 2500); //Creo una camara.
+            camaras = new List<Camera>();
+            camaras.Add(new QSphericalCamera(50, 45, 30, 0.01f, 2500));
+            camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.25f));
+            camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
+
+            myCamera = camaras[0]; //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
 
             // Setup OpenGL capabilities
@@ -341,15 +348,15 @@ namespace cg2016
                     case Key.P:
                         toggleParticles = !toggleParticles;
                         break;
-                    case Key.J:
+                   /* case Key.J:
                         {
                             myCamera = new QSphericalCamera(1, 270, 10, 0.1f, 250);
                             OnResize(null);
                         }
-                        break;
+                        break;*/
                     case Key.K:
                         {
-                            myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250);
+                            myCamera = camaras[2];
                             OnResize(null);
                         }
                         break;
@@ -366,13 +373,13 @@ namespace cg2016
                             if (!freeOn)
                             {
                                 freeOn = true;                                
-                                myCamera = new FreeCamera(myCamera.Position(), new Vector3(0, 0, 0), 0.25f);
+                                myCamera = camaras[1];
                                 OnResize(null);
                             }
                             else
                             {
-                                freeOn = false;                                
-                                myCamera = myCamera = new QSphericalCamera(5, 45, 30, 0.1f, 250);//Inicial.
+                                freeOn = false;
+                                myCamera = camaras[0];//Inicial.
                                 OnResize(null);
                             }                            
                         }
