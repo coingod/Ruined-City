@@ -16,7 +16,7 @@ No tenemos que hacer todas! xD
 * **Modelar el mapa** *Ignacio*
 * **Animar Tanque** *Ignacio*
 * **Movimiento del Tanque** *Lucas*
-* **Modos de Camara** *Nehuen*
+* **Modos de Camara** *Pico*
 * **Charcos de Agua** *Ignacio*
 * **Clickear y explotar** *Gonzalo*
 * **Sombras para Puntuales** *Nehuen*

@@ -27,6 +27,7 @@ namespace cg2016
 
         //Shaders
         private ShaderProgram sProgram; //Nuestro programa de shaders.
+        private ShaderProgram sProgramAnimated;
         private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
         private ShaderProgram sProgramParticles; //Nuestro programa de shaders.
         private ShaderProgram sProgramTerrain; //Nuestro programa de shaders.
@@ -35,7 +36,9 @@ namespace cg2016
         //Modelos
         private Ejes ejes_globales; // Ejes de referencia globales
         private Ejes ejes_locales; // Ejes de referencia locales al objeto
-        private ObjetoGrafico objeto; //Nuestro objeto a dibujar.
+        private ObjetoGrafico tanque; //Nuestro objeto a dibujar.
+        private ObjetoGrafico tanque_col; //Nuestro objeto a dibujar.
+        private ObjetoGrafico orugas;
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
 
         //Iluminacion
@@ -58,6 +61,8 @@ namespace cg2016
         //BulletSharp
         private fisica fisica;
         private int tanksleeping = 0;
+        private int tankDirection = 0;
+
         //Irrklang. Para audio
         ISoundEngine engine;
         ISound sonidoAmbiente;
@@ -104,6 +109,7 @@ namespace cg2016
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
             //SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
             SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
+            SetupShaders("vanimated.glsl", "fanimated.glsl", out sProgramAnimated);
             SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
@@ -122,7 +128,7 @@ namespace cg2016
 
             //Meshes Convex Fisica 
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
-            fisica.addMeshTank(objeto.getMeshVertices("Cube.002"), objeto.getIndicesDeMesh("Cube.002"));
+            fisica.addMeshTank(tanque_col.getMeshVertices("Cube.002"), tanque_col.getIndicesDeMesh("Cube.002"));
 
 
             //Configuracion de la Camara
@@ -249,8 +255,8 @@ namespace cg2016
             updateDebugInfo();
 
             // Display the new frame
-            SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering.
-        }        
+            SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering
+        }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
@@ -277,10 +283,12 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -(objeto.transform.forward)*3;
+                        fisica.tank.LinearVelocity = -(tanque.transform.forward)*3;
+                        tankDirection = -1;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = (objeto.transform.forward)*3;
+                        fisica.tank.LinearVelocity = (tanque.transform.forward)*3;
+                        tankDirection = 1;
                         break;
                     case Key.Right:
                         fisica.tank.ApplyTorqueImpulse(new Vector3(0, -10000f, 0));
@@ -385,6 +393,7 @@ namespace cg2016
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
+            tankDirection = 0;
             switch (e.Key)
             {
                 case Key.S:
@@ -449,7 +458,7 @@ namespace cg2016
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
                 ISound sound;
-                sound = engine.Play3D("files/audio/NearExplosionA.ogg", objeto.transform.position.X, objeto.transform.position.Y, objeto.transform.position.Z, false);
+                sound = engine.Play3D("files/audio/NearExplosionA.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, false);
                 
                 if (sound != null)
                     sound.MaxDistance = 10.0f;
@@ -663,12 +672,14 @@ namespace cg2016
 
 
             //Dibujamos el Objeto
-            objeto.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            tanque_col.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
-            //objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
-            objeto.Dibujar(sProgram);
+            //tanque.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
+            tanque.Dibujar(sProgram);
             aviones.Dibujar(sProgram);
-            //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
+
+            if (toggleNormals) tanque_col.Dibujar(sProgram);//tanque.DibujarNormales(sProgram);
 
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
@@ -679,9 +690,20 @@ namespace cg2016
                 if (m.Name != "Ground_Plane")
                     m.Dibujar(sProgram);
             if (toggleNormals) mapa.DibujarNormales(sProgram);
-
-
             sProgram.Deactivate(); //Desactivamos el programa de shader.
+
+            //SHADER ANIMADO (Para dibujar texturas animadas)
+            sProgramAnimated.Activate(); //Activamos el programa de shaders
+            //Configuracion de las transformaciones del objeto en espacio de mundo
+            sProgramAnimated.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
+            sProgramAnimated.SetUniformValue("modelMatrix", modelMatrix);
+            sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
+            sProgramAnimated.SetUniformValue("speed", -(float)timeSinceStartup * tankDirection);
+            sProgramAnimated.SetUniformValue("ColorTex", 1);
+            //Dibujamos las orugas del tanque
+            orugas.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            orugas.Dibujar(sProgramAnimated);
+            sProgramAnimated.Deactivate(); //Desactivamos el programa de shaders
 
             //SHADER PARA EL TERRENO
             sProgramTerrain.Activate();
@@ -812,6 +834,15 @@ namespace cg2016
 
             //TextureUnit.Texture12 -> Skybox
 
+            GL.ActiveTexture(TextureUnit.Texture13);
+            CargarTextura("files/Texturas/Vehicles/tiger_d.png");
+            GL.ActiveTexture(TextureUnit.Texture14);
+            CargarTextura("files/Texturas/Vehicles/track_d.png");
+            GL.ActiveTexture(TextureUnit.Texture15);
+            CargarTextura("files/Texturas/Vehicles/tiger_n.png");
+            GL.ActiveTexture(TextureUnit.Texture16);
+            CargarTextura("files/Texturas/Vehicles/tiger_s.png");
+
             //Construimos los objetos que vamos a dibujar.
             //TODO Separar el ground del mapa para evitar esto de los builds
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
@@ -846,8 +877,15 @@ namespace cg2016
                 }
             }
             //mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
-            objeto = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tankcoll.obj");
-            objeto.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            tanque = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tiger.obj");
+            tanque.AddTextureToAllMeshes(13);
+            tanque.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            orugas = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tracks.obj");
+            orugas.AddTextureToAllMeshes(14);
+            orugas.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+
+            tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tankcoll.obj");
+            tanque_col.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
 
             mSkyBox = new Skybox();
             mSkyBox.Build(mSkyBoxProgram);
@@ -926,7 +964,7 @@ namespace cg2016
         private void SetupEjes()
         {
             ejes_globales = new Ejes();
-            ejes_locales = new Ejes(0.5f, objeto);
+            ejes_locales = new Ejes(0.5f, tanque);
             ejes_globales.Build(sProgramUnlit);
             ejes_locales.Build(sProgramUnlit);
         }
@@ -1059,8 +1097,8 @@ namespace cg2016
         private void updateDebugInfo()
         {
             //Muestro informacion de Debugeo en el titulo de la ventana
-            int vertCount = 0, faceCount = 0, normalCount = 0, objCount = objeto.Meshes.Count;
-            foreach (FVLMesh m in objeto.Meshes)
+            int vertCount = 0, faceCount = 0, normalCount = 0, objCount = tanque.Meshes.Count;
+            foreach (FVLMesh m in tanque.Meshes)
             {
                 vertCount += m.VertexCount;
                 faceCount += m.FaceCount;

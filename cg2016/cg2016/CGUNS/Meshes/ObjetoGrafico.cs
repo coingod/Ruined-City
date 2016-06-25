@@ -68,6 +68,12 @@ namespace CGUNS.Meshes
             meshes.Remove(m);
         }
 
+        public void AddTextureToAllMeshes(int id)
+        {
+            foreach (Mesh m in Meshes)
+                m.AddTexture(id);
+        }
+
         public void ClearMeshes()
         {
             meshes.Clear();
