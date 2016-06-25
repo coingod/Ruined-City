@@ -114,7 +114,7 @@ namespace cg2016
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
 
-            aviones = new Aviones(sProgram,3, engine);
+            aviones = new Aviones(sProgram,5, engine, sProgramUnlit);
             explosiones = new Explosiones(5);
 
             //Carga y configuracion de Objetos
@@ -126,7 +126,7 @@ namespace cg2016
 
 
             //Configuracion de la Camara
-            myCamera = new QSphericalCamera(50, 45, 30, 0.1f, 250); //Creo una camara.
+            myCamera = new QSphericalCamera(50, 45, 30, 0.01f, 2500); //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
 
             // Setup OpenGL capabilities
@@ -197,7 +197,7 @@ namespace cg2016
             particles.Update();
             smokeParticles.Update();
             fireParticles.Update();
-            aviones.Actualizar(timeSinceStartup);
+            aviones.Actualizar(timeSinceStartup, sProgramParticles);
 
             explosiones.Actualizar(timeSinceStartup);
 
@@ -667,7 +667,7 @@ namespace cg2016
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             //objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             objeto.Dibujar(sProgram);
-            aviones.Dibujar(sProgram);
+            aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Dibujamos el Mapa
@@ -770,6 +770,7 @@ namespace cg2016
 
             //Area de clickeo para explosion
             sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
+            aviones.DibujarDisparos(sProgramUnlit);
             cubo.Dibujar(sProgramUnlit);
             sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
         }
