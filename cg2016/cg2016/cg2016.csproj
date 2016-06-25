@@ -110,6 +110,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="App.config" />
+    <None Include="CGUNS\ModelosOBJ\Colisiones\mapcoll.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\Colisiones\poste.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="CGUNS\ModelosOBJ\Colisiones\tankcoll.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -148,9 +154,8 @@
     <None Include="CGUNS\ModelosOBJ\Stuff\supercube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\Vehicles\tanktest.obj">
+    <None Include="CGUNS\ModelosOBJ\Vehicles\b17.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
     </None>
     <None Include="CGUNS\ModelosOBJ\Vehicles\tiger.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
