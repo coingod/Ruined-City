@@ -73,7 +73,7 @@ namespace cg2016
         private bool toggleNormals = false;
         private bool toggleWires = false;
         private bool drawGizmos = true;
-        private bool toggleParticles = false;
+        private bool toggleParticles = true;
         private bool toggleFullScreen = false;
 
         //Debug y helpers
@@ -123,7 +123,7 @@ namespace cg2016
             SetupParticles();
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
-            aviones = new Aviones(sProgram,5, engine, sProgramUnlit);
+            aviones = new Aviones(sProgram, engine, sProgramUnlit);
             explosiones = new Explosiones(5);
 
             loaded += 39;
@@ -142,6 +142,7 @@ namespace cg2016
             camaras.Add(new QSphericalCamera(50, 45, 30, 0.01f, 2500));
             camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.25f));
             camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
+            camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.25f));
 
             myCamera = camaras[0]; //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -368,12 +369,12 @@ namespace cg2016
                     case Key.P:
                         toggleParticles = !toggleParticles;
                         break;
-                   /* case Key.J:
-                        {
-                            myCamera = new QSphericalCamera(1, 270, 10, 0.1f, 250);
-                            OnResize(null);
-                        }
-                        break;*/
+                    case Key.J:
+                         {
+                             myCamera = camaras[3];
+                             OnResize(null);
+                         }
+                         break;
                     case Key.K:
                         {
                             myCamera = camaras[2];
@@ -796,6 +797,7 @@ namespace cg2016
                 //Humo
                 sProgramParticles.SetUniformValue("ColorTex", 3);
                 smokeParticles.Dibujar(sProgramParticles);
+                aviones.DibujarDisparos(sProgramParticles);
                 //Fuego animado
                 sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
                 sProgramParticles.SetUniformValue("ColorTex", 7);
@@ -820,7 +822,7 @@ namespace cg2016
 
             //Area de clickeo para explosion
             sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
-            aviones.DibujarDisparos(sProgramUnlit);
+            aviones.DibujarCuadradosDisparos(sProgramUnlit);
             cubo.Dibujar(sProgramUnlit);
             sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
         }

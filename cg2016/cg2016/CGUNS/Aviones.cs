@@ -39,43 +39,43 @@ namespace CGUNS
         private static int MAXDisparos = 20; //maxima cantidad de disparon que se van a dibujar
 
         // private static double inclinacion = 0.5f; //usado para que el circulo quede inclinado
-        //List<Smoke> list = new List<Smoke>();
+        List<Smoke> list = new List<Smoke>();
+        List<double> tiempoInicios = new List<double>(); //Se guarda en que momento comienzan los disparos en cada posicion
 
         Cube cubo = new Cube(0.4f, 0.4f, 0.4f);
 
 
-        public Aviones(ShaderProgram sProgram, int cantAviones, ISoundEngine engine, ShaderProgram sProgramUnlit)
+        public Aviones(ShaderProgram sProgram, ISoundEngine engine, ShaderProgram sProgramUnlit, int cantAviones = 5)
         {
-            objetos = new ObjetoGrafico[cantAviones];
+            int cantObj = 3;            
+            objetos = new ObjetoGrafico[cantObj];
             sonidoAviones = new ISound[cantAviones];
+
+
+            objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
+            objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
+            objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
+
+            for (int i = 0; i < cantObj; i++)            
+                objetos[i].Build(sProgram);
             
-                        
-            for (int i = 0; i < cantAviones; i++)
-                {
-                objetos[i] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj");
-                objetos[i].Build(sProgram);                     
-                }
 
             //Se calcula y setea la posicion inicial de todos los aviones
             posPerseguido = centroPerseguido + new Vector3(radio * (float)Math.Cos(pi), radio * (float)Math.Sin(pi), 0);
             posPerseguidor = centroPerseguido + new Vector3(radio * (float)Math.Cos(pi - retraso), radio * (float)Math.Sin(pi - retraso), 0);
 
-            objetos[0].transform.localToWorld = escala * Matrix4.CreateTranslation(origen);
-            objetos[1].transform.localToWorld = escala * Matrix4.CreateTranslation(origen+ desplazamiento1);
-            objetos[2].transform.localToWorld = escala * Matrix4.CreateTranslation(origen+ desplazamiento2);
-            objetos[3].transform.localToWorld = escala * Matrix4.CreateRotationZ(pi/2)* Matrix4.CreateTranslation(posPerseguido);
-            objetos[4].transform.localToWorld = escala * Matrix4.CreateRotationZ(pi /2 - retraso) * Matrix4.CreateTranslation(posPerseguidor);
 
             //Se coloca sonido a cada uno de los aviones. 0-3 son los que se mueven en linea recta. 3ro es perseguido
             Vector3D origen3D = new Vector3D(origen.X, origen.Y, origen.Z);
             Vector3D desp1 = origen3D + new Vector3D(desplazamiento1.X, desplazamiento1.Y, desplazamiento1.Z);
             Vector3D desp2 = origen3D + new Vector3D(desplazamiento2.X, desplazamiento2.Y, desplazamiento2.Z);
 
-            sonidoAviones[0] = engine.Play3D("files/audio/bell.wav", origen3D.X, origen3D.Y, origen3D.Z, true);
-            sonidoAviones[1] = engine.Play3D("files/audio/bell.wav", desp1.X, desp1.Y, desp1.Z, true);
-            sonidoAviones[2] = engine.Play3D("files/audio/bell.wav", desp2.X, desp2.Y, desp2.Z, true);
-            sonidoAviones[3] = engine.Play3D("files/audio/bell.wav", posPerseguido.X, posPerseguido.Y, posPerseguido.Z, true);
-            sonidoAviones[4] = engine.Play3D("files/audio/bell.wav", posPerseguidor.X, posPerseguidor.Y, posPerseguidor.Z, true);
+            String pathSonido = "files/audio/bell.wav";
+            sonidoAviones[0] = engine.Play3D(pathSonido, origen3D.X, origen3D.Y, origen3D.Z, true);
+            sonidoAviones[1] = engine.Play3D(pathSonido, desp1.X, desp1.Y, desp1.Z, true);
+            sonidoAviones[2] = engine.Play3D(pathSonido, desp2.X, desp2.Y, desp2.Z, true);
+            sonidoAviones[3] = engine.Play3D(pathSonido, posPerseguido.X, posPerseguido.Y, posPerseguido.Z, true);
+            sonidoAviones[4] = engine.Play3D(pathSonido, posPerseguidor.X, posPerseguidor.Y, posPerseguidor.Z, true);
 
             for (int i=0; i<sonidoAviones.Length; i++)
                 sonidoAviones[i].Volume = sonidoAviones[i].Volume / 2;
@@ -89,14 +89,19 @@ namespace CGUNS
             float angulo = (float)timeSinceStartup/2;
             float aumento = 0.3f; //usado para que en determinado momento el de atras aumente la rotacion y apunte al otro avion
             objetos[0].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion);
-            objetos[1].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion + desplazamiento1);
-            objetos[2].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion + desplazamiento2);
+            objetos[0].Dibujar(sProgram);
+
+            objetos[0].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion + desplazamiento1);
+            objetos[0].Dibujar(sProgram);
+
+            objetos[0].transform.localToWorld = escala * Matrix4.CreateTranslation(posicion + desplazamiento2);
+            objetos[0].Dibujar(sProgram);
 
             //El 3ro es el perseguido, el 4to el que lo sigue
-            objetos[3].transform.localToWorld = escala * Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(-pi / 2+ angulo ) * Matrix4.CreateTranslation(posPerseguido);
-            objetos[4].transform.localToWorld = escala * Matrix4.CreateRotationZ(-pi / 2 + angulo-retraso+ aumento) * Matrix4.CreateTranslation(posPerseguidor);
+            objetos[1].transform.localToWorld = escala * Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(-pi / 2+ angulo ) * Matrix4.CreateTranslation(posPerseguido);
+            objetos[2].transform.localToWorld = escala * Matrix4.CreateRotationZ(-pi / 2 + angulo-retraso+ aumento) * Matrix4.CreateTranslation(posPerseguidor);
 
-            for (int i = 0; i < objetos.Length; i++)
+            for (int i = 1; i < 3; i++)
             {
                 objetos[i].Dibujar(sProgram);
             }
@@ -105,16 +110,28 @@ namespace CGUNS
         }
 
 
-        public void DibujarDisparos(ShaderProgram sProgramUnlit)
+
+
+        public void DibujarCuadradosDisparos(ShaderProgram sProgramUnlit)
         {
             for (int i = 0; i < posicionesDisparos.Count; i++)
-            {   //list[i].Dibujar(sProgramParticles);
+            {
                 sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(posicionesDisparos[i]));
-                sProgramUnlit.SetUniformValue("figureColor", new Vector4(1f,0,0,1));
+                sProgramUnlit.SetUniformValue("figureColor", new Vector4(1f, 0, 0, 1));
                 cubo.Dibujar(sProgramUnlit);
             }
         }
 
+        public void DibujarDisparos(ShaderProgram sProgramParticles)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].enabled)
+                    list[i].Dibujar(sProgramParticles);
+
+            }
+
+        }
 
         public void Actualizar(Double timeSinceStartup, ShaderProgram sProgramParticles ) {
 
@@ -122,8 +139,7 @@ namespace CGUNS
             float blend = (float)timeSinceStartup/12 % 1;
             posicion = Vector3.Lerp(origen, fin, blend);
 
-
-            
+                        
             //Actualizacion de la persecucion
             double angulo = pi + timeSinceStartup/2;
 
@@ -131,16 +147,18 @@ namespace CGUNS
             posPerseguidor = centroPerseguido + new Vector3(radio * (float)Math.Cos(angulo - retraso), radio * (float)Math.Sin(angulo - retraso), 0);
 
             if (angulo > 9 && angulo < 9.2f)
-                { //es despues de q haya dado una vuelta y media respecto al 0
-                    disparar = true;
-                    rotar = true;
-                }
+            { //es despues de q haya dado una vuelta y media respecto al 0
+                disparar = true;
+                rotar = true;
+            }
+            else if (angulo > 12)
+                disparar = false;
 
             //Solo dispara y rola cuando esta en la region del principio del semicirculo de abajo
             if (disparar)
                 if (angulo % (pi*2) > 4.0f && angulo % (pi*2) < 4.6f && posicionesDisparos.Count< MAXDisparos)
                 {   
-                    Disparar(sProgramParticles);                    
+                    Disparar(sProgramParticles, timeSinceStartup);                    
                 }
 
             if (rotar)
@@ -152,8 +170,14 @@ namespace CGUNS
                       rotar = false;
                      }                
                 }
-            /*   for (int i = 0; i < list.Count; i++)
-                   list[i].Update();*/
+
+            //Se actualizan los disparos si es necesario            
+            for (int i = 0; i < list.Count; i++)
+                {
+                if (timeSinceStartup - tiempoInicios[i] > 1)
+                    list[i].enabled = false;
+                else list[i].Update();
+                }
 
             //Actualizacion de la posicion de los sonidos
             Vector3D origen3D = new Vector3D(posicion.X, posicion.Y, posicion.Z);
@@ -168,14 +192,15 @@ namespace CGUNS
             
         }
 
-        private void Disparar(ShaderProgram sProgramParticles)
+        private void Disparar(ShaderProgram sProgramParticles, double timeSinceStartup)
         {   //origen es perseguidor. Dir es perseguido
             Vector3 pendiente = posPerseguido - posPerseguidor;
             //recta se expresa como origen+ t*pendiente. Calculo para que valor de t va a dar y=0 (q punto esta dentro del plano)
             // 0 = rayOrigin.Y + t * pendiente.Y            
 
             float t = -posPerseguidor.Y / pendiente.Y;
-            Vector3 posDisparo = posPerseguidor + t * pendiente; posDisparo.Y += 1f;
+            Vector3 posDisparo = posPerseguidor + t * pendiente; 
+            //posDisparo.Y += 0.1f;
 
             if (posicionesDisparos.Count > 0)
                 {//Se agrega un control para que haya cierta separacion entre disparos y no sean infinitos
@@ -185,9 +210,11 @@ namespace CGUNS
             else posicionesDisparos.Add(posDisparo);
             
             
-            /* Smoke smokeParticles = new Smoke(posDisparo);
+             Smoke smokeParticles = new Smoke(posDisparo,2);
              smokeParticles.Build(sProgramParticles);
-             list.Add(smokeParticles);*/
+             list.Add(smokeParticles);
+             tiempoInicios.Add(timeSinceStartup);
+
         }
     }
 }
