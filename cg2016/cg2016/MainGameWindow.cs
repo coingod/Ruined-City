@@ -77,6 +77,7 @@ namespace cg2016
         private bool toggleFullScreen = false;
 
         //Debug y helpers
+        private int loaded = 0;
         private double timeSinceStartup = 0; //Tiempo total desde el inicio del programa (En segundos)
         private int fps = 0; //FramesPorSegundo
         int FrameCount = 0;
@@ -100,12 +101,12 @@ namespace cg2016
         {
             logContextInfo(); //Mostramos info de contexto.
 
-            //Arrancamos la clase fisica
-            fisica = new fisica();
-
+            //Configuracion de Audio
             engine = new ISoundEngine();
             sonidoAmbiente = engine.Play2D("files/audio/ambience.ogg", true);
             sonidoAmbiente.Volume = sonidoAmbiente.Volume / 4;
+
+            loaded += 10;
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
@@ -116,22 +117,25 @@ namespace cg2016
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
 
+            loaded += 50;
+
             //Configuracion de los sistemas de particulas
             SetupParticles();
-
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
-
             aviones = new Aviones(sProgram,5, engine, sProgramUnlit);
             explosiones = new Explosiones(5);
+
+            loaded += 39;
 
             //Carga y configuracion de Objetos
             SetupObjects();
 
+            //Arrancamos la clase fisica
+            fisica = new fisica();
             //Meshes Convex Fisica 
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
             fisica.addMeshTank(tanque_col.getMeshVertices("Cube.002"), tanque_col.getIndicesDeMesh("Cube.002"));
-
 
             //Configuracion de la Camara
             camaras = new List<Camera>();
@@ -153,7 +157,23 @@ namespace cg2016
 
             //Configuracion de Materiales
             material = materiales[materialIndex];
+
+            loaded += 1;
         }
+        //El THREAD de la pantalla de carga consulta aca cuanto se ha cargado.
+        public int UpdateLoadScreen()
+        {
+            Console.WriteLine("##########     LOADING: " + loaded);
+
+            //Aqui dibujaria la pantalla de carga en esta ventana
+            //El thread de carga solo se encargaria de llamar a esta funcion.
+
+            //Actualizo el viewport
+            SwapBuffers();
+
+            return loaded;
+        }
+
         /// <summary>
         /// Game window sizing and 3D projection setup
         /// </summary>

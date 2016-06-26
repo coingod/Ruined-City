@@ -6,6 +6,7 @@ namespace cg2016
 {
     static class Program
     {
+        static MainGameWindow mw;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -14,26 +15,19 @@ namespace cg2016
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new MapTestScene());
-            //Application.Run(new MainWindow());
-            //Application.Run(new MainSupercube());
+
+            mw = new MainGameWindow();
+
             Thread t = new Thread(new ThreadStart(SplashStart));
             t.Start();
-            Thread.Sleep(5000);
-            using (MainGameWindow mw = new MainGameWindow())
-            {
-                mw.Run();
-            }
-
-
-            t.Abort();
-
-
+            //Thread.Sleep(5000);
+            mw.Run();
+            //t.Abort();
         }
 
         private static void SplashStart()
         {
-            Application.Run(new Splash());
+            Application.Run(new Splash(mw));
 
         }
     }
