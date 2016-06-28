@@ -40,7 +40,7 @@ namespace cg2016
             //solver = new MultiBodyConstraintSolver();
             //mundo
             dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-            dynamicsWor.Gravity = new Vector3(0, -100, 0);
+            dynamicsWor.Gravity = new Vector3(0, -10, 0);
             
         }
         

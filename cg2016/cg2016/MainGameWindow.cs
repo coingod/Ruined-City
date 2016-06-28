@@ -153,14 +153,12 @@ namespace cg2016
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
             fisica.addMeshTank(tanque_col.getMeshVertices("Cube.002"), tanque_col.getIndicesDeMesh("Cube.002"));
 
-           
-
             //Configuracion de la Camara
             camaras = new List<Camera>();
-            camaras.Add(new QSphericalCamera(50, 45, 30, 0.01f, 2500));
-            camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.25f));
+            camaras.Add(new QSphericalCamera(5, 45, 30, 0.01f, 250));
+            camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.025f));
             camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
-            camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.25f));
+            camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.025f));
 
             myCamera = camaras[0]; //Creo una camara.
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -224,7 +222,9 @@ namespace cg2016
             //Incremento el tiempo transcurrido
             timeSinceStartup += this.RenderTime;
             //Console.WriteLine(timeSinceStartup);
-            
+
+            MoverCamara();
+
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10f);
 
@@ -234,7 +234,7 @@ namespace cg2016
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
             //float blend = (float)timeSinceStartup % 1 ;
-            Vector3 pos = Vector3.Lerp(new Vector3(-4.0f, 1.0f, 0.0f), new Vector3(4.0f, 1.0f, 0.0f), blend);
+            Vector3 pos = Vector3.Lerp(new Vector3(-0.4f, 0.1f, 0.0f), new Vector3(0.4f, 0.1f, 0.0f), blend);
             luces[0].Position = new Vector4(pos, 1.0f);
 
             //Actualizo los sistemas de particulas
@@ -282,8 +282,6 @@ namespace cg2016
             // --- RENDER ---
             // 1. Se renderiza la escena desde el punto de vista de la luz
             GenerarShadowMap(lightSpaceMatrix);
-
-            MoverCamara();
 
             // Clear the screen
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -919,7 +917,7 @@ namespace cg2016
             //SECOND SHADER (Para dibujar las particulas)
             sProgramParticles.Activate(); //Activamos el programa de shaders
             sProgramParticles.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
-            sProgramParticles.SetUniformValue("modelMatrix", Matrix4.Identity);
+            sProgramParticles.SetUniformValue("modelMatrix", Matrix4.Identity);  //Ajustar con la escala
             sProgramParticles.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             sProgramParticles.SetUniformValue("uvOffset", new Vector2(1f, 1f));
             sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);

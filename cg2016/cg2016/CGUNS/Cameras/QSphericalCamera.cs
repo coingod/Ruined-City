@@ -27,9 +27,9 @@ namespace CGUNS.Cameras
         private Quaternion cameraRot, qAux;
         private Vector3 cameraPos;
 
-        private float deltaTheta = 0.05f;
-        private float deltaPhi = 0.05f;
-        private float distance = 0.5f;
+        private float deltaTheta = 0.02f;
+        private float deltaPhi = 0.02f;
+        private float distance = 0.05f;
 
         public QSphericalCamera(float radius = 5.0f, float theta = 45.0f, float phi = 30.0f,
             float zNear = 0.1f, float zFar = 250f, float fovy = 50 * DEG2RAD, float aspectRatio = 1) : base(zNear, zFar, fovy, aspectRatio)
