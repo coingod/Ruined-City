@@ -89,7 +89,19 @@ namespace cg2016
         //Skybox
         private Skybox mSkyBox;
         private int mSkyBoxTextureUnit = 12;
-        private int mSkyboxTextureId;      
+        private int mSkyboxTextureId;
+
+        //Sombras
+        private bool showShadowMap;
+        private int fbo;
+        private int depthTexture;        
+
+        private Rectangle mShadowViewport; //Viewport a utilizar para el shadow mapping.
+        private ShaderProgram mShadowProgram; //Nuestro programa de shaders.   
+        private int mShadowTextureUnit = 17;
+
+        private ShaderProgram mShadowViewportProgram; //Nuestro programa de shaders.
+        private ViewportQuad mShadowViewportQuad;
 
         #endregion
 
@@ -116,6 +128,10 @@ namespace cg2016
             SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
+            SetupShaders("vShadow.glsl", "fShadow.glsl", out mShadowProgram);
+            SetupShaders("vViewport.glsl", "fViewport.glsl", out mShadowViewportProgram);
+
+            CrearShadowTextures();
 
             loaded += 50;
 
@@ -123,7 +139,7 @@ namespace cg2016
             SetupParticles();
             cubo = new Cube(0.1f, 0.1f, 0.1f);
             cubo.Build(sProgramUnlit);
-            aviones = new Aviones(sProgram, engine, sProgramUnlit);
+            aviones = new Aviones(sProgram, mShadowProgram, engine, sProgramUnlit);
             explosiones = new Explosiones(5);
 
             loaded += 39;
@@ -237,6 +253,36 @@ namespace cg2016
         /// </summary>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            // Calculo la matrix MVP desde el punto de vista de la luz.
+            // Ojo con el up, debe estar mirando correctamente al target.
+            Vector3 lightEye = -luces[1].Position.Xyz;
+            //Console.WriteLine();
+            //Vector3 lightEye = new Vector3(7.0f, 10f, 7.0f);
+            Vector3 lightUp = new Vector3(0, 1, 0);
+            Vector3 lightTarget = new Vector3(0, 0, 0);
+
+            // --- VIEW MATRIX ---
+            Matrix4 lightViewMatrix = Matrix4.LookAt(lightEye, lightTarget, lightUp);
+
+            // --- PROJECTION MATRIX ---
+            // La matrix de proyeccion es una matrix ortografica que abarca toda la escena.
+            // Estos valores son seleccionados de forma que toda la escena visible es incluida.
+            Matrix4 lightProjMatrix = Matrix4.CreateOrthographicOffCenter(
+                -20,
+                 20,
+                -20,
+                 20,
+                 1f,
+                 100f);
+
+            // --- VIEW PROJECTION ---
+            // La matrix de modelado es la identidad.
+            Matrix4 lightSpaceMatrix = lightViewMatrix * lightProjMatrix;
+
+            // --- RENDER ---
+            // 1. Se renderiza la escena desde el punto de vista de la luz
+            GenerarShadowMap(lightSpaceMatrix);
+
             MoverCamara();
 
             // Clear the screen
@@ -272,6 +318,11 @@ namespace cg2016
 
             if (drawGizmos)
                 DibujarGizmos();
+
+            if (showShadowMap)
+            {
+                DibujarShadowMap();
+            }
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
@@ -398,6 +449,9 @@ namespace cg2016
                                 OnResize(null);
                             }                            
                         }
+                        break;
+                    case Key.V:
+                        showShadowMap = !showShadowMap;
                         break;
                 }
             }
@@ -590,6 +644,77 @@ namespace cg2016
         #endregion
 
         #region Dibujado
+
+        /// <summary>
+        /// Dibuja el contenido de la textura utilizada para el shadow map en un viewport en el extremo inferior izquierdo.
+        /// </summary>
+        private void DibujarShadowMap()
+        {
+            // --- SETEO EL ESTADO ---
+            GL.Disable(EnableCap.DepthTest);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            Rectangle shadowmap = new Rectangle(0, 0, viewport.Width / 2, viewport.Height / 2);
+            GL.Viewport(shadowmap);
+
+            mShadowViewportProgram.Activate();
+
+            Matrix4 projectionMatrix = Matrix4.CreateOrthographicOffCenter(
+                shadowmap.Left,
+                shadowmap.Right,
+                shadowmap.Top,
+                shadowmap.Bottom,
+                0.0f,
+                1.0f);
+
+            Vector2 viewportSize = new Vector2(shadowmap.Width, shadowmap.Height);
+
+            // --- SETEO UNIFORMS ---
+            mShadowViewportProgram.SetUniformValue("uViewportOrthographic", projectionMatrix);
+            mShadowViewportProgram.SetUniformValue("uViewportSize", viewportSize);
+            mShadowViewportProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
+
+            // --- DIBUJO ---
+            mShadowViewportQuad.Dibujar(mShadowViewportProgram);
+
+            mShadowViewportProgram.Deactivate();
+        }
+
+        /// <summary>
+        /// Se renderiza la escena desde el punto de vista de la luz.
+        /// Almacena en una textura la profundidad de los objetos partiendo desde la posicion de la luz.
+        /// </summary>
+        /// <param name="lightSpaceMatrix">MVP respecto a la luz.</param>
+        private void GenerarShadowMap(Matrix4 lightSpaceMatrix)
+        {
+            // --- SETEO EL ESTADO ---
+            GL.Enable(EnableCap.DepthTest);
+            GL.Viewport(mShadowViewport);
+
+            // Limpio el framebuffer el contenido de la pasada anterior.
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            mShadowProgram.Activate();
+
+            // La matriz es uniforme a todos los objetos renderizados.
+            mShadowProgram.SetUniformValue("uLightSpaceMatrix", lightSpaceMatrix);
+
+            // --- TANQUE -----            
+            tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            mShadowProgram.SetUniformValue("uModelMatrix", tanque.transform.localToWorld);
+            tanque.DibujarShadows(mShadowProgram);
+
+            // --- MAPA ---
+            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
+            mShadowProgram.SetUniformValue("uModelMatrix", mapa.transform.localToWorld);
+            foreach (Mesh m in mapa.Meshes)
+                if (m.Name != "Ground_Plane")
+                    m.DibujarShadows(mShadowProgram);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            mShadowProgram.Deactivate();
+        }
 
         private void DibujarSkyBox()
         {
@@ -868,6 +993,8 @@ namespace cg2016
             GL.ActiveTexture(TextureUnit.Texture16);
             CargarTextura("files/Texturas/Vehicles/tiger_s.png");
 
+            //TextureUnit.Texture17 -> Sombras
+
             //Construimos los objetos que vamos a dibujar.
             //TODO Separar el ground del mapa para evitar esto de los builds
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
@@ -879,38 +1006,41 @@ namespace cg2016
                 {
                     case "Background_Cube":
                         m.AddTexture(4);
-                        m.Build(sProgram);
+                        m.Build(sProgram, mShadowProgram);
                         break;
                     case "Facade":
                     case "Window":
                     case "Chimney":
                         m.AddTexture(5);
-                        m.Build(sProgram);
+                        m.Build(sProgram, mShadowProgram);
                         break;
                     case "Roof":
                         m.AddTexture(6);
-                        m.Build(sProgram);
+                        m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ground_Plane":
                         m.AddTexture(9);
-                        m.Build(sProgramTerrain); //El terreno usa un shader especial
+                        m.Build(sProgramTerrain, mShadowProgram); //El terreno usa un shader especial
                         break;
                     default:
                         m.AddTexture(0);
-                        m.Build(sProgram);
+                        m.Build(sProgram, mShadowProgram);
                         break;
                 }
             }
             //mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             tanque = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tiger.obj");
             tanque.AddTextureToAllMeshes(13);
-            tanque.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            tanque.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
             orugas = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tracks.obj");
             orugas.AddTextureToAllMeshes(14);
-            orugas.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tankcoll.obj");
-            tanque_col.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+            tanque_col.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
+
+            mShadowViewportQuad = new ViewportQuad();
+            mShadowViewportQuad.Build(mShadowViewportProgram);
 
             mSkyBox = new Skybox();
             mSkyBox.Build(mSkyBoxProgram);
@@ -1008,7 +1138,8 @@ namespace cg2016
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Direccional blanca
             luces[1] = new Light();
-            luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
+            //luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
+            luces[1].Position = new Vector4(14.0f, -20.0f, -14.0f, 0.0f);
             luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[1].Ipuntual = new Vector3(0.75f, 0.75f, 0.75f);
             luces[1].ConeAngle = 180.0f;
@@ -1087,6 +1218,63 @@ namespace cg2016
             bitmap.UnlockBits(data);
             return texId;
 
+        }
+
+        /// <summary>
+        /// Creo el framebuffer y la textura necesaria para generar el shadow map.
+        /// </summary>
+        private void CrearShadowTextures()
+        {
+            // Necesito generar un framebuffer y una textura 2D para almacenar el depth buffer.
+            TextureTarget textureTarget = TextureTarget.Texture2D;
+            FramebufferTarget framebufferTarget = FramebufferTarget.Framebuffer;
+
+            mShadowViewport = new Rectangle(0, 0, 2048, 2048);
+
+            // 1. Genero un framebuffer.
+            fbo = GL.GenFramebuffer();
+            GL.BindFramebuffer(framebufferTarget, fbo);
+
+
+            // 2. Genero una textura para vincular al framebuffer.
+            GL.ActiveTexture(TextureUnit.Texture0 + mShadowTextureUnit);
+            depthTexture = GL.GenTexture();
+            GL.BindTexture(textureTarget, depthTexture);
+            GL.TexImage2D(
+                textureTarget,
+                0,
+                PixelInternalFormat.DepthComponent16, // Solo voy a utilizar el componente de profundidad.
+                mShadowViewport.Width,
+                mShadowViewport.Height,
+                0,
+                OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent,
+                PixelType.Float,
+                IntPtr.Zero);
+
+            GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
+            GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+
+            // 3. Seteo que cuando salgo de los limites de la textura sampleo el color blanco.
+            float[] borderColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, borderColor);
+
+            // 4. Vinculo la textura al framebuffer.
+            GL.FramebufferTexture2D(
+                framebufferTarget,
+                FramebufferAttachment.DepthAttachment,
+                TextureTarget.Texture2D,
+                depthTexture,
+                0);
+
+            // 5. IMPORTANTE: Chequeo si el framebuffer esta completo.
+            if (GL.CheckFramebufferStatus(framebufferTarget) != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new InvalidOperationException("El framebuffer no fue completamente creado.");
+            }
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         private void ToggleLight(int i)

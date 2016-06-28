@@ -136,10 +136,11 @@ namespace CGUNS.Meshes.FaceVertexList
             Console.Out.WriteLine(sender + format, args);
         }
 
-        public override void Build(ShaderProgram sProgram)
+        public override void Build(ShaderProgram sProgram1, ShaderProgram sProgram2)
         {
             CrearVBOs();
-            CrearVAO(sProgram);
+            CrearVAO(sProgram1);
+            CrearShadowVAO(sProgram2);
         }
 
         public override Vector3[] getVertices() {
@@ -159,6 +160,8 @@ namespace CGUNS.Meshes.FaceVertexList
         private int h_VBO_NormalVectors;    //Handle del Vertex Buffer Object (posiciones de los vertices)
         private int h_EBO_NormalVectors;    //Handle del Elements Buffer Object (indices)
         private int h_VAO_NormalVectors;    //Handle del Vertex Array Object (Configuracion de los VBO anteriores)
+
+        private int h_ShadowVAO;
 
         private void CrearVBOs()
         {
@@ -479,6 +482,47 @@ namespace CGUNS.Meshes.FaceVertexList
             gl.BindVertexArray(0);
         }
 
+        protected void CrearShadowVAO(ShaderProgram sProgram)
+        {
+            // Indice del atributo a utilizar. Este indice se puede obtener de tres maneras:
+            // Supongamos que en nuestro shader tenemos un atributo: "in vec3 vPos";
+            // 1. Dejar que OpenGL le asigne un indice cualquiera al atributo, y para consultarlo hacemos:
+            //    attribIndex = GL.GetAttribLocation(programHandle, "vPos") DESPUES de haberlo linkeado.
+            // 2. Nosotros le decimos que indice queremos que le asigne, utilizando:
+            //    GL.BindAttribLocation(programHandle, desiredIndex, "vPos"); ANTES de linkearlo.
+            // 3. Nosotros de decimos al preprocesador de shader que indice queremos que le asigne, utilizando
+            //    layout(location = xx) in vec3 vPos;
+            //    En el CODIGO FUENTE del shader (Solo para #version 330 o superior)      
+            int attribIndex;
+            int cantComponentes; //Cantidad de componentes de CADA dato.
+            VertexAttribPointerType attribType; // Tipo de CADA una de las componentes del dato.
+            int stride; //Cantidad de BYTES que hay que saltar para llegar al proximo dato. (0: Tightly Packed, uno a continuacion del otro)
+            int offset; //Offset en BYTES del primer dato.
+            BufferTarget bufferType; //Tipo de buffer.
+
+            // 1. Creamos el VAO
+            h_ShadowVAO = GL.GenVertexArray(); //Pedimos un identificador de VAO a OpenGL.
+            GL.BindVertexArray(h_ShadowVAO);   //Lo seleccionamos para trabajar/configurar.
+
+            //2. Configuramos el VBO de posiciones.
+            attribIndex = sProgram.GetVertexAttribLocation("vPos"); //Yo lo saco de mi clase ProgramShader.
+            cantComponentes = 3;   // 3 componentes (x, y, z)
+            attribType = VertexAttribPointerType.Float; //Cada componente es un Float.
+            stride = 0;  //Los datos estan uno a continuacion del otro.
+            offset = 0;  //El primer dato esta al comienzo. (no hay offset).
+            bufferType = BufferTarget.ArrayBuffer; //Buffer de Datos.
+
+            GL.EnableVertexAttribArray(attribIndex); //Habilitamos el indice de atributo.
+            GL.BindBuffer(bufferType, h_VBO); //Seleccionamos el buffer a utilizar.
+            GL.VertexAttribPointer(attribIndex, cantComponentes, attribType, false, stride, offset);//Configuramos el layout (como estan organizados) los datos en el buffer.
+
+            bufferType = BufferTarget.ElementArrayBuffer;
+            GL.BindBuffer(bufferType, h_EBO);
+
+            // 4. Deseleccionamos el VAO.
+            GL.BindVertexArray(0);
+        }
+
         public override void Dibujar(ShaderProgram sProgram)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
@@ -504,6 +548,23 @@ namespace CGUNS.Meshes.FaceVertexList
 
             //Reseteamos la textura por defecto
             sProgram.SetUniformValue("ColorTex", 0);
+        }
+
+        public override void DibujarShadows(ShaderProgram sProgram)
+        {
+            PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
+            int offset; // A partir de cual indice dibujamos?
+            int count;  // Cuantos?
+            DrawElementsType indexType; //Tipo de los indices.
+
+            primitive = PrimitiveType.Triangles;  //Usamos trianglos.
+            offset = 0;  // A partir del primer indice.
+            count = faceList.Count * 3; // Todos los indices.
+            indexType = DrawElementsType.UnsignedInt; //Los indices son enteros sin signo.
+
+            gl.BindVertexArray(h_ShadowVAO); //Seleccionamos el VAO a utilizar.
+            gl.DrawElements(primitive, count, indexType, offset); //Dibujamos utilizando los indices del VAO.
+            gl.BindVertexArray(0); //Deseleccionamos el VAO
         }
 
         public override void DibujarNormales(ShaderProgram sProgram)

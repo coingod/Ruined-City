@@ -45,7 +45,7 @@ namespace CGUNS
         Cube cubo = new Cube(0.4f, 0.4f, 0.4f);
 
 
-        public Aviones(ShaderProgram sProgram, ISoundEngine engine, ShaderProgram sProgramUnlit, int cantAviones = 5)
+        public Aviones(ShaderProgram sProgram1, ShaderProgram sProgram2, ISoundEngine engine, ShaderProgram sProgramUnlit, int cantAviones = 5)
         {
             int cantObj = 3;            
             objetos = new ObjetoGrafico[cantObj];
@@ -57,7 +57,7 @@ namespace CGUNS
             objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
 
             for (int i = 0; i < cantObj; i++)            
-                objetos[i].Build(sProgram);
+                objetos[i].Build(sProgram1, sProgram2);
             
 
             //Se calcula y setea la posicion inicial de todos los aviones

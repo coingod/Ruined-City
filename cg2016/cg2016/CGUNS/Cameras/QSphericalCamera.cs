@@ -42,10 +42,15 @@ namespace CGUNS.Cameras
             cameraPos = new Vector3(0, 0, -radius);
             cameraRot = Quaternion.FromAxisAngle(new Vector3(0, 0, 0), 1.0f);   //Quat identidad
 
+            /*
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 1, 0), -theta * DEG2RAD);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
             qAux = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), phi * DEG2RAD);
             cameraRot = Quaternion.Multiply(qAux, cameraRot);
+            */
+            cameraRot =
+                Quaternion.FromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(phi)) *
+                Quaternion.FromAxisAngle(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(-theta));
         }
 
         public override Vector3 Position()
@@ -97,24 +102,28 @@ namespace CGUNS.Cameras
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -deltaPhi);
             cameraRot = Quaternion.Multiply(qAux, cameraRot);
+            cameraRot.Normalize();
         }
 
         public override void Abajo()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), deltaPhi);
             cameraRot = Quaternion.Multiply(qAux, cameraRot);
+            cameraRot.Normalize();
         }
 
         public override void Izquierda()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 1, 0), -deltaTheta);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
+            cameraRot.Normalize();
         }
 
         public override void Derecha()
         {
             qAux = Quaternion.FromAxisAngle(new Vector3(0, 1, 0), deltaTheta);
             cameraRot = Quaternion.Multiply(cameraRot, qAux);
+            cameraRot.Normalize();
         }
 
         public override void GirarIzquierda()

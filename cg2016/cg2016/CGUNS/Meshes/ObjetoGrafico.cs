@@ -87,6 +87,14 @@ namespace CGUNS.Meshes
             }
         }
 
+        public void DibujarShadows(ShaderProgram sProgram)
+        {
+            foreach (Mesh m in meshes)
+            {
+                m.DibujarShadows(sProgram);
+            }
+        }
+
         public void DibujarNormales(ShaderProgram sProgram)
         {
             foreach (Mesh m in meshes)
@@ -95,10 +103,15 @@ namespace CGUNS.Meshes
             }
         }
 
-        public void Build(ShaderProgram sProgram)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sProgram1">Shader para dibujar objeto</param>
+        /// <param name="sProgram2">Corresponde al shader de sombras</param>
+        public void Build(ShaderProgram sProgram1, ShaderProgram sProgram2)
         {
             foreach (Mesh m in meshes)
-                m.Build(sProgram);
+                m.Build(sProgram1, sProgram2);
         }
 
         public List<Vector3> getMeshVertices(String name){

@@ -52,9 +52,11 @@ namespace CGUNS.Meshes
 
         public abstract void Dibujar(ShaderProgram sProgram);
 
+        public abstract void DibujarShadows(ShaderProgram sProgram);
+
         public abstract void DibujarNormales(ShaderProgram sProgram);
 
-        public abstract void Build(ShaderProgram sProgram);
+        public abstract void Build(ShaderProgram sProgram1, ShaderProgram sProgram2);
 
         public abstract Vector3[] getVertices();
 

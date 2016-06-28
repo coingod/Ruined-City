@@ -87,6 +87,7 @@
     <Compile Include="CGUNS\Primitives\LightGizmo.cs" />
     <Compile Include="CGUNS\Primitives\Ejes.cs" />
     <Compile Include="CGUNS\Primitives\Skybox.cs" />
+    <Compile Include="CGUNS\Primitives\ViewportQuad.cs" />
     <Compile Include="CGUNS\Shaders\Exceptions.cs" />
     <Compile Include="CGUNS\Shaders\Shader.cs" />
     <Compile Include="CGUNS\Shaders\ShaderProgram.cs" />
@@ -207,10 +208,16 @@
     <None Include="files\shaders\fbumpedphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\shaders\fShadow.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\fSkybox.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fterrain.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\fViewport.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vanimated.glsl">
@@ -267,6 +274,9 @@
     <None Include="files\shaders\vphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\shaders\vShadow.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\vSkyBox.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -274,6 +284,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vunlit.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\shaders\vViewport.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Properties\Settings.settings">
