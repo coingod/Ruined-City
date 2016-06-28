@@ -53,7 +53,7 @@ namespace cg2016
         private int materialIndex = 0;
 
         //Efectos de Particulas
-        private ParticleEmitter particles;
+        //private ParticleEmitter particles;
         private Smoke smokeParticles;
         private Fire fireParticles;
 
@@ -123,8 +123,8 @@ namespace cg2016
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
-            //SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
-            SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
+            SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
+            //SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
             SetupShaders("vanimated.glsl", "fanimated.glsl", out sProgramAnimated);
             SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
@@ -235,11 +235,10 @@ namespace cg2016
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
             //float blend = (float)timeSinceStartup % 1 ;
-            Vector3 pos = Vector3.Lerp(new Vector3(-0.4f, 0.1f, 0.0f), new Vector3(0.4f, 0.1f, 0.0f), blend);
+            Vector3 pos = Vector3.Lerp(new Vector3(-4f, 1f, 0.0f), new Vector3(4f, 1f, 0.0f), blend);
             luces[0].Position = new Vector4(pos, 1.0f);
 
             //Actualizo los sistemas de particulas
-            particles.Update();
             smokeParticles.Update();
             fireParticles.Update();
             aviones.Actualizar(timeSinceStartup, sProgramParticles);
@@ -770,15 +769,15 @@ namespace cg2016
             sProgram.Activate(); //Activamos el programa de shaders
 
             #region Configuracion de Uniforms
-
-            /*
+             
             /// BUMPED SCPECULAR PHONG
+            
             //Configuracion de los valores uniformes del shader
-            sProgram.SetUniformValue("projMatrix", projMatrix);
+            sProgram.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgram.SetUniformValue("modelMatrix", modelMatrix);
             //sProgram.SetUniformValue("normalMatrix", normalMatrix);
-            sProgram.SetUniformValue("viewMatrix", viewMatrix);
-            //sProgram.SetUniformValue("cameraPosition", myCamera.getPosition());
+            sProgram.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
+            //sProgram.SetUniformValue("cameraPosition", myCamera.Position());
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
@@ -788,7 +787,7 @@ namespace cg2016
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", 0);
             sProgram.SetUniformValue("NormalMapTex", 1);
-            sProgram.SetUniformValue("SpecularMapTex", 2);
+            //sProgram.SetUniformValue("SpecularMapTex", 0);
             
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
@@ -799,8 +798,8 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
                 sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
-            }*/
-
+            }
+            /*
             // MULTIPLES LUCES
             //Configuracion de los valores uniformes del shader
             sProgram.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
@@ -827,6 +826,7 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
             }
+            */
             //Para sombras
             int iShadowsOn = shadowsOn ? 1 : 0;
             sProgram.SetUniformValue("shadowsOn", iShadowsOn);
@@ -836,11 +836,14 @@ namespace cg2016
 
 
             //Dibujamos el Objeto
+            sProgram.SetUniformValue("NormalMapTex", 15);
             tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             tanque_col.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             //objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             tanque.Dibujar(sProgram);
+            sProgram.SetUniformValue("NormalMapTex", 1);
+
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
@@ -933,8 +936,6 @@ namespace cg2016
             explosiones.Dibujar(timeSinceStartup, sProgramParticles);
             if (toggleParticles)
             {
-                //Test
-                particles.Dibujar(sProgramParticles);
                 //Humo
                 sProgramParticles.SetUniformValue("ColorTex", 3);
                 smokeParticles.Dibujar(sProgramParticles);
@@ -1165,7 +1166,7 @@ namespace cg2016
             //luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
             luces[1].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
             luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[1].Ipuntual = new Vector3(0.75f, 0.75f, 0.75f);
+            luces[1].Ipuntual = new Vector3(1f, 1f, 1f);
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[1].Enabled = 1;
@@ -1213,8 +1214,6 @@ namespace cg2016
 
         private void SetupParticles()
         {
-            particles = new ParticleEmitter(Vector3.Zero);
-            particles.Build(sProgramParticles);
             smokeParticles = new Smoke(new Vector3(5, 0, 5));
             smokeParticles.Build(sProgramParticles);
             fireParticles = new Fire(new Vector3(7.5f, 2.5f, 2));

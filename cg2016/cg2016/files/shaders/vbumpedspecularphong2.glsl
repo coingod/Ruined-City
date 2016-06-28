@@ -9,7 +9,7 @@ in vec4 vTangente;
 //in vec3 vBitangente; 
 
 out vec2 f_TexCoord;
-out vec3 fPos_CS;
+out vec3 fPos_WS;
 out mat3 TBN;
 out vec3 fnormal;
 
@@ -26,8 +26,8 @@ out vec4 fragPosLightSpace;
 
 void main()
 {
-	mat4 modelViewMatrix = viewMatrix * modelMatrix;
-	mat3 normalMatrix = transpose(inverse( mat3(modelViewMatrix) ));
+	//mat4 modelViewMatrix = viewMatrix * modelMatrix;
+	mat3 normalMatrix = transpose(inverse( mat3(modelMatrix) ));
 
 	//Transformar vectores N, T y B de ObjectSpace a CameraSpace
 	vec3 normal = normalize(normalMatrix * vNormal);
@@ -36,11 +36,11 @@ void main()
 	//tangente = normalize(tangente - dot(tangente, normal) * normal);
 	vec3 bitangente = normalize(cross(normal, tangente) * vTangente.w);
 
-	//Construir la Matris de transformacion de CameraSpace a TangentSpace
+	//Construir la Matris de transformacion de WorldSpace a TangentSpace
 	TBN = transpose( mat3(tangente, bitangente, normal) );
 
-	//Transformar Posicion de ObjectSpace a CameraSpace
-	fPos_CS = vec3( modelViewMatrix * vec4(vPos,1.0) );
+	//Transformar Posicion de ObjectSpace a WorldSpace
+	fPos_WS = vec3( modelMatrix * vec4(vPos,1.0) );
 
 	fnormal = vNormal;
 
@@ -48,6 +48,6 @@ void main()
 	f_TexCoord = vec2(TexCoord.s, 1 - TexCoord.t);
 
 	gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(vPos, 1.0);
-
+	
 	fragPosLightSpace = uLightBiasMatrix * modelMatrix * vec4(vPos, 1.0);
 }

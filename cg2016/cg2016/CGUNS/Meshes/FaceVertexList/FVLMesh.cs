@@ -294,7 +294,7 @@ namespace CGUNS.Meshes.FaceVertexList
                         indicesNormalVectors[k] = k;
                         indicesNormalVectors[k + 1] = k + 1;
                         NormalVectors[k] = vertices[i];
-                        NormalVectors[k + 1] = (vertexNormalList[normalesCara[j]] + vertices[i]);
+                        NormalVectors[k + 1] = (vertexNormalList[normalesCara[j]] * 0.1f + vertices[i]);
                         k += 2;
                     }
 

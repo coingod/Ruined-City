@@ -5,7 +5,7 @@
 
 in vec2 f_TexCoord;
 in mat3 TBN;
-in vec3 fPos_CS;
+in vec3 fPos_WS;
 in vec3 fnormal;
 
 struct Light {
@@ -24,7 +24,7 @@ struct Material {
 	float Shininess;
 };
 
-//uniform mat4 modelMatrix;
+uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 
 uniform sampler2D ColorTex;
@@ -134,20 +134,20 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 
 	if(light.position.w == 0)
 	{ 
-		LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
-		//LightPos = normalize( transpose(inverse(TBN)) * (-light.position).xyz);
+		//LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
+		LightPos = normalize( transpose(inverse(TBN)) * (-light.position).xyz);
 		if(shadowsOn == 1)
 			visibility = ShadowCalculation(fragPosLightSpace); 
 	}
 	else
 	{
 		//Transformar POSICION de la Luz de CameraSpace a TangentSpace
-		LightPos = normalize( TBN * ( (viewMatrix * light.position).xyz - fPos_CS) );
-		//LightPos = normalize( TBN * ((light.position).xyz - fPos_WS));
+		//LightPos = normalize( TBN * ( (viewMatrix * light.position).xyz - fPos_CS) );
+		LightPos = normalize( TBN * ((light.position).xyz - fPos_WS));
 
 		//Restricciones del cono de luz
-		vec3 coneDirection = normalize(TBN * (mat3(viewMatrix) * light.coneDirection) );
-		//vec3 coneDirection = normalize(TBN * (light.coneDirection).xyz );
+		//vec3 coneDirection = normalize(TBN * (mat3(viewMatrix) * light.coneDirection) );
+		vec3 coneDirection = normalize(TBN * (light.coneDirection).xyz );
 		vec3 rayDirection = -LightPos;
 		float lightToSurfaceAngle = degrees(acos(dot(rayDirection, coneDirection)));
 		//Dentro del cono
@@ -157,12 +157,9 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 			float distanceToLight = length(light.position.xyz);
 			fAtt = (0.5 / ( A + B * distanceToLight + C * pow(distanceToLight, 2)) );
 
-			if(light.coneAngle < 180)
-			{
-				//Atenuacion de los bordes 
-				float innerCone = light.coneAngle*0.75;
-				falloff = smoothstep(light.coneAngle, innerCone, lightToSurfaceAngle);
-			}
+			//Atenuacion de los bordes 
+			float innerCone = light.coneAngle*0.75;
+			falloff = smoothstep(light.coneAngle, innerCone, lightToSurfaceAngle);
 		}//Fuera del cono 
 		else 
 			fAtt = 0.0;
@@ -190,22 +187,17 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 
 void main() 
 {
-	// The color texture is used as the diff. reflectivity
-	vec4 texColor = texture2D( ColorTex, f_TexCoord );
-
-	//Descarto los fragmentos con valor de transparencia
-	if(texColor.a < 0.5)
-		discard;
-
 	// Lookup the normal from the normal map
 	vec4 normal = 2.0*texture2D( NormalMapTex, f_TexCoord ) - 1;
 
-	// The specular texture is used as the spec intensity
-	//vec4 specular = texture2D( SpecularMapTex, f_TexCoord ) ;
-	vec4 specular = vec4(1);
+	// The color texture is used as the diff. reflectivity
+	vec4 texColor = texture2D( ColorTex, f_TexCoord );
 
-	//Transformar Posicion de CameraSpace a TangentSpace
-	vec3 ViewDir = TBN * normalize(-fPos_CS);
+	// The specular texture is used as the spec intensity
+	vec4 specular = texture2D( SpecularMapTex, f_TexCoord ) ;
+
+	//Transformar Posicion de WorldSpace a TangentSpace
+	vec3 ViewDir = TBN * normalize(-fPos_WS);
 
 	//Acumular iluminacion de cada fuente de luz
 	vec3 linearColor=vec3(0);
