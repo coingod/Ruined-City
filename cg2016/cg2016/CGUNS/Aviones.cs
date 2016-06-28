@@ -15,20 +15,19 @@ namespace CGUNS
     class Aviones
     {
         private static float pi = 3.14f;
-        private static float aux=10;
         private static Matrix4 escala = Matrix4.CreateScale(1f) * Matrix4.CreateRotationY(pi / 2);
 
         private ObjetoGrafico[] objetos;
         private ISound[] sonidoAviones; //uno para cada uno por si se quiere usar distintos o en momentos diferentes
-        private static Vector3 origen = new Vector3(-75.0f, 2.0f, 0.0f)* aux; //de donde sale el avion y fin hasta donde llega
-        private Vector3 fin = new Vector3(75.0f, 1.0f, 0.0f) * aux;
+        private static Vector3 origen = new Vector3(-75.0f, 2.0f, 0.0f); //de donde sale el avion y fin hasta donde llega
+        private Vector3 fin = new Vector3(75.0f, 2.0f, 0.0f);
         private Vector3 posicion = origen;
-        private Vector3 desplazamiento1 = new Vector3(-1.0f, 0.0f, 2.0f) * aux; //utilizados para los otros dos aviones
-        private Vector3 desplazamiento2 = new Vector3(-1.0f, 0.0f, -2.0f) * aux;
+        private Vector3 desplazamiento1 = new Vector3(-1.0f, 0.0f, 2.0f) ; //utilizados para los otros dos aviones
+        private Vector3 desplazamiento2 = new Vector3(-1.0f, 0.0f, -2.0f);
 
         //las variables que siguen son para simular un avion persiguiendo a otro
-        private Vector3 centroPerseguido = new Vector3(0.0f, 140.0f, 0.0f);
-        private static float radio=120f;
+        private Vector3 centroPerseguido = new Vector3(0.0f, 140.0f, 0.0f)/10;
+        private static float radio=12f;
         private Vector3 posPerseguido, posPerseguidor;
         private static float retraso = pi/ 6; //Se utiliza para posicionar a un avion tanto mas atras que otro
                 
@@ -42,7 +41,7 @@ namespace CGUNS
         List<Smoke> list = new List<Smoke>();
         List<double> tiempoInicios = new List<double>(); //Se guarda en que momento comienzan los disparos en cada posicion
 
-        Cube cubo = new Cube(0.4f, 0.4f, 0.4f);
+        Cube cubo = new Cube(0.04f, 0.04f, 0.04f);
 
 
         public Aviones(ShaderProgram sProgram1, ShaderProgram sProgram2, ISoundEngine engine, ShaderProgram sProgramUnlit, int cantAviones = 5)
@@ -174,7 +173,7 @@ namespace CGUNS
             //Se actualizan los disparos si es necesario            
             for (int i = 0; i < list.Count; i++)
                 {
-                if (timeSinceStartup - tiempoInicios[i] > 1)
+                if (timeSinceStartup - tiempoInicios[i] > 10)
                     list[i].enabled = false;
                 else list[i].Update();
                 }
@@ -204,7 +203,7 @@ namespace CGUNS
 
             if (posicionesDisparos.Count > 0)
                 {//Se agrega un control para que haya cierta separacion entre disparos y no sean infinitos
-                if (Math.Abs(posicionesDisparos[(posicionesDisparos.Count - 1)].X - posDisparo.X) > 0.4f)
+                if (Math.Abs(posicionesDisparos[(posicionesDisparos.Count - 1)].X - posDisparo.X) > 0.04f)
                     posicionesDisparos.Add(posDisparo);
                 }
             else posicionesDisparos.Add(posDisparo);
