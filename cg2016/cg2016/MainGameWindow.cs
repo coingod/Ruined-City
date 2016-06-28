@@ -137,6 +137,8 @@ namespace cg2016
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
             fisica.addMeshTank(tanque_col.getMeshVertices("Cube.002"), tanque_col.getIndicesDeMesh("Cube.002"));
 
+           
+
             //Configuracion de la Camara
             camaras = new List<Camera>();
             camaras.Add(new QSphericalCamera(50, 45, 30, 0.01f, 2500));
@@ -206,21 +208,13 @@ namespace cg2016
             //Incremento el tiempo transcurrido
             timeSinceStartup += this.RenderTime;
             //Console.WriteLine(timeSinceStartup);
-
+            
             //Simular la fisica
-            fisica.dynamicsWorld.StepSimulation(10);
+            fisica.dynamicsWorld.StepSimulation(10f);
 
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
-
-            if (fisica.tank.LinearVelocity == new Vector3(0, 0, 0)) {
-                tanksleeping++;
-                if (tanksleeping == 20) {
-                    fisica.createTank(fisica.tank.MotionState);
-                    tanksleeping = 0;
-                }
-            }
-
+            
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
             //float blend = (float)timeSinceStartup % 1 ;
@@ -311,18 +305,18 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -(tanque.transform.forward)*3;
+                        fisica.tank.LinearVelocity = -(tanque.transform.forward)*5;
                         tankDirection = -1;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = (tanque.transform.forward)*3;
+                        fisica.tank.LinearVelocity = (tanque.transform.forward)*5;
                         tankDirection = 1;
                         break;
                     case Key.Right:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, -10000f, 0));
+                        fisica.tank.AngularVelocity= (new Vector3(0, -1f, 0))*2;
                         break;
                     case Key.Left:
-                        fisica.tank.ApplyTorqueImpulse(new Vector3(0, 10000f, 0));
+                        fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0))*2;
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;
