@@ -1258,8 +1258,8 @@ namespace cg2016
 
 
             // 2. Genero una textura para vincular al framebuffer.
-            GL.ActiveTexture(TextureUnit.Texture0 + mShadowTextureUnit);
             depthTexture = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0 + mShadowTextureUnit);
             GL.BindTexture(textureTarget, depthTexture);
             GL.TexImage2D(
                 textureTarget,
@@ -1295,6 +1295,8 @@ namespace cg2016
                 if (shadowsOn)             
                     throw new InvalidOperationException("El framebuffer no fue completamente creado.");
             }
+            GL.DrawBuffer(DrawBufferMode.None);
+            GL.ReadBuffer(ReadBufferMode.None);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
