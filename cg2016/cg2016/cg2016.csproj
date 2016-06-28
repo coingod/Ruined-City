@@ -177,9 +177,6 @@
     <None Include="files\audio\ambience.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="files\audio\audioclip-1466523676.ogg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="files\audio\FarExplosionA.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -190,6 +187,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\audio\NearExplosionB.ogg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="files\audio\plane_engine.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fanimated.glsl">
@@ -299,9 +299,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="files\audio\avion.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="files\audio\bell.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

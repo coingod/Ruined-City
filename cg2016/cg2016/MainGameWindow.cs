@@ -300,7 +300,7 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                WindowState = WindowState.Normal;
+                WindowState = WindowState.Maximized;//WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -1250,7 +1250,7 @@ namespace cg2016
             TextureTarget textureTarget = TextureTarget.Texture2D;
             FramebufferTarget framebufferTarget = FramebufferTarget.Framebuffer;
 
-            mShadowViewport = new Rectangle(0, 0, 2048, 2048);
+            mShadowViewport = new Rectangle(0, 0, 4096, 4096);//2048, 2048);
 
             // 1. Genero un framebuffer.
             fbo = GL.GenFramebuffer();

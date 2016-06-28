@@ -19,11 +19,11 @@ namespace CGUNS
 
         private ObjetoGrafico[] objetos;
         private ISound[] sonidoAviones; //uno para cada uno por si se quiere usar distintos o en momentos diferentes
-        private static Vector3 origen = new Vector3(-75.0f, 2.0f, 0.0f); //de donde sale el avion y fin hasta donde llega
+        private static Vector3 origen = new Vector3(-75.0f, 5.0f, 0.0f); //de donde sale el avion y fin hasta donde llega
         private Vector3 fin = new Vector3(75.0f, 2.0f, 0.0f);
         private Vector3 posicion = origen;
-        private Vector3 desplazamiento1 = new Vector3(-1.0f, 0.0f, 2.0f) ; //utilizados para los otros dos aviones
-        private Vector3 desplazamiento2 = new Vector3(-1.0f, 0.0f, -2.0f);
+        private Vector3 desplazamiento1 = new Vector3(-2.0f, 0.0f, 4.0f) ; //utilizados para los otros dos aviones
+        private Vector3 desplazamiento2 = new Vector3(-2.0f, 0.0f, -4.0f);
 
         //las variables que siguen son para simular un avion persiguiendo a otro
         private Vector3 centroPerseguido = new Vector3(0.0f, 140.0f, 0.0f)/10;
@@ -69,7 +69,7 @@ namespace CGUNS
             Vector3D desp1 = origen3D + new Vector3D(desplazamiento1.X, desplazamiento1.Y, desplazamiento1.Z);
             Vector3D desp2 = origen3D + new Vector3D(desplazamiento2.X, desplazamiento2.Y, desplazamiento2.Z);
 
-            String pathSonido = "files/audio/bell.wav";
+            String pathSonido = "files/audio/plane_engine.ogg";
             sonidoAviones[0] = engine.Play3D(pathSonido, origen3D.X, origen3D.Y, origen3D.Z, true);
             sonidoAviones[1] = engine.Play3D(pathSonido, desp1.X, desp1.Y, desp1.Z, true);
             sonidoAviones[2] = engine.Play3D(pathSonido, desp2.X, desp2.Y, desp2.Z, true);
@@ -77,7 +77,7 @@ namespace CGUNS
             sonidoAviones[4] = engine.Play3D(pathSonido, posPerseguidor.X, posPerseguidor.Y, posPerseguidor.Z, true);
 
             for (int i=0; i<sonidoAviones.Length; i++)
-                sonidoAviones[i].Volume = sonidoAviones[i].Volume / 2;
+                sonidoAviones[i].Volume = sonidoAviones[i].Volume;
 
             cubo.Build(sProgramUnlit); 
 
@@ -135,7 +135,7 @@ namespace CGUNS
         public void Actualizar(Double timeSinceStartup, ShaderProgram sProgramParticles ) {
 
             //Se calcula la nueva posicion del 1ro que va en linea recta. En Dibujar se actualiza la posicion de los 3 aviones
-            float blend = (float)timeSinceStartup/12 % 1;
+            float blend = (float)timeSinceStartup * 0.05f % 1;
             posicion = Vector3.Lerp(origen, fin, blend);
 
                         
