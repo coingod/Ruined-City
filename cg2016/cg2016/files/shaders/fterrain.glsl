@@ -45,7 +45,7 @@ out vec4 fragColor;
 // --- SHADOW MAPPING ---
 // Sampler del shadow map.
 uniform sampler2D uShadowSampler;
-
+uniform int shadowsOn;
 // Posicion del fragmento en el espacio de la luz.
 in vec4 fragPosLightSpace;
 
@@ -73,7 +73,8 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 	float visibility = 1;
 	if (light.position.w == 0.0) { //Directional light
 		surfaceToLight = normalize(-light.position.xyz);
-		visibility = ShadowCalculation(fragPosLightSpace); 
+		if (shadowsOn == 1)
+			visibility = ShadowCalculation(fragPosLightSpace); 
 	} else { //Positional light (Spot or Point)
 		surfaceToLight = normalize(light.position.xyz - surfacePos);
 		//Cone restrictions

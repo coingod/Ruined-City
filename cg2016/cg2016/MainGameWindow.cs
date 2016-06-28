@@ -95,7 +95,7 @@ namespace cg2016
         private bool showShadowMap;
         private int fbo;
         private int depthTexture;        
-
+        private bool shadowsOn = false;
         private Rectangle mShadowViewport; //Viewport a utilizar para el shadow mapping.
         private ShaderProgram mShadowProgram; //Nuestro programa de shaders.   
         private int mShadowTextureUnit = 17;
@@ -268,12 +268,12 @@ namespace cg2016
             // La matrix de proyeccion es una matrix ortografica que abarca toda la escena.
             // Estos valores son seleccionados de forma que toda la escena visible es incluida.
             Matrix4 lightProjMatrix = Matrix4.CreateOrthographicOffCenter(
-                -180,
-                 180,
-                -180,
-                 180,
-                 10f,
-                 100f);
+                -10,
+                 10,
+                -10,
+                 10,
+                 1f,
+                 10f);
 
             // --- VIEW PROJECTION ---
             // La matrix de modelado es la identidad.
@@ -281,7 +281,8 @@ namespace cg2016
 
             // --- RENDER ---
             // 1. Se renderiza la escena desde el punto de vista de la luz
-            GenerarShadowMap(lightSpaceMatrix);
+            if (shadowsOn)
+                GenerarShadowMap(lightSpaceMatrix);          
 
             // Clear the screen
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -317,10 +318,8 @@ namespace cg2016
             if (drawGizmos)
                 DibujarGizmos();
 
-            if (showShadowMap)
-            {
-                DibujarShadowMap();
-            }
+            if (shadowsOn & showShadowMap)            
+                DibujarShadowMap();            
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
@@ -450,6 +449,9 @@ namespace cg2016
                         break;
                     case Key.V:
                         showShadowMap = !showShadowMap;
+                        break;
+                    case Key.B:
+                        shadowsOn = !shadowsOn;
                         break;
                 }
             }
@@ -825,6 +827,8 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
             }
             //Para sombras
+            int iShadowsOn = shadowsOn ? 1 : 0;
+            sProgram.SetUniformValue("shadowsOn", iShadowsOn);
             sProgram.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
             sProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
             #endregion
@@ -902,8 +906,9 @@ namespace cg2016
                 //sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
             //Para sombras
-            sProgram.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
-            sProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
+            sProgramTerrain.SetUniformValue("shadowsOn", iShadowsOn);
+            sProgramTerrain.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
+            sProgramTerrain.SetUniformValue("uShadowSampler", mShadowTextureUnit);
 
             //Dibujo el terreno
             foreach (Mesh m in mapa.Meshes)
@@ -1155,7 +1160,7 @@ namespace cg2016
             //Direccional blanca
             luces[1] = new Light();
             //luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
-            luces[1].Position = new Vector4(28.0f, -40.0f, -28.0f, 0.0f);
+            luces[1].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
             luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[1].Ipuntual = new Vector3(0.75f, 0.75f, 0.75f);
             luces[1].ConeAngle = 180.0f;
@@ -1245,7 +1250,7 @@ namespace cg2016
             TextureTarget textureTarget = TextureTarget.Texture2D;
             FramebufferTarget framebufferTarget = FramebufferTarget.Framebuffer;
 
-            mShadowViewport = new Rectangle(0, 0, 8192, 8192);
+            mShadowViewport = new Rectangle(0, 0, 2048, 2048);
 
             // 1. Genero un framebuffer.
             fbo = GL.GenFramebuffer();
@@ -1286,8 +1291,9 @@ namespace cg2016
 
             // 5. IMPORTANTE: Chequeo si el framebuffer esta completo.
             if (GL.CheckFramebufferStatus(framebufferTarget) != FramebufferErrorCode.FramebufferComplete)
-            {
-                throw new InvalidOperationException("El framebuffer no fue completamente creado.");
+            {   
+                if (shadowsOn)             
+                    throw new InvalidOperationException("El framebuffer no fue completamente creado.");
             }
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
