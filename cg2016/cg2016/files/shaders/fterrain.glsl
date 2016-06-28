@@ -42,12 +42,38 @@ uniform float C;
 
 out vec4 fragColor;
 
+// --- SHADOW MAPPING ---
+// Sampler del shadow map.
+uniform sampler2D uShadowSampler;
+
+// Posicion del fragmento en el espacio de la luz.
+in vec4 fragPosLightSpace;
+
+// Calcula la visibilidad del fragmento respecto la luz.
+// Retorna 1 si es visible y 0 si no lo es.
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+	//Por ahora tenemos una luz direccional. [1].
+	vec3 lightDir = normalize(allLights[1].position.xyz - fragPosLightSpace.xyz);
+	//float bias    = max(0.05 * (1.0 - dot(fragNormal, lightDir)), 0.005);
+	float bias    = max(0.005 * (1.0 - dot(fragNormal, lightDir)), 0.0005);
+	float shadowDepth = texture(uShadowSampler, fragPosLightSpace.xy).z;
+	float fragDepth   = fragPosLightSpace.z;
+
+	// Si el fragmento esta fuera del alcance del shadow map entonces es visible.
+	if (fragDepth > 1.0)
+		return 1.0;
+
+	return fragDepth - bias <= shadowDepth ? 1.0f : 0.0f;
+}
+
 vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNormal, vec3 surfaceToCamera) {
 	float attenuation = 1.0;
 	vec3 surfaceToLight;
+	float visibility = 1;
 	if (light.position.w == 0.0) { //Directional light
 		surfaceToLight = normalize(-light.position.xyz);
-		attenuation = 1.0; //no attenuation for directional lights.
+		visibility = ShadowCalculation(fragPosLightSpace); 
 	} else { //Positional light (Spot or Point)
 		surfaceToLight = normalize(light.position.xyz - surfacePos);
 		//Cone restrictions
@@ -85,7 +111,7 @@ vec3 applyLight(Light light, Material material, vec3 surfacePos, vec3 surfaceNor
 		specularCoefficient = pow(cosAngle, material.Shininess);
 	}
 	vec3 specular = light.Ip * material.Ks * specularCoefficient;
-	return ambient + attenuation * (diffuse + specular) * light.enabled;
+	return ambient + attenuation * visibility * (diffuse + specular) * light.enabled;
 }
 
 void main() {

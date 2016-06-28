@@ -268,11 +268,11 @@ namespace cg2016
             // La matrix de proyeccion es una matrix ortografica que abarca toda la escena.
             // Estos valores son seleccionados de forma que toda la escena visible es incluida.
             Matrix4 lightProjMatrix = Matrix4.CreateOrthographicOffCenter(
-                -20,
-                 20,
-                -20,
-                 20,
-                 1f,
+                -180,
+                 180,
+                -180,
+                 180,
+                 10f,
                  100f);
 
             // --- VIEW PROJECTION ---
@@ -312,7 +312,7 @@ namespace cg2016
             Vector3D posOyente = new Vector3D(myCamera.Position().X, myCamera.Position().Y, myCamera.Position().Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
 
-            DibujarEscena(toggleNormals);
+            DibujarEscena(lightSpaceMatrix, toggleNormals);
 
             DibujarParticles();                                   
 
@@ -709,7 +709,7 @@ namespace cg2016
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             mShadowProgram.SetUniformValue("uModelMatrix", mapa.transform.localToWorld);
             foreach (Mesh m in mapa.Meshes)
-                if (m.Name != "Ground_Plane")
+                //if (m.Name != "Ground_Plane")
                     m.DibujarShadows(mShadowProgram);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -743,10 +743,21 @@ namespace cg2016
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
         }
 
-        private void DibujarEscena(bool normals)
+        private void DibujarEscena(Matrix4 lightSpaceMatrix, bool normals)
         {
             GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            // Si multiplicamos la posicion del vertice por la matrix de MVP de la luz
+            // nos da coordenadas homogeneas [-1,1] pero el sampleo de textura debe hacerse 
+            // en [0, 1].
+            // Para eso usamos la matrix de bias que nos mapea de [-1,1] a [0,1]
+            Matrix4 biasMatrix = new Matrix4(
+                0.5f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.5f, 0.0f,
+                0.5f, 0.5f, 0.5f, 1.0f);
+            Matrix4 lightBiasMatrix = lightSpaceMatrix * biasMatrix;
 
             Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
             Matrix4 mvMatrix = Matrix4.Mult(myCamera.ViewMatrix(), modelMatrix);
@@ -815,6 +826,9 @@ namespace cg2016
                 sProgram.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgram.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
             }
+            //Para sombras
+            sProgram.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
+            sProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
             #endregion
 
 
@@ -889,6 +903,10 @@ namespace cg2016
                 sProgramTerrain.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
                 //sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
+            //Para sombras
+            sProgram.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
+            sProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
+
             //Dibujo el terreno
             foreach (Mesh m in mapa.Meshes)
                 if (m.Name == "Ground_Plane")
@@ -1139,7 +1157,7 @@ namespace cg2016
             //Direccional blanca
             luces[1] = new Light();
             //luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
-            luces[1].Position = new Vector4(14.0f, -20.0f, -14.0f, 0.0f);
+            luces[1].Position = new Vector4(28.0f, -40.0f, -28.0f, 0.0f);
             luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[1].Ipuntual = new Vector3(0.75f, 0.75f, 0.75f);
             luces[1].ConeAngle = 180.0f;
@@ -1229,7 +1247,7 @@ namespace cg2016
             TextureTarget textureTarget = TextureTarget.Texture2D;
             FramebufferTarget framebufferTarget = FramebufferTarget.Framebuffer;
 
-            mShadowViewport = new Rectangle(0, 0, 2048, 2048);
+            mShadowViewport = new Rectangle(0, 0, 8192, 8192);
 
             // 1. Genero un framebuffer.
             fbo = GL.GenFramebuffer();
