@@ -40,8 +40,8 @@ namespace cg2016
             solver = new SequentialImpulseConstraintSolver();
             //solver = new MultiBodyConstraintSolver();
             //mundo
-            dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-            dynamicsWor.Gravity = new Vector3(0, -50, 0);
+            dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, null, collisionConfiguration);
+            dynamicsWor.Gravity = new Vector3(0, -10, 0);
         }
         
         public void addMeshMap( List<Vector3> listaVertices, List<int> listaIndices){
@@ -57,10 +57,7 @@ namespace cg2016
             //RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape, new Vector3(0, 0, 0));
             RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape);
             map = new RigidBody(rbInfo);
-            //map.Friction = 1;
-            //map.Restitution = 0;
-            map.ForceActivationState(ActivationState.IslandSleeping);
-            //map.ContactProcessingThreshold = 0;
+            //map.ForceActivationState(ActivationState.IslandSleeping);
             dynamicsWor.AddRigidBody(map);
         }
 
@@ -75,14 +72,14 @@ namespace cg2016
             //tankShape = new ConvexHullShape(listaVertices);
             //tankShape=new BoxShape(1);
             tankShape = new ConvexTriangleMeshShape(aux, true);
-            Vector3 localInertia = tankShape.CalculateLocalInertia(100f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(100f, myMotionState, tankShape, localInertia);
+            Vector3 localInertia = tankShape.CalculateLocalInertia(10000f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(10000f, myMotionState, tankShape, localInertia);
             tank = new RigidBody(rbInfo);
-            tank.Friction = 1; //El tanque tracciona, no se mueve si no se le indica.
+            tank.Friction = 3; //El tanque tracciona, no se mueve si no se le indica.
             tank.ForceActivationState(ActivationState.DisableDeactivation); //Siempre activo!
-            tank.Restitution = 0;
+            //tank.Restitution = 0;
             
-            tank.ContactProcessingThreshold = 0;
+            //tank.ContactProcessingThreshold = 0;
 
             dynamicsWor.AddRigidBody(tank);
           }

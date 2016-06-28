@@ -354,11 +354,11 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -(tanque.transform.forward);
+                        fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z);
                         tankDirection = -1;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = (tanque.transform.forward);
+                        fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z);
                         tankDirection = 1;
                         break;
                     case Key.Right:
@@ -1060,7 +1060,7 @@ namespace cg2016
             orugas.AddTextureToAllMeshes(14);
             orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
-            tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tankcoll.obj");
+            tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tanktest.obj");
             tanque_col.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             mShadowViewportQuad = new ViewportQuad();
