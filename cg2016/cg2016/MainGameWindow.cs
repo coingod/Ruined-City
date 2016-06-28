@@ -42,6 +42,7 @@ namespace cg2016
         private ObjetoGrafico tanque_col; //Nuestro objeto a dibujar.
         private ObjetoGrafico orugas;
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
+        private ObjetoGrafico mapa_col;
 
         //Iluminacion
         private Light[] luces;
@@ -151,7 +152,7 @@ namespace cg2016
             fisica = new fisica();
             //Meshes Convex Fisica 
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
-            fisica.addMeshTank(tanque_col.getMeshVertices("Cube.002"), tanque_col.getIndicesDeMesh("Cube.002"));
+            fisica.addMeshTank(tanque_col.getMeshVertices("Cube.001"), tanque_col.getIndicesDeMesh("Cube.001"));
 
             //Configuracion de la Camara
             camaras = new List<Camera>();
@@ -353,11 +354,11 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -(tanque.transform.forward)*5;
+                        fisica.tank.LinearVelocity = -(tanque.transform.forward);
                         tankDirection = -1;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = (tanque.transform.forward)*5;
+                        fisica.tank.LinearVelocity = (tanque.transform.forward);
                         tankDirection = 1;
                         break;
                     case Key.Right:
@@ -1019,6 +1020,8 @@ namespace cg2016
             //Construimos los objetos que vamos a dibujar.
             //TODO Separar el ground del mapa para evitar esto de los builds
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
+            mapa_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/mapcoll.obj");
+            mapa_col.Build(sProgram, mShadowProgram);
             foreach(Mesh m in mapa.Meshes)
             {
                 Char[] separator = { '.' };
