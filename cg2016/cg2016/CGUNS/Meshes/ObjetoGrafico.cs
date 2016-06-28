@@ -114,11 +114,27 @@ namespace CGUNS.Meshes
                 m.Build(sProgram1, sProgram2);
         }
 
-        public List<Vector3> getMeshVertices(String name){
+        public List<Vector3> getMeshVertices(int index){
+            List<Vector3> aux = new List<Vector3>();
+            int i=0;
+            foreach (Mesh m in meshes)
+            {
+                if (i== index)
+                    foreach (Vector3 vertex in m.getVertices())
+                    {
+                        aux.Add(vertex);
+                    }
+                i++;
+            }
+            return aux;
+        }
+
+        public List<Vector3> getMeshVertices(String name)
+        {
             List<Vector3> aux = new List<Vector3>();
             foreach (Mesh m in meshes)
             {
-                if (m.Name.Equals(name))
+                if (m.Name==name)
                     foreach (Vector3 vertex in m.getVertices())
                     {
                         aux.Add(vertex);
@@ -127,37 +143,25 @@ namespace CGUNS.Meshes
             return aux;
         }
 
-        public List<Vector3> getAllMeshVertices() {
-            List<Vector3> aux = new List<Vector3>();
-            Vector3[] verticesDeM;
-            foreach (Mesh m in meshes)
-            {
-                verticesDeM = m.getVertices();
-                foreach (Vector3 vertex in verticesDeM)
-                {
-                    aux.Add(vertex);
-                }
-            }
-            return aux;
-        }
 
-        public List<int> getIndicesDeMesh(String name) {
+        public List<int> getIndicesDeMesh(int index) {
+            int i=0;
             foreach (Mesh m in meshes)
             {
-                if (m.Name.Equals(name))
+                if (i==index)
                     return m.IndicesDeMesh();
+                i++;
             }
             return new List<int>();
         }
-
-        public List<int> getIndicesDeMeshes()
+        public List<int> getIndicesDeMesh(String name)
         {
-            List<int> toReturn = new List<int>();
             foreach (Mesh m in meshes)
             {
-                toReturn.Concat(m.IndicesDeMesh());
+                if (m.Name==name)
+                    return m.IndicesDeMesh();
             }
-            return toReturn;
+            return new List<int>();
         }
     }
 }
