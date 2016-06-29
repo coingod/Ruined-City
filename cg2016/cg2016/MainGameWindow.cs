@@ -47,6 +47,9 @@ namespace cg2016
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
         private ObjetoGrafico mapa_col;
 
+        //Texturas
+        private Dictionary<string, int> programTextures;
+
         //Iluminacion
         private Light[] luces;
 
@@ -93,7 +96,7 @@ namespace cg2016
 
         //Skybox
         private Skybox mSkyBox;
-        private int mSkyBoxTextureUnit = 12;
+        //private int mSkyBoxTextureUnit = 12;
         private int mSkyboxTextureId;
 
         //Sombras
@@ -103,7 +106,7 @@ namespace cg2016
         private bool shadowsOn = false;
         private Rectangle mShadowViewport; //Viewport a utilizar para el shadow mapping.
         private ShaderProgram mShadowProgram; //Nuestro programa de shaders.   
-        private int mShadowTextureUnit = 17;
+        //private int mShadowTextureUnit = 17;
 
         private ShaderProgram mShadowViewportProgram; //Nuestro programa de shaders.
         private ViewportQuad mShadowViewportQuad;
@@ -128,6 +131,9 @@ namespace cg2016
 
             loaded += 10;
 
+            //Creo el contenedor de texturas
+            programTextures = new Dictionary<string, int>();
+
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
             SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
@@ -138,8 +144,6 @@ namespace cg2016
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
             SetupShaders("vShadow.glsl", "fShadow.glsl", out mShadowProgram);
             SetupShaders("vViewport.glsl", "fViewport.glsl", out mShadowViewportProgram);
-
-            CrearShadowTextures();
 
             loaded += 50;
 
@@ -152,8 +156,13 @@ namespace cg2016
 
             loaded += 39;
 
+            //Carga de Texturas
+            SetupTextures();
+
             //Carga y configuracion de Objetos
             SetupObjects();
+
+            CrearShadowTextures();
 
             //Arrancamos la clase fisica
             fisica = new fisica();
@@ -173,8 +182,6 @@ namespace cg2016
             camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
             camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.025f));
             myCamera = camaras[0]; //Creo una camara.
-
-
             CrearCamarasFijas();
 
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
@@ -762,7 +769,7 @@ namespace cg2016
             // --- SETEO UNIFORMS ---
             mShadowViewportProgram.SetUniformValue("uViewportOrthographic", projectionMatrix);
             mShadowViewportProgram.SetUniformValue("uViewportSize", viewportSize);
-            mShadowViewportProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
+            mShadowViewportProgram.SetUniformValue("uShadowSampler", GetTextureID("ShadowMap"));
 
             // --- DIBUJO ---
             mShadowViewportQuad.Dibujar(mShadowViewportProgram);
@@ -825,7 +832,7 @@ namespace cg2016
 
             mSkyBoxProgram.SetUniformValue("projMat", projMatrix);
             mSkyBoxProgram.SetUniformValue("vMat", viewMatrix);
-            mSkyBoxProgram.SetUniformValue("uSamplerSkybox", mSkyBoxTextureUnit);
+            mSkyBoxProgram.SetUniformValue("uSamplerSkybox", GetTextureID("AMB_Skybox"));
             mSkyBox.Dibujar(sProgram);
 
             mSkyBoxProgram.Deactivate();
@@ -875,8 +882,8 @@ namespace cg2016
             sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
             //sProgram.SetUniformValue("material.Ks", material.Kspecular);
             sProgram.SetUniformValue("material.Shininess", material.Shininess);
-            sProgram.SetUniformValue("ColorTex", 0);
-            sProgram.SetUniformValue("NormalMapTex", 1);
+            sProgram.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
+            sProgram.SetUniformValue("NormalMapTex", GetTextureID("Default_Normal"));
             //sProgram.SetUniformValue("SpecularMapTex", 0);
             
             sProgram.SetUniformValue("numLights", luces.Length);
@@ -921,18 +928,18 @@ namespace cg2016
             int iShadowsOn = shadowsOn ? 1 : 0;
             sProgram.SetUniformValue("shadowsOn", iShadowsOn);
             sProgram.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
-            sProgram.SetUniformValue("uShadowSampler", mShadowTextureUnit);
+            sProgram.SetUniformValue("uShadowSampler", GetTextureID("ShadowMap"));
             #endregion
 
 
             //Dibujamos el Objeto
-            sProgram.SetUniformValue("NormalMapTex", 15);
+            sProgram.SetUniformValue("NormalMapTex", GetTextureID("Tiger_Normal"));
             tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             tanque_col.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
             //objeto.transform.scale = new Vector3(0.1f, 0.1f, 0.1f);
             tanque.Dibujar(sProgram);
-            sProgram.SetUniformValue("NormalMapTex", 1);
+            sProgram.SetUniformValue("NormalMapTex", GetTextureID("Default_Normal"));
 
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
@@ -960,7 +967,7 @@ namespace cg2016
             sProgramAnimated.SetUniformValue("modelMatrix", modelMatrix);
             sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             sProgramAnimated.SetUniformValue("speed", -(float)timeSinceStartup * tankDirection);
-            sProgramAnimated.SetUniformValue("ColorTex", 1);
+            sProgramAnimated.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             //Dibujamos las orugas del tanque
             orugas.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             orugas.Dibujar(sProgramAnimated);
@@ -984,12 +991,12 @@ namespace cg2016
             sProgramTerrain.SetUniformValue("material.Shininess", material.Shininess);
 
             //SplatMap (Para indicar que porcentaje de cada textura utilizar por fragmento)
-            sProgramTerrain.SetUniformValue("ColorTex", 9);
+            sProgramTerrain.SetUniformValue("ColorTex", GetTextureID("Terrain_SplatMap"));
 
             //Texturas
-            sProgramTerrain.SetUniformValue("Texture1", 8);
-            sProgramTerrain.SetUniformValue("Texture2", 11);
-            sProgramTerrain.SetUniformValue("Texture3", 10);
+            sProgramTerrain.SetUniformValue("Texture1", GetTextureID("Terrain_Diffuse_1"));
+            sProgramTerrain.SetUniformValue("Texture2", GetTextureID("Terrain_Diffuse_2"));
+            sProgramTerrain.SetUniformValue("Texture3", GetTextureID("Terrain_Diffuse_3"));
 
             sProgramTerrain.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
@@ -1005,7 +1012,7 @@ namespace cg2016
             //Para sombras
             sProgramTerrain.SetUniformValue("shadowsOn", iShadowsOn);
             sProgramTerrain.SetUniformValue("uLightBiasMatrix", lightBiasMatrix);
-            sProgramTerrain.SetUniformValue("uShadowSampler", mShadowTextureUnit);
+            sProgramTerrain.SetUniformValue("uShadowSampler", GetTextureID("ShadowMap"));
 
             //Dibujo el terreno
             foreach (Mesh m in mapa.Meshes)
@@ -1024,18 +1031,18 @@ namespace cg2016
             sProgramParticles.SetUniformValue("uvOffset", new Vector2(1f, 1f));
             sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);
             sProgramParticles.SetUniformValue("animated", 0);
-            sProgramParticles.SetUniformValue("ColorTex", 0);
+            sProgramParticles.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             //Dibujamos el sistema de particulas
             explosiones.Dibujar(timeSinceStartup, sProgramParticles);
             if (toggleParticles)
             {
                 //Humo
-                sProgramParticles.SetUniformValue("ColorTex", 3);
+                sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Smoke"));
                 smokeParticles.Dibujar(sProgramParticles);
                 aviones.DibujarDisparos(sProgramParticles);
                 //Fuego animado
                 sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
-                sProgramParticles.SetUniformValue("ColorTex", 7);
+                sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Fire"));
                 sProgramParticles.SetUniformValue("animated", 1);
                 fireParticles.Dibujar(sProgramParticles);
             }
@@ -1065,52 +1072,52 @@ namespace cg2016
 
         #region Configuraciones (Setups)
 
+        private int CargarTextura(string nombre, string path)
+        {
+            //Selecciono como textura activa a la ultima entrada de nuestra coleccion de texturas.
+            gl.ActiveTexture(TextureUnit.Texture0 + programTextures.Count);
+            //Cargo la textura indicada por parametro
+            int texId = GL.GenTexture();
+            gl.BindTexture(TextureTarget.Texture2D, texId);
+            Bitmap bitmap = new Bitmap(Image.FromFile(path));
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                             ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            bitmap.UnlockBits(data);
+            //Almaceno la entrada (NombreTextura, ID) correspondiente a esta textura en nuestra coleccion de texturas.
+            programTextures.Add(nombre, texId - 1);
+            return texId;
+        }
+
+        protected void SetupTextures()
+        {
+            //Defaults
+            CargarTextura("Default_Diffuse", "files/Texturas/Helper/no_s.jpg");
+            CargarTextura("Default_Normal", "files/Texturas/Helper/no_n.jpg");
+            //Efectos de particulas
+            CargarTextura("FX_Smoke", "files/Texturas/FX/smoke.png");
+            CargarTextura("FX_Fire", "files/Texturas/FX/fire.png");
+            //Ambiente
+            CargarTextura("AMB_Ruins", "files/Texturas/Map/ambientruins.png");
+            CargarTextura("AMB_Building_Facade", "files/Texturas/Map/distantbuilding.png");
+            CargarTextura("AMB_Building_Roof", "files/Texturas/Map/distantroof.png");
+            //Terreno
+            CargarTextura("Terrain_SplatMap", "files/Texturas/Map/splatmap.png");
+            CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/ground.png");
+            CargarTextura("Terrain_Diffuse_2", "files/Texturas/Map/ruble_d.png");
+            CargarTextura("Terrain_Diffuse_3", "files/Texturas/Map/ladrillos_d.png");
+            //Tanque
+            CargarTextura("Tiger_Diffuse", "files/Texturas/Vehicles/tiger_d.png");
+            CargarTextura("Tiger_Normal", "files/Texturas/Vehicles/tiger_n.png");
+            CargarTextura("Tracks_Diffuse", "files/Texturas/Vehicles/track_d.png");
+            CargarTextura("Tracks_Normal", "files/Texturas/Vehicles/track_n.png");
+        }
+
         protected void SetupObjects()
         {
-            //Carga de Texturas
-            gl.ActiveTexture(TextureUnit.Texture0);
-            CargarTextura("files/Texturas/Helper/no_s.jpg");
-            gl.ActiveTexture(TextureUnit.Texture1);
-            CargarTextura("files/Texturas/Helper/no_n.jpg");
-            gl.ActiveTexture(TextureUnit.Texture2);
-            CargarTextura("files/Texturas/Helper/no_s.jpg");
-
-            gl.ActiveTexture(TextureUnit.Texture3);
-            CargarTextura("files/Texturas/FX/smoke.png");
-
-            gl.ActiveTexture(TextureUnit.Texture4);
-            CargarTextura("files/Texturas/Map/ambientruins.png");
-            gl.ActiveTexture(TextureUnit.Texture5);
-            CargarTextura("files/Texturas/Map/distantbuilding.png");
-            gl.ActiveTexture(TextureUnit.Texture6);
-            CargarTextura("files/Texturas/Map/distantroof.png");
-
-            gl.ActiveTexture(TextureUnit.Texture7);
-            CargarTextura("files/Texturas/FX/fire.png");
-
-            gl.ActiveTexture(TextureUnit.Texture8);
-            CargarTextura("files/Texturas/Map/ground.png");
-
-            gl.ActiveTexture(TextureUnit.Texture9);
-            CargarTextura("files/Texturas/Map/splatmap.png");
-            gl.ActiveTexture(TextureUnit.Texture10);
-            CargarTextura("files/Texturas/Map/ladrillos.png");
-            gl.ActiveTexture(TextureUnit.Texture11);
-            CargarTextura("files/Texturas/Map/ruble_d.png");
-
-            //TextureUnit.Texture12 -> Skybox
-
-            GL.ActiveTexture(TextureUnit.Texture13);
-            CargarTextura("files/Texturas/Vehicles/tiger_d.png");
-            GL.ActiveTexture(TextureUnit.Texture14);
-            CargarTextura("files/Texturas/Vehicles/track_d.png");
-            GL.ActiveTexture(TextureUnit.Texture15);
-            CargarTextura("files/Texturas/Vehicles/tiger_n.png");
-            GL.ActiveTexture(TextureUnit.Texture16);
-            CargarTextura("files/Texturas/Vehicles/tiger_s.png");
-
-            //TextureUnit.Texture17 -> Sombras
-
             //Construimos los objetos que vamos a dibujar.
             //TODO Separar el ground del mapa para evitar esto de los builds
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
@@ -1123,35 +1130,37 @@ namespace cg2016
                 switch (prefijo)
                 {
                     case "Background_Cube":
-                        m.AddTexture(4);
+                        m.AddTexture(GetTextureID("AMB_Ruins"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Facade":
                     case "Window":
                     case "Chimney":
-                        m.AddTexture(5);
+                        m.AddTexture(GetTextureID("AMB_Building_Facade"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Roof":
-                        m.AddTexture(6);
+                        m.AddTexture(GetTextureID("AMB_Building_Roof"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ground_Plane":
-                        m.AddTexture(9);
+                        m.AddTexture(GetTextureID("Terrain_SplatMap"));
                         m.Build(sProgramTerrain, mShadowProgram); //El terreno usa un shader especial
                         break;
                     default:
-                        m.AddTexture(0);
+                        m.AddTexture(GetTextureID("Default_Diffuse"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                 }
             }
             //mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
             tanque = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tiger.obj");
-            tanque.AddTextureToAllMeshes(13);
+            tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Diffuse"));
+            //tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Normal"));
             tanque.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
             orugas = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tracks.obj");
-            orugas.AddTextureToAllMeshes(14);
+            orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
+            //orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
             orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tanktest.obj");
@@ -1172,14 +1181,13 @@ namespace cg2016
                     "files/Texturas/Skybox/bottom.png",
                     "files/Texturas/Skybox/back.png",
                     "files/Texturas/Skybox/front.png",
-                },
-                mSkyBoxTextureUnit);
+                });
         }
 
-        private int CrearTexturaSkybox(string[] paths, int unit)
+        private int CrearTexturaSkybox(string[] paths)
         {
             int textId = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            GL.ActiveTexture(TextureUnit.Texture0 + programTextures.Count);
 
             GL.BindTexture(TextureTarget.TextureCubeMap, textId);
 
@@ -1231,6 +1239,8 @@ namespace cg2016
 
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
 
+            //Almaceno la entrada (NombreTextura, ID) correspondiente a esta textura en nuestra coleccion de texturas.
+            programTextures.Add("AMB_Skybox", textId);
             return textId;
         }
 
@@ -1313,29 +1323,6 @@ namespace cg2016
             fireParticles.Build(sProgramParticles);
         }
 
-        private int CargarTextura(String imagenTex)
-        {
-            int texId = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, texId);
-
-
-            Bitmap bitmap = new Bitmap(Image.FromFile(imagenTex));
-
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                             ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
-                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-            bitmap.UnlockBits(data);
-            return texId;
-
-        }
-
         /// <summary>
         /// Creo el framebuffer y la textura necesaria para generar el shadow map.
         /// </summary>
@@ -1354,7 +1341,7 @@ namespace cg2016
 
             // 2. Genero una textura para vincular al framebuffer.
             depthTexture = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture0 + mShadowTextureUnit);
+            GL.ActiveTexture(TextureUnit.Texture0 + programTextures.Count);
             GL.BindTexture(textureTarget, depthTexture);
             GL.TexImage2D(
                 textureTarget,
@@ -1371,6 +1358,8 @@ namespace cg2016
             GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)TextureMagFilter.Nearest);
             GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
             GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+
+            programTextures.Add("ShadowMap", depthTexture - 1);
 
             // 3. Seteo que cuando salgo de los limites de la textura sampleo el color blanco.
             float[] borderColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -1394,6 +1383,15 @@ namespace cg2016
             GL.ReadBuffer(ReadBufferMode.None);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
+
+        //Retorna la ID de una textura cargada en el contenedor de texturas
+        private int GetTextureID(string nombre)
+        {
+            int value;
+            if (!programTextures.TryGetValue(nombre, out value))
+                throw new NullReferenceException("La textura "+ nombre + " no se encuentra en el contenedor de Texturas");
+            return value;
         }
 
         private void ToggleLight(int i)

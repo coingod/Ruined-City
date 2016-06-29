@@ -531,7 +531,7 @@ namespace CGUNS.Meshes.FaceVertexList
             //Si tiene una textura especial, asignarla
             if (textures.Count > 0)
                 sProgram.SetUniformValue("ColorTex", textures[0]);
-            
+                        
             PrimitiveType primitive; //Tipo de Primitiva a utilizar (triangulos, strip, fan, quads, ..)
             int offset; // A partir de cual indice dibujamos?
             int count;  // Cuantos?

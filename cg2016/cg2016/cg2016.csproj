@@ -351,7 +351,10 @@
     <Content Include="files\Texturas\Map\ground.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ladrillos.png">
+    <Content Include="files\Texturas\Map\ladrillos_d.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\ladrillos_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\ruble_d.png">
