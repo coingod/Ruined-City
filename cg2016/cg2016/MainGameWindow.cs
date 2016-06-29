@@ -27,7 +27,6 @@ namespace cg2016
         private Rectangle viewport; //Viewport a utilizar.
         private List<CamaraFija> camarasFijas;
         bool freeOn;
-        bool fijasOn=false;
         int indiceFija=0; //
 
         //Shaders
@@ -495,19 +494,19 @@ namespace cg2016
 
                     case Key.J:
                         {
-                            myCamera = camarasFijas[indiceFija];
+                            freeOn = false;
                             indiceFija = (indiceFija + 1) % camarasFijas.Count; //la primera vez se muestra la 0 y luego va cambiando
+                            myCamera = camarasFijas[indiceFija];                            
                             OnResize(null);
                         }
                         break;
                     case Key.K:
                         {
-                            Vector3 pos = myCamera.Position();
-                            myCamera = camarasFijas[indiceFija];
-
+                            freeOn = false;
                             if (indiceFija > 0)
                                 indiceFija = indiceFija - 1;
-                            else indiceFija = camarasFijas.Count - 1; //si antes era 0, ahora va a la ultima de la lista
+                            else indiceFija = camarasFijas.Count - 1; //si antes era 0, ahora va a la ultima de la lista                        
+                            myCamera = camarasFijas[indiceFija];                          
                             
                             OnResize(null);
                         }
