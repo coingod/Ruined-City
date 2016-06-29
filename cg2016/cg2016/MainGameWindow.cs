@@ -358,18 +358,18 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z);
+                        fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
                         tankDirection = -1;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z);
+                        fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
                         tankDirection = 1;
                         break;
                     case Key.Right:
-                        fisica.tank.AngularVelocity= (new Vector3(0, -1f, 0))*2;
+                        fisica.tank.AngularVelocity= (new Vector3(0, -1f, 0)) * 1.5f;
                         break;
                     case Key.Left:
-                        fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0))*2;
+                        fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) * 1.5f;
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;

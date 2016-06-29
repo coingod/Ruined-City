@@ -54,6 +54,8 @@ namespace cg2016
             mapShape = new BvhTriangleMeshShape(aux, true);
             RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape);
             map = new RigidBody(rbInfo);
+            map.Friction = 1;
+            map.RollingFriction = 1;
             dynamicsWor.AddRigidBody(map);
         }
 
@@ -77,7 +79,7 @@ namespace cg2016
         }
 
         public void addMeshTank(List<Vector3> listaVertices, List<int> listaIndices) {
-            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 1, 0));
+            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0.1f, 0));
             TriangleMesh aux = new TriangleMesh();
             int i = 0;
             for (i = 0; i < listaIndices.Count; i = i + 3)
@@ -85,10 +87,11 @@ namespace cg2016
                aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
             }
             tankShape = new ConvexTriangleMeshShape(aux, true);
-            Vector3 localInertia = tankShape.CalculateLocalInertia(50000f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(50000f, myMotionState, tankShape, localInertia);
+            Vector3 localInertia = tankShape.CalculateLocalInertia(60000f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(60000f, myMotionState, tankShape, localInertia);
             tank = new RigidBody(rbInfo);
-            tank.Friction = 3; //El tanque tracciona, no se mueve si no se le indica.
+            tank.Friction = 1; //El tanque tracciona, no se mueve si no se le indica.
+            tank.RollingFriction = 1;
             tank.ForceActivationState(ActivationState.DisableDeactivation); //Siempre activo!
             tank.Restitution = 1;
             dynamicsWor.AddRigidBody(tank);
