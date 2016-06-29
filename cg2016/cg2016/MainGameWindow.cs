@@ -21,11 +21,14 @@ namespace cg2016
     public class MainGameWindow : GameWindow
     {
         #region Variables de clase
-        //MainCamara
+        //Camaras
         private Camera myCamera;
         private List<Camera> camaras;
         private Rectangle viewport; //Viewport a utilizar.
+        private List<CamaraFija> camarasFijas;
         bool freeOn;
+        bool fijasOn=false;
+        int indiceFija=0; //
 
         //Shaders
         private ShaderProgram sProgram; //Nuestro programa de shaders.
@@ -160,8 +163,14 @@ namespace cg2016
             camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.025f));
             camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
             camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.025f));
-
             myCamera = camaras[0]; //Creo una camara.
+
+
+            CrearCamarasFijas();
+
+
+
+
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
 
             // Setup OpenGL capabilities
@@ -178,6 +187,49 @@ namespace cg2016
 
             loaded += 1;
         }
+
+
+        void CrearCamarasFijas()
+        {
+            camarasFijas = new List<CamaraFija>();
+
+            //Camara en la ventana del edificio de la calle del tanque
+            Vector3 pos = new Vector3(6.5f, 1, 0.5f);
+            camarasFijas.Add(new CamaraFija(pos));
+
+            //Camara en una de las esquinas
+            pos = new Vector3(2.9f, 1, 5.3f);
+            camarasFijas.Add(new CamaraFija(pos));
+
+            //en la esquina de al lado a la anterior
+            pos = new Vector3(-3.7f, 1.3f, 7f);
+            Vector3 tar = new Vector3(1f, 0f, 0);
+            camarasFijas.Add(new CamaraFija(pos, tar));
+
+
+            //
+            //desde el edificio de la otra esquina
+            pos = new Vector3(-4.62f, 2f, -6.65f);
+            camarasFijas.Add(new CamaraFija(pos));
+
+            //Cupula del edificio
+            pos = new Vector3(0f, 2.15f, -11.6f);
+            camarasFijas.Add(new CamaraFija(pos));
+
+            //en la puerta del edificio, dando a la calle que tiene en frente
+            pos = new Vector3(3.5f, 0.38f, -3.75f);
+            tar = new Vector3(0f,0f, -3.75f);
+            camarasFijas.Add(new CamaraFija(pos,tar));
+
+            //Desde el piso, cerca del origen, mirando hacia los aviones que llegan
+            pos = new Vector3(-0.5f, 0.2f, 0f);
+            tar = new Vector3(-5f, 1.8f, 0);
+            camarasFijas.Add(new CamaraFija(pos, tar));
+
+
+        }
+
+
         //El THREAD de la pantalla de carga consulta aca cuanto se ha cargado.
         public int UpdateLoadScreen()
         {
@@ -412,15 +464,35 @@ namespace cg2016
                     case Key.P:
                         toggleParticles = !toggleParticles;
                         break;
-                    case Key.J:
+                    case Key.N:
                          {
                              myCamera = camaras[3];
                              OnResize(null);
                          }
                          break;
-                    case Key.K:
+                    case Key.M:
                         {
                             myCamera = camaras[2];
+                            OnResize(null);
+                        }
+                        break;
+
+                    case Key.J:
+                        {
+                            myCamera = camarasFijas[indiceFija];
+                            indiceFija = (indiceFija + 1) % camarasFijas.Count; //la primera vez se muestra la 0 y luego va cambiando
+                            OnResize(null);
+                        }
+                        break;
+                    case Key.K:
+                        {
+                            Vector3 pos = myCamera.Position();
+                            myCamera = camarasFijas[indiceFija];
+
+                            if (indiceFija > 0)
+                                indiceFija = indiceFija - 1;
+                            else indiceFija = camarasFijas.Count - 1; //si antes era 0, ahora va a la ultima de la lista
+                            
                             OnResize(null);
                         }
                         break;
@@ -434,7 +506,7 @@ namespace cg2016
                         break;*/
                     case Key.C:
                         {
-                            if (!freeOn)
+                            if (myCamera==camaras[0])
                             {
                                 freeOn = true;                                
                                 myCamera = camaras[1];
