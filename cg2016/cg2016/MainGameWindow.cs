@@ -149,7 +149,7 @@ namespace cg2016
 
             //Configuracion de los sistemas de particulas
             SetupParticles();
-            cubo = new Cube(0.1f, 0.1f, 0.1f);
+            cubo = new Cube(1f, 1f, 1f);
             cubo.Build(sProgramUnlit);
             aviones = new Aviones(sProgram, mShadowProgram, engine, sProgramUnlit);
             explosiones = new Explosiones(5);
@@ -494,6 +494,7 @@ namespace cg2016
                          break;
                     case Key.M:
                         {
+                            Vector3 p = myCamera.Position();
                             myCamera = camaras[2];
                             OnResize(null);
                         }
@@ -1067,9 +1068,10 @@ namespace cg2016
                 luces[i].gizmo.Dibujar(sProgramUnlit);
 
             //Area de clickeo para explosion
-            sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
-           // aviones.DibujarCuadradosDisparos(sProgramUnlit);
-            cubo.Dibujar(sProgramUnlit);
+            //sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
+            // aviones.DibujarCuadradosDisparos(sProgramUnlit);
+            //sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(new Vector3(-4.33955f, 0, 3.84812f)));
+            //cubo.Dibujar(sProgramUnlit);
             sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
         }
         #endregion
@@ -1266,7 +1268,7 @@ namespace cg2016
 
         protected void SetupLights()
         {
-            luces = new Light[4];
+            luces = new Light[8];
             //Roja
             luces[0] = new Light();
             luces[0].Position = new Vector4(0.0f, 0.0f, 10.0f, 1.0f);
@@ -1304,6 +1306,45 @@ namespace cg2016
             luces[3].ConeDirection = new Vector3(0.0f, 0.0f, 1.0f);
             luces[3].Enabled = 0;
             luces[3].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
+
+
+
+            luces[4] = new Light();
+            luces[4].Position = new Vector4(3.989339f, 0.4525427f, -1.422041f, 1.0f);
+            luces[4].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[4].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[4].ConeAngle = 40.0f;
+            luces[4].ConeDirection = new Vector3(0f, -1.0f, 0f);
+            luces[4].Enabled = 1;
+            luces[4].updateGizmo(sProgramUnlit);
+
+            luces[5] = new Light(); 
+            luces[5].Position = new Vector4(-4.262742f, 0.5476834f, 0.8232488f, 1.0f);
+            luces[5].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[5].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[5].ConeAngle = 40.0f;
+            luces[5].ConeDirection = new Vector3(0f, -1.0f, 0f);
+            luces[5].Enabled = 1;
+            luces[5].updateGizmo(sProgramUnlit);
+                       
+
+            luces[6] = new Light(); 
+            luces[6].Position = new Vector4(-4.249861f, 0.4671507f, -3.822614f, 1.0f);
+            luces[6].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[6].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[6].ConeAngle = 40.0f;
+            luces[6].ConeDirection = new Vector3(0f, -1.0f, 0f);
+            luces[6].Enabled = 1;
+            luces[6].updateGizmo(sProgramUnlit);
+            
+            luces[7] = new Light();
+            luces[7].Position = new Vector4(1.325436f, 0.4659932f, -6.855546f, 1.0f);
+            luces[7].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[7].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[7].ConeAngle = 40.0f;
+            luces[7].ConeDirection = new Vector3(0f, -1.0f, 0f);
+            luces[7].Enabled = 1;
+            luces[7].updateGizmo(sProgramUnlit);
         }
 
         private void SetupShaders(String vShaderName, String fShaderName, out ShaderProgram sProgram)

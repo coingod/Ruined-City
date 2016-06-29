@@ -1,7 +1,7 @@
 ﻿// FRAGMENT SHADER. TEXTURE + BUMP + SPECULAR
 
 #version 330
-#define maxLights 5
+#define maxLights 10
 
 in vec2 f_TexCoord;
 in mat3 TBN;
