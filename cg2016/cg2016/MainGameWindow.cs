@@ -1267,7 +1267,7 @@ namespace cg2016
             luces[1] = new Light();
             //luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
             luces[1].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
-            luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[1].Iambient = new Vector3(0.25f, 0.25f, 0.25f);
             luces[1].Ipuntual = new Vector3(1f, 1f, 1f);
             luces[1].ConeAngle = 180.0f;
             luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
