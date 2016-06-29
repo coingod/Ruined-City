@@ -72,6 +72,7 @@ namespace cg2016
         //Irrklang. Para audio
         ISoundEngine engine;
         ISound sonidoAmbiente;
+        ISound sonidoTanque;
 
         //Opciones
         private bool toggleNormals = false;
@@ -120,7 +121,10 @@ namespace cg2016
             //Configuracion de Audio
             engine = new ISoundEngine();
             sonidoAmbiente = engine.Play2D("files/audio/ambience.ogg", true);
-            sonidoAmbiente.Volume = sonidoAmbiente.Volume / 4;
+            sonidoAmbiente.Volume = 0.5f;
+
+            sonidoTanque = engine.Play2D("files/audio/bell.wav", false);
+            sonidoTanque.Stop();
 
             loaded += 10;
 
@@ -172,9 +176,6 @@ namespace cg2016
 
 
             CrearCamarasFijas();
-
-
-
 
             gl.ClearColor(Color.Black); //Configuro el Color de borrado.
 
@@ -299,8 +300,11 @@ namespace cg2016
             smokeParticles.Update();
             fireParticles.Update();
             aviones.Actualizar(timeSinceStartup, sProgramParticles);
-
             explosiones.Actualizar(timeSinceStartup);
+
+            //Actualizo el audio
+            Vector3 tankPos = tanque.transform.position;
+            sonidoTanque.Position = new Vector3D(tankPos.X, tankPos.Y, tankPos.Z);
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
@@ -412,16 +416,24 @@ namespace cg2016
                     case Key.Down:
                         fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
                         tankDirection = -1;
+                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Up:
                         fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
                         tankDirection = 1;
+                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Right:
                         fisica.tank.AngularVelocity= (new Vector3(0, -1f, 0)) * 1.5f;
+                        if(!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Left:
                         fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) * 1.5f;
+                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;
@@ -547,6 +559,7 @@ namespace cg2016
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             tankDirection = 0;
+            sonidoTanque.Stop();
             switch (e.Key)
             {
                 case Key.S:
