@@ -155,7 +155,12 @@ namespace cg2016
             fisica = new fisica();
             //Meshes Convex Fisica 
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
-            fisica.addMeshTank(tanque_col.getMeshVertices("Cube.001"), tanque_col.getIndicesDeMesh("Cube.001"));
+            
+            for (int i=0; i<mapa.Meshes.Count; i++)
+                if (mapa.Meshes[i].Name!="Ground_Plane")
+                    fisica.addMesh(mapa.getMeshVertices(i), mapa.getIndicesDeMesh(i), 0);
+
+            fisica.addMeshTank(tanque_col.getMeshVertices(0), tanque_col.getIndicesDeMesh(0));
 
             //Configuracion de la Camara
             camaras = new List<Camera>();
@@ -406,11 +411,11 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -(tanque.transform.forward);
+                        fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z);
                         tankDirection = -1;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = (tanque.transform.forward);
+                        fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z);
                         tankDirection = 1;
                         break;
                     case Key.Right:
@@ -916,8 +921,11 @@ namespace cg2016
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
-            if (toggleNormals) tanque_col.Dibujar(sProgram);//tanque.DibujarNormales(sProgram);
-
+            if (toggleNormals)
+            {
+                tanque_col.Dibujar(sProgram);//tanque.DibujarNormales(sProgram);
+                mapa_col.Dibujar(sProgram);
+            }
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             //Cambio la escala de los objetos para evitar el bug de serruchos.
@@ -1132,7 +1140,7 @@ namespace cg2016
             orugas.AddTextureToAllMeshes(14);
             orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
-            tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tankcoll.obj");
+            tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tanktest.obj");
             tanque_col.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             mShadowViewportQuad = new ViewportQuad();

@@ -131,6 +131,9 @@
     <None Include="CGUNS\ModelosOBJ\Colisiones\tankcoll.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="CGUNS\ModelosOBJ\Colisiones\tanktest.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="CGUNS\ModelosOBJ\Stuff\cube.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

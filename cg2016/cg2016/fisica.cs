@@ -40,28 +40,40 @@ namespace cg2016
             solver = new SequentialImpulseConstraintSolver();
             //solver = new MultiBodyConstraintSolver();
             //mundo
-            dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-            dynamicsWor.Gravity = new Vector3(0, -50, 0);
+            dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, null, collisionConfiguration);
+            dynamicsWor.Gravity = new Vector3(0, -10, 0);
         }
         
         public void addMeshMap( List<Vector3> listaVertices, List<int> listaIndices){
             DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
-            TriangleMesh aux = new TriangleMesh();
-            
+            TriangleMesh aux = new TriangleMesh();            
             int i = 0;
             for (i = 0; i < listaIndices.Count; i=i+3) {
                 aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i+1]], listaVertices[listaIndices[i+2]]);
             }
             mapShape = new BvhTriangleMeshShape(aux, true);
-            
-            //RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape, new Vector3(0, 0, 0));
             RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, mapShape);
             map = new RigidBody(rbInfo);
-            //map.Friction = 1;
-            //map.Restitution = 0;
-            map.ForceActivationState(ActivationState.IslandSleeping);
-            //map.ContactProcessingThreshold = 0;
             dynamicsWor.AddRigidBody(map);
+        }
+
+        public void addMesh(List<Vector3> listaVertices, List<int> listaIndices, int isConvex) {
+            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
+            TriangleMesh aux = new TriangleMesh();
+            int i = 0;
+            for (i = 0; i < listaIndices.Count; i = i + 3)
+            {
+                aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
+            }
+            CollisionShape meshShape;
+            if (isConvex == 0)
+                meshShape = new BvhTriangleMeshShape(aux, true);
+            else
+                meshShape = new ConvexTriangleMeshShape(aux, true);
+
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, meshShape);
+            RigidBody meshRB = new RigidBody(rbInfo);
+            dynamicsWor.AddRigidBody(meshRB);
         }
 
         public void addMeshTank(List<Vector3> listaVertices, List<int> listaIndices) {
@@ -72,18 +84,13 @@ namespace cg2016
             {
                aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
             }
-            //tankShape = new ConvexHullShape(listaVertices);
-            //tankShape=new BoxShape(1);
             tankShape = new ConvexTriangleMeshShape(aux, true);
-            Vector3 localInertia = tankShape.CalculateLocalInertia(100f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(100f, myMotionState, tankShape, localInertia);
+            Vector3 localInertia = tankShape.CalculateLocalInertia(50000f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(50000f, myMotionState, tankShape, localInertia);
             tank = new RigidBody(rbInfo);
-            tank.Friction = 1; //El tanque tracciona, no se mueve si no se le indica.
+            tank.Friction = 3; //El tanque tracciona, no se mueve si no se le indica.
             tank.ForceActivationState(ActivationState.DisableDeactivation); //Siempre activo!
-            tank.Restitution = 0;
-            
-            tank.ContactProcessingThreshold = 0;
-
+            tank.Restitution = 1;
             dynamicsWor.AddRigidBody(tank);
           }
 
