@@ -45,6 +45,7 @@ namespace cg2016
         private ObjetoGrafico orugas;
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
         private ObjetoGrafico mapa_col;
+        private List<ObjetoGrafico> postes;
 
         //Texturas
         private Dictionary<string, int> programTextures;
@@ -167,12 +168,11 @@ namespace cg2016
             fisica = new fisica();
             //Meshes Convex Fisica 
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
-            
             for (int i=0; i<mapa.Meshes.Count; i++)
                 if (mapa.Meshes[i].Name!="Ground_Plane")
-                    fisica.addMesh(mapa.getMeshVertices(i), mapa.getIndicesDeMesh(i), 0);
-
+                    fisica.addMesh(mapa.getMeshVertices(i), mapa.getIndicesDeMesh(i));
             fisica.addMeshTank(tanque_col.getMeshVertices(0), tanque_col.getIndicesDeMesh(0));
+            fisica.addPoste(postes[0].getMeshVertices("Cube_Cube.002"), postes[0].getIndicesDeMesh("Cube_Cube.002"), postes[0].transform.localToWorld);
 
             //Configuracion de la Camara
             camaras = new List<Camera>();
@@ -943,10 +943,12 @@ namespace cg2016
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
+            //Postes!
+            
+
             if (toggleNormals)
             {
                 tanque_col.Dibujar(sProgram);//tanque.DibujarNormales(sProgram);
-                mapa_col.Dibujar(sProgram);
             }
             //Dibujamos el Mapa
             mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
@@ -957,6 +959,9 @@ namespace cg2016
                 if (m.Name != "Ground_Plane")
                     m.Dibujar(sProgram);
             if (toggleNormals) mapa.DibujarNormales(sProgram);
+            
+            postes[0].transform.localToWorld = fisica.postesRB[0].WorldTransform;
+            postes[0].Dibujar(sProgram);
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
             //SHADER ANIMADO (Para dibujar texturas animadas)
@@ -1161,6 +1166,14 @@ namespace cg2016
             orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
             //orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
             orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
+
+            //Postes
+            postes = new List<ObjetoGrafico>();
+            postes.Add(new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/poste.obj"));
+            postes[0].transform.Translate(new Vector3(3f, 0, 0));
+
+            postes[0].Build(sProgram, mShadowProgram);
+        
 
             tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tanktest.obj");
             tanque_col.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.

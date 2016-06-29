@@ -18,6 +18,7 @@ namespace cg2016
         private DynamicsWorld dynamicsWor;
         public RigidBody tank; //para modificar desde mainwindow
         public RigidBody map;  //para modificar desde mainwindow
+        public List<RigidBody> postesRB;
         CollisionShape tankShape;
         CollisionShape mapShape;
         public DynamicsWorld dynamicsWorld{
@@ -42,6 +43,7 @@ namespace cg2016
             //mundo
             dynamicsWor = new DiscreteDynamicsWorld(dispatcher, broadphase, null, collisionConfiguration);
             dynamicsWor.Gravity = new Vector3(0, -10, 0);
+            postesRB = new List<RigidBody>();
         }
         
         public void addMeshMap( List<Vector3> listaVertices, List<int> listaIndices){
@@ -59,7 +61,7 @@ namespace cg2016
             dynamicsWor.AddRigidBody(map);
         }
 
-        public void addMesh(List<Vector3> listaVertices, List<int> listaIndices, int isConvex) {
+        public void addMesh(List<Vector3> listaVertices, List<int> listaIndices) {
             DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0, 0, 0));
             TriangleMesh aux = new TriangleMesh();
             int i = 0;
@@ -68,13 +70,30 @@ namespace cg2016
                 aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
             }
             CollisionShape meshShape;
-            if (isConvex == 0)
-                meshShape = new BvhTriangleMeshShape(aux, true);
-            else
-                meshShape = new ConvexTriangleMeshShape(aux, true);
-
+            meshShape = new BvhTriangleMeshShape(aux, true);
             RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0f, myMotionState, meshShape);
             RigidBody meshRB = new RigidBody(rbInfo);
+            dynamicsWor.AddRigidBody(meshRB);
+        }
+
+        public void addPoste(List<Vector3> listaVertices, List<int> listaIndices, Matrix4 transform) {
+            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0,0,0));
+            TriangleMesh aux = new TriangleMesh();
+            int i = 0;
+            for (i = 0; i < listaIndices.Count; i = i + 3)
+            {
+                aux.AddTriangle(listaVertices[listaIndices[i]], listaVertices[listaIndices[i + 1]], listaVertices[listaIndices[i + 2]]);
+            }
+            CollisionShape meshShape;
+            meshShape = new ConvexTriangleMeshShape(aux, true);
+            Vector3 localInertia = meshShape.CalculateLocalInertia(20f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(20f, myMotionState, meshShape, localInertia);
+            RigidBody meshRB = new RigidBody(rbInfo);
+           
+            meshRB.Friction = 1;
+            meshRB.RollingFriction = 1;
+            meshRB.Restitution = 0;
+            postesRB.Add(meshRB);
             dynamicsWor.AddRigidBody(meshRB);
         }
 
