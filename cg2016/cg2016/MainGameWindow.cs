@@ -1063,7 +1063,7 @@ namespace cg2016
 
             //Area de clickeo para explosion
             sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
-            aviones.DibujarCuadradosDisparos(sProgramUnlit);
+           // aviones.DibujarCuadradosDisparos(sProgramUnlit);
             cubo.Dibujar(sProgramUnlit);
             sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
         }
