@@ -42,7 +42,8 @@ namespace cg2016
         private Ejes ejes_locales; // Ejes de referencia locales al objeto
         private ObjetoGrafico tanque; //Nuestro objeto a dibujar.
         private ObjetoGrafico tanque_col; //Nuestro objeto a dibujar.
-        private ObjetoGrafico orugas;
+        private ObjetoGrafico oruga_der;
+        private ObjetoGrafico oruga_izq;
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
         private ObjetoGrafico mapa_col;
         private List<ObjetoGrafico> postes;
@@ -60,19 +61,14 @@ namespace cg2016
         private int materialIndex = 0;
 
         //Efectos de Particulas
-        //private ParticleEmitter particles;
         private ParticleEmitter[] particleEffects = new ParticleEmitter[8];
-        //private Smoke smokeParticles;
-        //private Fire fireParticles;
 
-        private Cube cubo;
-        Explosiones explosiones;
         private Aviones aviones;
 
         //BulletSharp
         private fisica fisica;
         private int crash = 0;
-        private int tankDirection = 0;
+        private int tankMoving = 0;
 
         //Irrklang. Para audio
         ISoundEngine engine;
@@ -154,10 +150,6 @@ namespace cg2016
 
             //Configuracion de los sistemas de particulas
             SetupParticles();
-            cubo = new Cube(1f, 1f, 1f);
-            cubo.Build(sProgramUnlit);
-            aviones = new Aviones(sProgram, mShadowProgram, engine, sProgramUnlit);
-            explosiones = new Explosiones(5);
 
             loaded += 39;
 
@@ -302,12 +294,8 @@ namespace cg2016
             //Actualizo los sistemas de particulas
             foreach (ParticleEmitter p in particleEffects)
                 p.Update();
-            /*
-            smokeParticles.Update();
-            fireParticles.Update();
-            */
+
             aviones.Actualizar(timeSinceStartup, sProgramParticles);
-            explosiones.Actualizar(timeSinceStartup);
 
             //Actualizo el audio
             Vector3 tankPos = tanque.transform.position;
@@ -423,10 +411,8 @@ namespace cg2016
                 {
                     case Key.Down:
                         keys[(int)Key.Down] = true;
-
                         if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
                             sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
-
                         break;
                     case Key.Up:
                         keys[(int)Key.Up] = true;
@@ -436,12 +422,14 @@ namespace cg2016
                     case Key.Right:
                         keys[(int)Key.Right] = true;
                         fisica.tank.AngularVelocity = -(new Vector3(0, 1f, 0)) ;
+                        tankMoving = 1;
                         if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
                             sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Left:
                         keys[(int)Key.Left] = true;
                         fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) ;
+                        tankMoving = 1;
                         if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
                             sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
@@ -569,8 +557,6 @@ namespace cg2016
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
-            tankDirection = 0;
-            sonidoTanque.Stop();
             switch (e.Key)
             {
                 case Key.S:
@@ -598,6 +584,12 @@ namespace cg2016
                     keys[(int)Key.Right] = false;
                     break;
 
+            }
+            //Todavia se esta moviendo el tanque?
+            if (!keys[(int)Key.Up] && !keys[(int)Key.Down] && !keys[(int)Key.Left] && !keys[(int)Key.Right])
+            {
+                tankMoving = 0;
+                sonidoTanque.Stop();
             }
         }
 
@@ -638,21 +630,21 @@ namespace cg2016
         }
 
         private void MoverTanque() {
-             if (keys[(int)Key.Left] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = -(new Vector3(0, 1f, 0)) ;
-            if (keys[(int)Key.Left] & keys[(int)Key.Up]) fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0));
+             if (keys[(int)Key.Left] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = -(new Vector3(0, 0.5f, 0)) ;
+            if (keys[(int)Key.Left] & keys[(int)Key.Up]) fisica.tank.AngularVelocity = (new Vector3(0, 0.5f, 0));
 
-            if (keys[(int)Key.Right] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) ;
-            if (keys[(int)Key.Right] & keys[(int)Key.Up]) fisica.tank.AngularVelocity = -(new Vector3(0, 1f, 0)) ;
+            if (keys[(int)Key.Right] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = (new Vector3(0, 0.5f, 0)) ;
+            if (keys[(int)Key.Right] & keys[(int)Key.Up]) fisica.tank.AngularVelocity = -(new Vector3(0, 0.5f, 0)) ;
 
             if (keys[(int)Key.Up])
             {
                 fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
-                tankDirection = 1;
+                tankMoving = 1;
             }
             if (keys[(int)Key.Down])
             {
                 fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
-                tankDirection = -1;
+                tankMoving = -1;
             }
 
         }
@@ -665,6 +657,7 @@ namespace cg2016
             { //Inside viewport?
                 int Xviewport = Xopengl - viewport.X;
                 int Yviewport = Yopengl - viewport.Y;
+                /*
                 Vector3 ray_wor = getRayFromMouse(Xviewport, Yviewport);
 
                 ISound sound;
@@ -680,7 +673,7 @@ namespace cg2016
                     Vector3 origenParticulas = proyeccion(myCamera.Position(), ray_wor * 10);
                     explosiones.CrearExplosion(timeSinceStartup, origenParticulas, sProgramParticles);
                 }
-
+                */
             }
         }
 
@@ -1025,11 +1018,24 @@ namespace cg2016
             sProgramAnimated.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramAnimated.SetUniformValue("modelMatrix", modelMatrix);
             sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
-            sProgramAnimated.SetUniformValue("speed", -(float)timeSinceStartup * tankDirection);
             sProgramAnimated.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             //Dibujamos las orugas del tanque
-            orugas.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            orugas.Dibujar(sProgramAnimated);
+            oruga_der.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            oruga_izq.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+
+            //Si el tanque gira pero no avanza/retrocede, las orugas se mueven en sentido contrario
+            int izq = 1; int der = 1;
+            if (keys[(int)Key.Left] && !keys[(int)Key.Up] && !keys[(int)Key.Down])
+                izq = -1;
+            else if (keys[(int)Key.Right] && !keys[(int)Key.Up] && !keys[(int)Key.Down])
+                der = -1;
+
+            //Animacion de Oruga Derecha en funcion del tiempo, traslacion y giro del tanque
+            sProgramAnimated.SetUniformValue("speed", -(float)timeSinceStartup * tankMoving * der);
+            oruga_der.Dibujar(sProgramAnimated);
+            //Animacion de Oruga Izquierda en funcion del tiempo, traslacion y giro del tanque
+            sProgramAnimated.SetUniformValue("speed", -(float)timeSinceStartup * tankMoving * izq);
+            oruga_izq.Dibujar(sProgramAnimated);
             sProgramAnimated.Deactivate(); //Desactivamos el programa de shaders
 
             //SHADER PARA EL TERRENO
@@ -1091,21 +1097,14 @@ namespace cg2016
             sProgramParticles.SetUniformValue("animated", 0);
             sProgramParticles.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             //Dibujamos los sistemas de particulas
-            explosiones.Dibujar(timeSinceStartup, sProgramParticles);
-            Console.WriteLine(myCamera.Position());
+            //Console.WriteLine(myCamera.Position());
             if (toggleParticles)
             {
-                //Humo
-                //sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Smoke"));
+                //Recorro la lista de Efectos de Particulas y las dibujo.
                 foreach (ParticleEmitter p in particleEffects)
                     p.Dibujar(sProgramParticles);
 
                 aviones.DibujarDisparos(sProgramParticles);
-                //Fuego animado
-                //sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
-                //sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Fire"));
-                //sProgramParticles.SetUniformValue("animated", 1);
-                //fireParticles.Dibujar(sProgramParticles);
             }
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
         }
@@ -1121,7 +1120,7 @@ namespace cg2016
             ejes_locales.Dibujar(sProgramUnlit);
             //Dibujamos la representacion visual de la luz.
             for (int i = 0; i < luces.Length; i++)
-                ;// luces[i].gizmo.Dibujar(sProgramUnlit);
+                luces[i].gizmo.Dibujar(sProgramUnlit);
 
             //Area de clickeo para explosion
             //sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
@@ -1177,12 +1176,9 @@ namespace cg2016
             CargarTextura("Wall_Brick", "files/Texturas/Map/Wall_Brick.png");
             CargarTextura("Wall_Plaster", "files/Texturas/Map/Wall_Plaster.png");
             CargarTextura("Opera_Header", "files/Texturas/Map/Opera_Header.png");
-            CargarTextura("Copper", "files/Texturas/Map/Copper.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             CargarTextura("Angel", "files/Texturas/Map/Angel_Z.png");
-            CargarTextura("Building_Wall", "files/Texturas/Map/Building_Wall.png");
-            CargarTextura("Building_Wall2", "files/Texturas/Map/Building_Wall2.png");
-            CargarTextura("Building_Wall3", "files/Texturas/Map/Building_Wall3.png");
+
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
             CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/Ground_Cobble.png");
@@ -1219,28 +1215,14 @@ namespace cg2016
                         m.AddTexture(GetTextureID("Terrain_Diffuse_3"));
                         m.Build(sProgram, mShadowProgram);
                         break;
-                    case "Ruins_Copper":
-                        m.AddTexture(GetTextureID("Copper"));
-                        m.Build(sProgram, mShadowProgram);
-                        break;
-                    case "Building_Wall":
-                        m.AddTexture(GetTextureID("Building_Wall"));
-                        m.Build(sProgram, mShadowProgram);
-                        break;
-                    case "Building_Wall2":
-                        m.AddTexture(GetTextureID("Building_Wall2"));
-                        m.Build(sProgram, mShadowProgram);
-                        break;
-                    case "Building_Wall3":
-                        m.AddTexture(GetTextureID("Building_Wall3"));
-                        m.Build(sProgram, mShadowProgram);
-                        break;
                     case "Ruins_Brick":
                         m.AddTexture(GetTextureID("Wall_Brick"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Wood":
                     case "Telepole":
+                    case "Ruins_Copper":
+                    case "Tree":
                         m.AddTexture(GetTextureID("Wood"));
                         m.Build(sProgram, mShadowProgram);
                         break;
@@ -1311,12 +1293,17 @@ namespace cg2016
             tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Diffuse"));
             //tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Normal"));
             tanque.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
-            orugas = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tracks.obj");
-            orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
-            //orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
-            orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
+            oruga_der = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/right_track.obj");
+            oruga_der.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
+            //oruga_der.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
+            oruga_der.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
+            oruga_izq = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/left_track.obj");
+            oruga_izq.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
+            //oruga_izq.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
+            oruga_izq.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             //Aviones
+            aviones = new Aviones(sProgram, mShadowProgram, engine, sProgramUnlit, GetTextureID("FX_Smoke"));
             aviones.objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
             aviones.objetos[0].Build(sProgram, mShadowProgram);
             aviones.objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
