@@ -17,7 +17,7 @@ namespace CGUNS
         private static float pi = 3.14f;
         private static Matrix4 escala = Matrix4.CreateScale(1f) * Matrix4.CreateRotationY(pi / 2);
 
-        private ObjetoGrafico[] objetos;
+        public ObjetoGrafico[] objetos;
         private ISound[] sonidoAviones; //uno para cada uno por si se quiere usar distintos o en momentos diferentes
 
         //Variables utilizadas para los aviones con animacion en linea recta
@@ -67,12 +67,12 @@ namespace CGUNS
             sonidoAviones = new ISound[cantAviones];
 
 
-            objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
-            objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
-            objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
+            //objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
+            //objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
+            //objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
 
-            for (int i = 0; i < cantObj; i++)            
-                objetos[i].Build(sProgram1, sProgram2);
+            //for (int i = 0; i < cantObj; i++)            
+                //objetos[i].Build(sProgram1, sProgram2);
             
 
             //Se calcula y setea la posicion inicial de todos los aviones

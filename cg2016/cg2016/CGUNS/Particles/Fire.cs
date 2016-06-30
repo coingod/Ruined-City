@@ -30,9 +30,18 @@ namespace CGUNS.Particles
             //The amount of random noise in the particles initial velocity.
             rndVelocityScale = 0.1f;
             //The starting speed of particles in world space, along X, Y, and Z.
-            worldVelocity = new Vector3(-0.2f, 0.2f, -0.15f);
+            worldVelocity = new Vector3(0.2f, 0.2f, 0.15f);
             //Scale of the sphere along X, Y, and Z that the particles are spawned inside.
             ellipsoid = new Vector3(0.1f, 0.1f, 0.1f);
+        }
+
+        public override void Dibujar(ShaderProgram sProgram)
+        {
+            //Fuego animado
+            sProgram.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
+            sProgram.SetUniformValue("animated", 1);
+            //Procedo con el metodo Dibujar
+            DibujarParticulas(sProgram);
         }
     }
 }

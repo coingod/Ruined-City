@@ -36,9 +36,11 @@ namespace CGUNS.Particles
                 Size = size;
             }
         }
+        //Textura para las particulas
+        int texture;
         
         //Origen de las particulas
-        protected Vector3 Position;
+        public Vector3 Position;
         public bool enabled = false;                     //If enabled, the emitter will emit particles.
         public float minSize = 0.1f;             //The minimum size each particle can be at the time when it is spawned.
         public float maxSize = 0.1f;               //The maximum size each particle can be at the time when it is spawned.
@@ -239,6 +241,12 @@ namespace CGUNS.Particles
             return 0;
         }
 
+        public int Texture
+        {
+            get { return texture; }
+            set { texture = value; }
+        }
+
         //Construye los Buffers correspondientes de OpenGL para dibujar este objeto.
         public void Build(ShaderProgram sProgram)
         {
@@ -247,11 +255,20 @@ namespace CGUNS.Particles
             CrearVAO(sProgram);
         }
 
+        //Cascara del metodo dibujar, para que las clases que heredan lo sobreescriban de ser necesario.
+        public virtual void Dibujar(ShaderProgram sProgram)
+        {
+            DibujarParticulas(sProgram);
+        }
+
         //Dibuja el contenido de los Buffers de este objeto.
-        public void Dibujar(ShaderProgram sProgram)
+        protected void DibujarParticulas(ShaderProgram sProgram)
         {
             //Actualizar los buffers de posicion, tamaño y color
             UpdateVBOs();
+
+            //Usamos la textura de este efecto
+            sProgram.SetUniformValue("ColorTex", texture);
 
             //gl.Disable(EnableCap.DepthTest);
             gl.DepthMask(false);            //Dejo habilitado el test de profundidad pero no permito que escriba en el buffer
@@ -288,6 +305,9 @@ namespace CGUNS.Particles
             gl.DepthMask(true);             //Vuelvo a habilitar las escrituras al buffer de profundidad
             gl.Disable(EnableCap.Blend);    //Desabilito el blending
             gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.DstAlpha);      //Reutilizo la ecuacion de blending por defecto
+
+            //Reseteamos la textura por defecto
+            sProgram.SetUniformValue("ColorTex", 0);
         }
 
         #region CONFIGURACION DE BUFFERS DE OPENGL

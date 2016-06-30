@@ -32,7 +32,7 @@ namespace CGUNS.Particles
             //The starting speed of particles in world space, along X, Y, and Z.
             worldVelocity = new Vector3(-0.2f, 0.5f, -0.15f);
             //Scale of the sphere along X, Y, and Z that the particles are spawned inside.
-            ellipsoid = new Vector3(0.4f, 0.1f, 0.4f);
+            ellipsoid = new Vector3(0.5f, 0.1f, 0.5f);
         }
 
         public Smoke(Vector3 position, float vel) : base(position)

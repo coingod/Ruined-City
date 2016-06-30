@@ -61,8 +61,9 @@ namespace cg2016
 
         //Efectos de Particulas
         //private ParticleEmitter particles;
-        private Smoke smokeParticles;
-        private Fire fireParticles;
+        private ParticleEmitter[] particleEffects = new ParticleEmitter[8];
+        //private Smoke smokeParticles;
+        //private Fire fireParticles;
 
         private Cube cubo;
         Explosiones explosiones;
@@ -148,6 +149,9 @@ namespace cg2016
 
             loaded += 50;
 
+            //Carga de Texturas
+            SetupTextures();
+
             //Configuracion de los sistemas de particulas
             SetupParticles();
             cubo = new Cube(1f, 1f, 1f);
@@ -156,9 +160,6 @@ namespace cg2016
             explosiones = new Explosiones(5);
 
             loaded += 39;
-
-            //Carga de Texturas
-            SetupTextures();
 
             //Carga y configuracion de Objetos
             SetupObjects();
@@ -305,8 +306,12 @@ namespace cg2016
             luces[0].Position = new Vector4(pos, 1.0f);
 
             //Actualizo los sistemas de particulas
+            foreach (ParticleEmitter p in particleEffects)
+                p.Update();
+            /*
             smokeParticles.Update();
             fireParticles.Update();
+            */
             aviones.Actualizar(timeSinceStartup, sProgramParticles);
             explosiones.Actualizar(timeSinceStartup);
 
@@ -1080,19 +1085,22 @@ namespace cg2016
             sProgramParticles.SetUniformValue("time", (float)timeSinceStartup);
             sProgramParticles.SetUniformValue("animated", 0);
             sProgramParticles.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
-            //Dibujamos el sistema de particulas
+            //Dibujamos los sistemas de particulas
             explosiones.Dibujar(timeSinceStartup, sProgramParticles);
+            Console.WriteLine(myCamera.Position());
             if (toggleParticles)
             {
                 //Humo
-                sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Smoke"));
-                smokeParticles.Dibujar(sProgramParticles);
+                //sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Smoke"));
+                foreach (ParticleEmitter p in particleEffects)
+                    p.Dibujar(sProgramParticles);
+
                 aviones.DibujarDisparos(sProgramParticles);
                 //Fuego animado
-                sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
-                sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Fire"));
-                sProgramParticles.SetUniformValue("animated", 1);
-                fireParticles.Dibujar(sProgramParticles);
+                //sProgramParticles.SetUniformValue("uvOffset", new Vector2(0.5f, 0.5f));
+                //sProgramParticles.SetUniformValue("ColorTex", GetTextureID("FX_Fire"));
+                //sProgramParticles.SetUniformValue("animated", 1);
+                //fireParticles.Dibujar(sProgramParticles);
             }
             sProgramParticles.Deactivate(); //Desactivamos el programa de shaders
         }
@@ -1157,13 +1165,19 @@ namespace cg2016
             //Objetos del Mapa
             CargarTextura("Ground_Marble", "files/Texturas/Map/Ground_Marble.png");
             CargarTextura("Wall_Marble", "files/Texturas/Map/Wall_Marble.png");
+            CargarTextura("Wall_Marble_2", "files/Texturas/Map/Wall_Marble2.png");
             CargarTextura("Wall_Bunker", "files/Texturas/Map/Wall_Bunker.png");
             CargarTextura("Column_Marble", "files/Texturas/Map/Column_Marble.png");
             CargarTextura("Fence_Marble", "files/Texturas/Map/Fence_Marble.png");
             CargarTextura("Wall_Brick", "files/Texturas/Map/Wall_Brick.png");
             CargarTextura("Wall_Plaster", "files/Texturas/Map/Wall_Plaster.png");
+            CargarTextura("Opera_Header", "files/Texturas/Map/Opera_Header.png");
             CargarTextura("Copper", "files/Texturas/Map/Copper.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
+            CargarTextura("Angel", "files/Texturas/Map/Angel_Z.png");
+            CargarTextura("Building_Wall", "files/Texturas/Map/Building_Wall.png");
+            CargarTextura("Building_Wall2", "files/Texturas/Map/Building_Wall2.png");
+            CargarTextura("Building_Wall3", "files/Texturas/Map/Building_Wall3.png");
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
             CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/Ground_Cobble.png");
@@ -1179,7 +1193,6 @@ namespace cg2016
         protected void SetupObjects()
         {
             //Construimos los objetos que vamos a dibujar.
-            //TODO Separar el ground del mapa para evitar esto de los builds
             mapa = new ObjetoGrafico("CGUNS/ModelosOBJ/Map/maptest.obj");
             mapa_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/mapcoll.obj");
             mapa_col.Build(sProgram, mShadowProgram);
@@ -1197,8 +1210,24 @@ namespace cg2016
                         m.AddTexture(GetTextureID("Wall_Plaster"));
                         m.Build(sProgram, mShadowProgram);
                         break;
+                    case "Rubble_Bricks":
+                        m.AddTexture(GetTextureID("Terrain_Diffuse_3"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
                     case "Ruins_Copper":
                         m.AddTexture(GetTextureID("Copper"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Building_Wall":
+                        m.AddTexture(GetTextureID("Building_Wall"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Building_Wall2":
+                        m.AddTexture(GetTextureID("Building_Wall2"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Building_Wall3":
+                        m.AddTexture(GetTextureID("Building_Wall3"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ruins_Brick":
@@ -1221,10 +1250,19 @@ namespace cg2016
                         m.AddTexture(GetTextureID("Fence_Marble"));
                         m.Build(sProgram, mShadowProgram);
                         break;
+                    case "Opera_Header":
+                        m.AddTexture(GetTextureID("Opera_Header"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
                     case "Plaza_Ground":
                     case "Plaza_Stairs":
-                    case "Estatua":
+                    case "Opera_Ground":
+                    case "Ground_Marble":
                         m.AddTexture(GetTextureID("Ground_Marble"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Estatua":
+                        m.AddTexture(GetTextureID("Angel"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Plaza":
@@ -1232,8 +1270,12 @@ namespace cg2016
                     case "Plaza_Ruins":
                     case "Fountain":
                     case "Ruins_Marble":
-                    case "Opera_Marble":
                         m.AddTexture(GetTextureID("Wall_Marble"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Opera_Marble":
+                    case "Ruins_Marble2":
+                        m.AddTexture(GetTextureID("Wall_Marble_2"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Facade":
@@ -1243,6 +1285,7 @@ namespace cg2016
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Roof":
+                    case "Building_Roof":
                         m.AddTexture(GetTextureID("AMB_Building_Roof"));
                         m.Build(sProgram, mShadowProgram);
                         break;
@@ -1257,6 +1300,8 @@ namespace cg2016
                 }
             }
             //mapa.Build(sProgram); //Construyo los buffers OpenGL que voy a usar.
+
+            //Tanque
             tanque = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tiger.obj");
             tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Diffuse"));
             //tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Normal"));
@@ -1265,6 +1310,14 @@ namespace cg2016
             orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
             //orugas.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
             orugas.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
+
+            //Aviones
+            aviones.objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
+            aviones.objetos[0].Build(sProgram, mShadowProgram);
+            aviones.objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
+            aviones.objetos[1].Build(sProgram, mShadowProgram);
+            aviones.objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
+            aviones.objetos[2].Build(sProgram, mShadowProgram);
 
             //Postes
             postes = new List<ObjetoGrafico>();
@@ -1470,10 +1523,34 @@ namespace cg2016
 
         private void SetupParticles()
         {
-            smokeParticles = new Smoke(new Vector3(5, 0, 5));
-            smokeParticles.Build(sProgramParticles);
-            fireParticles = new Fire(new Vector3(7.5f, 2.5f, 2));
-            fireParticles.Build(sProgramParticles);
+            particleEffects[0] = new Smoke(new Vector3(-6.0f, 0f, 1.5f) * 2);
+            particleEffects[0].Texture = GetTextureID("FX_Smoke");
+
+            particleEffects[1] = new Smoke(new Vector3(-0.65f, 0f, -13f) * 2);
+            particleEffects[1].Texture = GetTextureID("FX_Smoke");
+
+            particleEffects[2] = new Smoke(new Vector3(11f, 0f, -6f) * 2);
+            particleEffects[2].Texture = GetTextureID("FX_Smoke");
+
+            particleEffects[3] = new Smoke(new Vector3(6.5f, 0f, 1.3f) * 2);
+            particleEffects[3].Texture = GetTextureID("FX_Smoke");
+
+            particleEffects[4] = new Fire(new Vector3(-4.6f, 0.65f, -1.1f) * 2);
+            particleEffects[4].Texture = GetTextureID("FX_Fire");
+
+            particleEffects[5] = new Fire(new Vector3(-2.0f, 0.2f, -5.1f) * 2);
+            particleEffects[5].Texture = GetTextureID("FX_Fire");
+
+            particleEffects[6] = new Fire(new Vector3(-5.2f, 0.53f, 2.22f) * 2);
+            particleEffects[6].Texture = GetTextureID("FX_Fire");
+
+            particleEffects[7] = new Fire(new Vector3(-0.52f, 0.52f, 2.40f) * 2);
+            particleEffects[7].Texture = GetTextureID("FX_Fire");
+            particleEffects[7].maxSize = 0.3f;
+            particleEffects[7].worldVelocity *= 0.5f;
+
+            foreach (ParticleEmitter p in particleEffects)
+                p.Build(sProgramParticles);
         }
 
         /// <summary>
