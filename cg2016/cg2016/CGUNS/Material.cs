@@ -5,16 +5,22 @@ using OpenTK; //La matematica
 
 namespace CGUNS
 {
-    class Material
+    public class Material
     {
         static float gloss = 128.0f;
 
         //SOME MATERIALS
         public static Material Default = new Material(
         new Vector3(0.5f, 0.5f, 0.5f),
-        new Vector3(1.0f, 1.0f, 1.0f),
-        new Vector3(0.7f, 0.7f, 0.7f),
+        new Vector3(0.8f, 0.8f, 0.8f),
+        new Vector3(0.5f, 0.5f, 0.5f),
         0.07f * gloss);
+
+        public static Material MetalTank = new Material(
+        new Vector3(0.3f, 0.5f, 0.3f),
+        new Vector3(0.6f, 0.7f, 0.6f),
+        new Vector3(1, 1, 1),
+        1f * gloss);
 
         public static Material Emerald = new Material(
         new Vector3(0.0215f, 0.1745f, 0.0215f),
