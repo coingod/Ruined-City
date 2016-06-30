@@ -15,7 +15,7 @@ namespace CGUNS.Cameras
         private float _nearClipPlane;
         private float _farClipPlane;
 
-        public Camera(float zNear = 0.1f, float zFar = 250f, float fovy = 50 * DEG2RAD, float aspectRatio = 1)
+        public Camera(float zNear = 0.01f, float zFar = 250f, float fovy = 50 * DEG2RAD, float aspectRatio = 1)
         {
             //Matriz
             _fieldOfView = fovy;

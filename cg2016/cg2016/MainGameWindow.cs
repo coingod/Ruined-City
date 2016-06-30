@@ -648,20 +648,27 @@ namespace cg2016
                         fisica.FPSCamera.LinearVelocity = new Vector3(0, 2, 0);
                         jumpingSeconds++;
                         isJumping = true;
-                    }
-                    if (isJumping)
-                        jumpingSeconds++;
-                    if (jumpingSeconds == 30)
-                    {
-                        isJumping = false;
-                        jumpingSeconds = 0;
-                    }
+                    }                   
                 }
-                if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
-                if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
-                if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
-                if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
-                
+                if (isJumping)
+                {
+                    jumpingSeconds++;
+                    if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity += -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z) / 20;
+                    if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity += new Vector3(FPScam.Front().X, 0, FPScam.Front().Z) / 20;
+                    if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity += new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) / 20;
+                    if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity += -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) / 20;
+                }
+                else {
+                    if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
+                    if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
+                    if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
+                    if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
+                }
+                if (jumpingSeconds == 30)
+                {
+                    isJumping = false;
+                    jumpingSeconds = 0;
+                }
                 else {
                     if (freeOn)
                     {
