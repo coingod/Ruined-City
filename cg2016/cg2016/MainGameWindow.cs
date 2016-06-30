@@ -1099,20 +1099,27 @@ namespace cg2016
         protected void SetupTextures()
         {
             //Defaults
-            CargarTextura("Default_Diffuse", "files/Texturas/Helper/no_s.jpg");
+            CargarTextura("Default_Diffuse", "files/Texturas/Helper/checker.png");
             CargarTextura("Default_Normal", "files/Texturas/Helper/no_n.jpg");
             //Efectos de particulas
             CargarTextura("FX_Smoke", "files/Texturas/FX/smoke.png");
             CargarTextura("FX_Fire", "files/Texturas/FX/fire.png");
             //Ambiente
-            CargarTextura("AMB_Ruins", "files/Texturas/Map/ambientruins.png");
-            CargarTextura("AMB_Building_Facade", "files/Texturas/Map/distantbuilding.png");
-            CargarTextura("AMB_Building_Roof", "files/Texturas/Map/distantroof.png");
+            CargarTextura("AMB_Ruins", "files/Texturas/Map/Ambient_Ruins.png");
+            CargarTextura("AMB_Building_Facade", "files/Texturas/Map/Building_Facade.png");
+            CargarTextura("AMB_Building_Roof", "files/Texturas/Map/Building_Roof.png");
+            //Objetos del Mapa
+            CargarTextura("Ground_Marble", "files/Texturas/Map/Ground_Marble.png");
+            CargarTextura("Wall_Marble", "files/Texturas/Map/Wall_Marble.png");
+            CargarTextura("Wall_Bunker", "files/Texturas/Map/Wall_Bunker.png");
+            CargarTextura("Column_Marble", "files/Texturas/Map/Column_Marble.png");
+            CargarTextura("Fence_Marble", "files/Texturas/Map/Fence_Marble.png");
+            CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             //Terreno
-            CargarTextura("Terrain_SplatMap", "files/Texturas/Map/splatmap.png");
-            CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/ground.png");
-            CargarTextura("Terrain_Diffuse_2", "files/Texturas/Map/ruble_d.png");
-            CargarTextura("Terrain_Diffuse_3", "files/Texturas/Map/ladrillos_d.png");
+            CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
+            CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/Ground_Cobble.png");
+            CargarTextura("Terrain_Diffuse_2", "files/Texturas/Map/Ground_Debris.png");
+            CargarTextura("Terrain_Diffuse_3", "files/Texturas/Map/Ground_Bricks.png");
             //Tanque
             CargarTextura("Tiger_Diffuse", "files/Texturas/Vehicles/tiger_d.png");
             CargarTextura("Tiger_Normal", "files/Texturas/Vehicles/tiger_n.png");
@@ -1135,6 +1142,33 @@ namespace cg2016
                 {
                     case "Background_Cube":
                         m.AddTexture(GetTextureID("AMB_Ruins"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Wood":
+                        m.AddTexture(GetTextureID("Wood"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Bunker":
+                    case "TankTrap":
+                    case "Column":
+                        m.AddTexture(GetTextureID("Wall_Bunker"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Plaza2":
+                        m.AddTexture(GetTextureID("Fence_Marble"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Plaza_Ground":
+                    case "Plaza_Stairs":
+                    case "Estatua":
+                        m.AddTexture(GetTextureID("Ground_Marble"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Plaza":
+                    case "Plaza_Wall":
+                    case "Plaza_Ruins":
+                    case "Fountain":
+                        m.AddTexture(GetTextureID("Wall_Marble"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Facade":
@@ -1288,7 +1322,7 @@ namespace cg2016
             luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
             //Amarilla
             luces[2] = new Light();
-            luces[2].Position = new Vector4(0.0f, 10.0f, 0.0f, 1.0f);
+            luces[2].Position = new Vector4(3.84812f, 0, 4.33955f, 1.0f);//(0.0f, 10.0f, 0.0f, 1.0f);
             luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[2].Ipuntual = new Vector3(1f, 1f, 0.0f);
             luces[2].ConeAngle = 10.0f;
