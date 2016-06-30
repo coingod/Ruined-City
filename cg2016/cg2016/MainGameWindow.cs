@@ -70,7 +70,7 @@ namespace cg2016
 
         //BulletSharp
         private fisica fisica;
-        private int tanksleeping = 0;
+        private int crash = 0;
         private int tankDirection = 0;
 
         //Irrklang. Para audio
@@ -291,12 +291,21 @@ namespace cg2016
 
             MoverCamara();
 
+            
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10f);
 
+           
+            
+
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
+
             
+
+            
+
+
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
             //float blend = (float)timeSinceStartup % 1 ;
@@ -951,8 +960,6 @@ namespace cg2016
             }
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
-            //Postes!
-
 
             if (toggleNormals)
             {
@@ -967,7 +974,9 @@ namespace cg2016
                 if (m.Name != "Ground_Plane")
                     m.Dibujar(sProgram);
             if (toggleNormals) mapa.DibujarNormales(sProgram);
-            
+
+            //Postes!
+
             postes[0].transform.localToWorld = fisica.postesRB[0].WorldTransform;
             postes[0].Dibujar(sProgram);
             sProgram.Deactivate(); //Desactivamos el programa de shader.
@@ -1214,7 +1223,7 @@ namespace cg2016
             //Postes
             postes = new List<ObjetoGrafico>();
             postes.Add(new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/poste.obj"));
-            postes[0].transform.Translate(new Vector3(3f, 0, 0));
+            postes[0].transform.Translate(new Vector3(1f, 0, 0));
 
             postes[0].Build(sProgram, mShadowProgram);
 

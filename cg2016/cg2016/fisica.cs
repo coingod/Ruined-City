@@ -77,7 +77,7 @@ namespace cg2016
         }
 
         public void addPoste(List<Vector3> listaVertices, List<int> listaIndices, Matrix4 transform) {
-            DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(0,0,0));
+            //DefaultMotionState myMotionState = new MotionState(transform);
             TriangleMesh aux = new TriangleMesh();
             int i = 0;
             for (i = 0; i < listaIndices.Count; i = i + 3)
@@ -86,12 +86,13 @@ namespace cg2016
             }
             CollisionShape meshShape;
             meshShape = new ConvexTriangleMeshShape(aux, true);
-            Vector3 localInertia = meshShape.CalculateLocalInertia(20f);
-            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(20f, myMotionState, meshShape, localInertia);
+            Vector3 localInertia = meshShape.CalculateLocalInertia(2000f);
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(2000f, null, meshShape, localInertia);
             RigidBody meshRB = new RigidBody(rbInfo);
-           
-            meshRB.Friction = 1;
-            meshRB.RollingFriction = 1;
+            meshRB.WorldTransform = transform;
+            meshRB.Friction = 1000;
+            meshRB.RollingFriction = 10;
+            meshRB.Gravity = new Vector3(0, -100, 0);
             meshRB.Restitution = 0;
             postesRB.Add(meshRB);
             dynamicsWor.AddRigidBody(meshRB);
