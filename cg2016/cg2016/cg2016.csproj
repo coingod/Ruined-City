@@ -66,6 +66,7 @@
     <Compile Include="CGUNS\Cameras\CamaraFija.cs" />
     <Compile Include="CGUNS\Cameras\Camera.cs" />
     <Compile Include="CGUNS\Cameras\FreeCamera.cs" />
+    <Compile Include="CGUNS\Cameras\FreeCameraBackup.cs" />
     <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />
     <Compile Include="CGUNS\Cameras\SphericalCamera.cs" />
     <Compile Include="CGUNS\Explosiones.cs" />
