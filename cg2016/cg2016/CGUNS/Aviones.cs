@@ -37,6 +37,7 @@ namespace CGUNS
         private Boolean rotar = true;
         private float rotX = 0f; //usado en el avion perseguido para girar sobre si mismo
         private static int MAXDisparos = 30; //maxima cantidad de disparon que se van a dibujar
+        private float rotHelice = 0f;
         
         //las siguientes listas se usan para guardar informacion sobre los disparos (posicion, tiempo y particulas involucradas)
         List<Vector3> posicionesDisparos = new List<Vector3>();
@@ -55,6 +56,8 @@ namespace CGUNS
         //Booleanos usados para no realizar las cuentas ni dibujar los aviones en los momentos de espera
         private Boolean dibRectos;
         private Boolean dibPersecucion;
+        
+
 
 
         /// <summary>
@@ -121,10 +124,17 @@ namespace CGUNS
                 //al comenzar (en el tiempo igual a InicioRectos), el angulo tiene que ser pi
                 float angulo = ((float)timeSinceStartup - inicioPersecucion) / 2;
                 float aumento = 0.3f; //usado para que en determinado momento el de atras aumente la rotacion y apunte al otro avion
+                Matrix4 acomodar = Matrix4.CreateRotationX(pi); //debido a que el obj  esta dado vuelta
 
-                objetos[1].transform.localToWorld = escala * Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
-                objetos[2].transform.localToWorld = escala * Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
+                objetos[1].transform.localToWorld = escala *acomodar* Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
+                objetos[2].transform.localToWorld = escala *acomodar* Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
 
+                /* foreach (Mesh m in objetos[1].Meshes)
+                     if (m.Name == "helice_main_body")                          
+                         {
+                             m.Transform.localToWorld = Matrix4.CreateRotationX(rotHelice) * m.Transform.localToWorld;
+                         }*/
+                //objetos[1].Meshes[1].Transform.localToWorld = Matrix4.CreateRotationZ(rotHelice) * objetos[1].Meshes[1].Transform.localToWorld;
                 for (int i = 1; i < 3; i++)
                 {
                     objetos[i].Dibujar(sProgram);
@@ -231,6 +241,8 @@ namespace CGUNS
                     else list[i].Update();
                 }
 
+                rotHelice += 0.3f;
+
             }
             //Actualizacion de la posicion de los sonidos
             Vector3D origen3D = new Vector3D(posicion.X, posicion.Y, posicion.Z);
@@ -279,5 +291,27 @@ namespace CGUNS
         {
             return objetos;
         }
+
+
+        public Matrix4[] getModelMatrix(double timeSinceStartup)
+        {
+            Matrix4[] matricesModelado = new Matrix4[5];
+            //matrices de los 3 aviones en linea recta
+            matricesModelado[0] = escala * Matrix4.CreateTranslation(posicion);
+            matricesModelado[1] = escala * Matrix4.CreateTranslation(posicion + desplazamiento1);
+            matricesModelado[2] = escala * Matrix4.CreateTranslation(posicion + desplazamiento2);
+
+            float angulo = ((float)timeSinceStartup - inicioPersecucion) / 2;
+            float aumento = 0.3f; //usado para que en determinado momento el de atras aumente la rotacion y apunte al otro avion
+            Matrix4 acomodar = Matrix4.CreateRotationX(pi); //debido a que el obj  esta dado vuelta
+
+
+            //matrices de los dos aviones que se persiguen
+            matricesModelado[3] = escala * acomodar * Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
+            matricesModelado[4] = escala * acomodar * Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
+
+            return matricesModelado;
+        }
+
     }
 }

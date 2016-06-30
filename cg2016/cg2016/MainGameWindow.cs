@@ -1291,7 +1291,7 @@ namespace cg2016
             CargarTextura("Opera_Header", "files/Texturas/Map/Opera_Header.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             CargarTextura("Angel", "files/Texturas/Map/Angel_Z.png");
-            CargarTextura("Anti_Tank", "files/Texturas/Map/Anti_Tank.png");
+          //  CargarTextura("Anti_Tank", "files/Texturas/Map/Anti_Tank.png");
             CargarTextura("Ground_Grass", "files/Texturas/Map/Ground_Grass.png");
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
@@ -1308,6 +1308,7 @@ namespace cg2016
             CargarTextura("Tracks_Normal", "files/Texturas/Vehicles/track_n.png");
             //Aviones
             CargarTextura("B17", "files/Texturas/Vehicles/b17.png");
+         //   CargarTextura("FW190", "files/Texturas/Vehicles/b17.png");
         }
 
         protected void SetupObjects()
@@ -1326,10 +1327,10 @@ namespace cg2016
                         m.AddTexture(GetTextureID("AMB_Ruins"));
                         m.Build(sProgram, mShadowProgram);
                         break;
-                    case "AntiTank":
+                /*    case "AntiTank":
                         m.AddTexture(GetTextureID("Anti_Tank"));
                         m.Build(sProgram, mShadowProgram);
-                        break;
+                        break;*/
                     case "Ground_Grass":
                         m.AddTexture(GetTextureID("Ground_Grass"));
                         m.Build(sProgram, mShadowProgram);
@@ -1439,10 +1440,10 @@ namespace cg2016
             aviones.objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
             aviones.objetos[0].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[0].Build(sProgram, mShadowProgram);
-            aviones.objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
+            aviones.objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/fw190.obj"); //Es el de adelante de los que van en circulo
             aviones.objetos[1].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[1].Build(sProgram, mShadowProgram);
-            aviones.objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
+            aviones.objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/fw190.obj"); //Es el de atras de los que van en circulo
             aviones.objetos[2].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[2].Build(sProgram, mShadowProgram);
 
