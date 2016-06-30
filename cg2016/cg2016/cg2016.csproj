@@ -168,6 +168,9 @@
     <None Include="CGUNS\ModelosOBJ\Vehicles\b17.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="CGUNS\ModelosOBJ\Vehicles\fw190.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="CGUNS\ModelosOBJ\Vehicles\left_track.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -460,6 +463,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Vehicles\b17.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Vehicles\fw190.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Vehicles\tiger_d.png">
