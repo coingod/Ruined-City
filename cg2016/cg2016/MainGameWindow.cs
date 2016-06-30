@@ -137,7 +137,8 @@ namespace cg2016
             SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
             //SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
             SetupShaders("vanimated.glsl", "fanimated.glsl", out sProgramAnimated);
-            SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
+            //SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
+            SetupShaders("vbumpedterrain.glsl", "fbumpedterrain.glsl", out sProgramTerrain);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
             SetupShaders("vShadow.glsl", "fShadow.glsl", out mShadowProgram);
@@ -356,8 +357,8 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                //WindowState = WindowState.Maximized;
-                WindowState = WindowState.Normal;
+                WindowState = WindowState.Maximized;
+                //WindowState = WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -1015,10 +1016,39 @@ namespace cg2016
             //SHADER ANIMADO (Para dibujar texturas animadas)
             sProgramAnimated.Activate(); //Activamos el programa de shaders
             //Configuracion de las transformaciones del objeto en espacio de mundo
+            /*
             sProgramAnimated.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramAnimated.SetUniformValue("modelMatrix", modelMatrix);
             sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             sProgramAnimated.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
+            */
+            sProgramAnimated.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
+            sProgramAnimated.SetUniformValue("modelMatrix", modelMatrix);
+            //sProgramAnimated.SetUniformValue("normalMatrix", normalMatrix);
+            sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
+            //sProgramAnimated.SetUniformValue("cameraPosition", myCamera.Position());
+            sProgramAnimated.SetUniformValue("A", 0.3f);
+            sProgramAnimated.SetUniformValue("B", 0.007f);
+            sProgramAnimated.SetUniformValue("C", 0.00008f);
+            sProgramAnimated.SetUniformValue("material.Ka", material.Kambient);
+            sProgramAnimated.SetUniformValue("material.Kd", material.Kdiffuse);
+            //sProgramAnimated.SetUniformValue("material.Ks", material.Kspecular);
+            sProgramAnimated.SetUniformValue("material.Shininess", material.Shininess);
+            sProgramAnimated.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
+            sProgramAnimated.SetUniformValue("NormalMapTex", GetTextureID("Tracks_Normal"));
+            //sProgramAnimated.SetUniformValue("SpecularMapTex", 0);
+
+            sProgramAnimated.SetUniformValue("numLights", luces.Length);
+            for (int i = 0; i < luces.Length; i++)
+            {
+                sProgramAnimated.SetUniformValue("allLights[" + i + "].position", luces[i].Position);
+                sProgramAnimated.SetUniformValue("allLights[" + i + "].Ia", luces[i].Iambient);
+                sProgramAnimated.SetUniformValue("allLights[" + i + "].Ip", luces[i].Ipuntual);
+                sProgramAnimated.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
+                sProgramAnimated.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
+                sProgramAnimated.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
+            }
+
             //Dibujamos las orugas del tanque
             oruga_der.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             oruga_izq.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
@@ -1044,16 +1074,17 @@ namespace cg2016
             //Configuracion de los valores uniformes del shader
             sProgramTerrain.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramTerrain.SetUniformValue("modelMatrix", modelMatrix);
-            sProgramTerrain.SetUniformValue("normalMatrix", normalMatrix);
+            //sProgramTerrain.SetUniformValue("normalMatrix", normalMatrix);
             sProgramTerrain.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
-            sProgramTerrain.SetUniformValue("cameraPosition", myCamera.Position());
+            //sProgramTerrain.SetUniformValue("cameraPosition", myCamera.Position());
             sProgramTerrain.SetUniformValue("A", 0.3f);
             sProgramTerrain.SetUniformValue("B", 0.007f);
             sProgramTerrain.SetUniformValue("C", 0.00008f);
             sProgramTerrain.SetUniformValue("material.Ka", material.Kambient);
             sProgramTerrain.SetUniformValue("material.Kd", material.Kdiffuse);
-            sProgramTerrain.SetUniformValue("material.Ks", material.Kspecular);
+            //sProgramTerrain.SetUniformValue("material.Ks", material.Kspecular);
             sProgramTerrain.SetUniformValue("material.Shininess", material.Shininess);
+            sProgram.SetUniformValue("NormalMapTex", GetTextureID("Terrain_Normal_1"));
 
             //SplatMap (Para indicar que porcentaje de cada textura utilizar por fragmento)
             sProgramTerrain.SetUniformValue("ColorTex", GetTextureID("Terrain_SplatMap"));
@@ -1062,6 +1093,9 @@ namespace cg2016
             sProgramTerrain.SetUniformValue("Texture1", GetTextureID("Terrain_Diffuse_1"));
             sProgramTerrain.SetUniformValue("Texture2", GetTextureID("Terrain_Diffuse_2"));
             sProgramTerrain.SetUniformValue("Texture3", GetTextureID("Terrain_Diffuse_3"));
+            sProgramTerrain.SetUniformValue("Normal1", GetTextureID("Terrain_Normal_1"));
+            sProgramTerrain.SetUniformValue("Normal2", GetTextureID("Terrain_Normal_2"));
+            sProgramTerrain.SetUniformValue("Normal3", GetTextureID("Terrain_Normal_3"));
 
             sProgramTerrain.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
@@ -1178,12 +1212,15 @@ namespace cg2016
             CargarTextura("Opera_Header", "files/Texturas/Map/Opera_Header.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             CargarTextura("Angel", "files/Texturas/Map/Angel_Z.png");
-
+            CargarTextura("Ground_Grass", "files/Texturas/Map/Ground_Grass.png");
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
-            CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/Ground_Cobble.png");
-            CargarTextura("Terrain_Diffuse_2", "files/Texturas/Map/Ground_Debris.png");
-            CargarTextura("Terrain_Diffuse_3", "files/Texturas/Map/Ground_Bricks.png");
+            CargarTextura("Terrain_Diffuse_1", "files/Texturas/Map/Ground_Cobble_d.png");
+            CargarTextura("Terrain_Normal_1", "files/Texturas/Map/Ground_Cobble_n.png");
+            CargarTextura("Terrain_Diffuse_2", "files/Texturas/Map/Ground_Dirt_d.png");
+            CargarTextura("Terrain_Normal_2", "files/Texturas/Map/Ground_Dirt_n.png");
+            CargarTextura("Terrain_Diffuse_3", "files/Texturas/Map/Ground_Debris_d.png");
+            CargarTextura("Terrain_Normal_3", "files/Texturas/Map/Ground_Debris_n.png");
             //Tanque
             CargarTextura("Tiger_Diffuse", "files/Texturas/Vehicles/tiger_d.png");
             CargarTextura("Tiger_Normal", "files/Texturas/Vehicles/tiger_n.png");
@@ -1205,6 +1242,10 @@ namespace cg2016
                 {
                     case "Background_Cube":
                         m.AddTexture(GetTextureID("AMB_Ruins"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Ground_Grass":
+                        m.AddTexture(GetTextureID("Ground_Grass"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Wall_Plaster":
@@ -1416,16 +1457,17 @@ namespace cg2016
             luces[0] = new Light();
             //luces[0].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
             luces[0].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
-            luces[0].Iambient = new Vector3(0.25f, 0.25f, 0.25f);
+            luces[0].Iambient = new Vector3(0.5f, 0.5f, 0.5f);
             luces[0].Ipuntual = new Vector3(1f, 1f, 1f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
             luces[0].Enabled = 1;
             luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
 
+            //Postes de Luz
             luces[1] = new Light();
             luces[1].Position = new Vector4(4.003f, 0.4025427f, -1.430041f, 1.0f);
-            luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[1].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
             luces[1].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[1].ConeAngle = 40.0f;
             luces[1].ConeDirection = new Vector3(0f, -1.0f, 0f);
@@ -1434,7 +1476,7 @@ namespace cg2016
 
             luces[2] = new Light(); 
             luces[2].Position = new Vector4(-4.2691f, 0.4356834f, 0.8632488f, 1.0f);
-            luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[2].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
             luces[2].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[2].ConeAngle = 40.0f;
             luces[2].ConeDirection = new Vector3(0f, -1.0f, 0f);
@@ -1444,7 +1486,7 @@ namespace cg2016
 
             luces[3] = new Light(); 
             luces[3].Position = new Vector4(-4.265f, 0.4131507f, -3.87614f, 1.0f);
-            luces[3].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[3].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
             luces[3].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[3].ConeAngle = 40.0f;
             luces[3].ConeDirection = new Vector3(0f, -1.0f, 0f);
@@ -1453,13 +1495,12 @@ namespace cg2016
             
             luces[4] = new Light();
             luces[4].Position = new Vector4(1.315436f, 0.4659932f, -6.858546f, 1.0f);
-            luces[4].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[4].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
             luces[4].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[4].ConeAngle = 40.0f;
             luces[4].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[4].Enabled = 1;
             luces[4].updateGizmo(sProgramUnlit);
-
 
             esferaLuces = new ObjetoGrafico("CGUNS/ModelosOBJ/Stuff/sphere_flat.obj");
             esferaLuces.Build(sProgram, mShadowProgram);

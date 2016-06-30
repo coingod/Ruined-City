@@ -202,13 +202,10 @@
     <None Include="files\shaders\fanimated.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\shaders\fbumpedterrain.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\fbumpedspecularphong2.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\fparallaxmapping - Copy.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\fparallaxmapping.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fparticles.glsl">
@@ -229,13 +226,10 @@
     <None Include="files\shaders\vanimated.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="files\shaders\vbumpedterrain.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="files\shaders\vbumpedspecularphong2.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\vparallaxmapping - Copy.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\vparallaxmapping.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vparticles.glsl">
@@ -319,7 +313,22 @@
     <Content Include="files\Texturas\Map\Fence_Marble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\Map\Ground_Dirt_d.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\Ground_Grass.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\Map\Ground_Marble.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\Ground_Cobble_n.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\Ground_Dirt_n.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\Ground_Debris_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\Opera_Header.png">
@@ -414,10 +423,10 @@
     <Content Include="files\Texturas\Map\Building_Roof.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\Ground_Cobble.png">
+    <Content Include="files\Texturas\Map\Ground_Cobble_d.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\Ground_Debris.png">
+    <Content Include="files\Texturas\Map\Ground_Debris_d.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\Ground_Bricks.png">
