@@ -640,7 +640,7 @@ namespace cg2016
         {
             if (myCamera == FPScam) //Estoy usando la FPS 
             {
-                
+
                 if (keys[(int)Key.Space])
                 {
                     if (jumpingSeconds == 0 && !isJumping)
@@ -648,7 +648,7 @@ namespace cg2016
                         fisica.FPSCamera.LinearVelocity = new Vector3(0, 2, 0);
                         jumpingSeconds++;
                         isJumping = true;
-                    }                   
+                    }
                 }
                 if (isJumping)
                 {
@@ -669,24 +669,25 @@ namespace cg2016
                     isJumping = false;
                     jumpingSeconds = 0;
                 }
-                else {
-                    if (freeOn)
-                    {
-                        if (keys[(int)Key.S]) myCamera.Alejar();
-                        if (keys[(int)Key.W]) myCamera.Acercar();
-                        if (keys[(int)Key.D]) myCamera.Derecha();
-                        if (keys[(int)Key.A]) myCamera.Izquierda();
-                    }
-                    else
-                    {
-                        if (keys[(int)Key.S]) myCamera.Abajo();
-                        if (keys[(int)Key.W]) myCamera.Arriba();
-                        if (keys[(int)Key.D]) myCamera.Izquierda();
-                        if (keys[(int)Key.A]) myCamera.Derecha();
-                    }
+            }
+            else {
+                if (freeOn)
+                {
+                    if (keys[(int)Key.S]) myCamera.Alejar();
+                    if (keys[(int)Key.W]) myCamera.Acercar();
+                    if (keys[(int)Key.D]) myCamera.Derecha();
+                    if (keys[(int)Key.A]) myCamera.Izquierda();
+                }
+                else
+                {
+                    if (keys[(int)Key.S]) myCamera.Abajo();
+                    if (keys[(int)Key.W]) myCamera.Arriba();
+                    if (keys[(int)Key.D]) myCamera.Izquierda();
+                    if (keys[(int)Key.A]) myCamera.Derecha();
                 }
             }
-        }
+           }
+        
 
         private void MoverTanque() {
              if (keys[(int)Key.Left] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = -(new Vector3(0, 0.5f, 0)) ;
