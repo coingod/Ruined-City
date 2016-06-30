@@ -475,6 +475,9 @@ namespace cg2016
                     case Key.A:
                         keys[(int)Key.A] = true;
                         break;
+                    case Key.ShiftLeft:
+                        keys[(int)Key.ShiftLeft] = true;
+                        break;
                     case Key.KeypadAdd:
                     case Key.I:
                         myCamera.Acercar();
@@ -623,6 +626,9 @@ namespace cg2016
                 case Key.Space:
                     keys[(int)Key.Space] = false;
                     break;
+                case Key.ShiftLeft:
+                    keys[(int)Key.ShiftLeft] = false;
+                    break;
 
             }
             //Todavia se esta moviendo el tanque?
@@ -655,7 +661,10 @@ namespace cg2016
         {
             if (myCamera == FPScam) //Estoy usando la FPS 
             {
-
+                float corre = 1;
+                if (keys[(int)Key.ShiftLeft])
+                    corre = 2;
+                
                 if (keys[(int)Key.Space])
                 {
                     if (jumpingSeconds == 0 && !isJumping)
@@ -674,10 +683,10 @@ namespace cg2016
                     if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity += -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) / 20;
                 }
                 else {
-                    if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
-                    if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
-                    if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
-                    if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
+                    if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z)* corre;
+                    if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z) * corre;
+                    if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) * corre;
+                    if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) * corre;
                 }
                 if (jumpingSeconds == 30)
                 {
