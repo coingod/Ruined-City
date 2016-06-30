@@ -290,21 +290,13 @@ namespace cg2016
             //Console.WriteLine(timeSinceStartup);
 
             MoverCamara();
-
-            
+            MoverTanque();
+           
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10f);
 
-           
-            
-
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
-
-            
-
-            
-
 
             //Animacion de una luz
             float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
@@ -430,26 +422,16 @@ namespace cg2016
                 switch (e.Key)
                 {
                     case Key.Down:
-                        fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
-                        tankDirection = -1;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        keys[(int)Key.Down] = true;
                         break;
                     case Key.Up:
-                        fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
-                        tankDirection = 1;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        keys[(int)Key.Up] = true;
                         break;
                     case Key.Right:
-                        fisica.tank.AngularVelocity= (new Vector3(0, -1f, 0)) * 1.5f;
-                        if(!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        keys[(int)Key.Right] = true;
                         break;
                     case Key.Left:
-                        fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) * 1.5f;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        keys[(int)Key.Left] = true;
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;
@@ -591,6 +573,19 @@ namespace cg2016
                 case Key.A:
                     keys[(int)Key.A] = false;
                     break;
+                case Key.Up:
+                    keys[(int)Key.Up] = false;
+                    break;
+                case Key.Down:
+                    keys[(int)Key.Down] = false;
+                    break;
+                case Key.Left:
+                    keys[(int)Key.Left] = false;
+                    break;
+                case Key.Right:
+                    keys[(int)Key.Right] = false;
+                    break;
+
             }
         }
 
@@ -628,6 +623,29 @@ namespace cg2016
                 if (keys[(int)Key.D]) myCamera.Izquierda();
                 if (keys[(int)Key.A]) myCamera.Derecha();
             }
+        }
+
+        private void MoverTanque() {
+            if (keys[(int)Key.Left] | keys[(int)Key.Left] | keys[(int)Key.Left] | keys[(int)Key.Left])
+                if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                    sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+            if (keys[(int)Key.Left] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = -(new Vector3(0, 1f, 0)) * 1.5f;
+            if (keys[(int)Key.Left] & keys[(int)Key.Up]) fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) * 1.5f;
+
+            if (keys[(int)Key.Right] & keys[(int)Key.Down]) fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) * 1.5f;
+            if (keys[(int)Key.Right] & keys[(int)Key.Up]) fisica.tank.AngularVelocity = -(new Vector3(0, 1f, 0)) * 1.5f;
+
+            if (keys[(int)Key.Up])
+            {
+                fisica.tank.LinearVelocity = new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
+                tankDirection = 1;
+            }
+            if (keys[(int)Key.Down])
+            {
+                fisica.tank.LinearVelocity = -new Vector3(tanque.transform.forward.X, 0, tanque.transform.forward.Z) * 0.6f;
+                tankDirection = -1;
+            }
+
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs mouse)

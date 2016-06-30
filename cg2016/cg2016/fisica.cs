@@ -91,7 +91,7 @@ namespace cg2016
             RigidBody meshRB = new RigidBody(rbInfo);
             meshRB.WorldTransform = transform;
             meshRB.Friction = 1000;
-            meshRB.RollingFriction = 10;
+            meshRB.RollingFriction = 1;
             meshRB.Gravity = new Vector3(0, -100, 0);
             meshRB.Restitution = 0;
             postesRB.Add(meshRB);
