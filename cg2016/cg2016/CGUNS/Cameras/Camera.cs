@@ -28,6 +28,7 @@ namespace CGUNS.Cameras
 
         public abstract Vector3 Position();
 
+        public abstract void setPosition(Vector3 pos);
         /// <summary>
         /// Retorna la Matriz de Projeccion que esta utilizando esta camara.
         /// </summary>

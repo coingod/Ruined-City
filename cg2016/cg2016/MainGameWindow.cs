@@ -23,6 +23,7 @@ namespace cg2016
         #region Variables de clase
         //Camaras
         private Camera myCamera;
+        private FreeCamera FPScam;
         private List<Camera> camaras;
         private Rectangle viewport; //Viewport a utilizar.
         private List<CamaraFija> camarasFijas;
@@ -46,7 +47,6 @@ namespace cg2016
         private ObjetoGrafico oruga_izq;
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
         private ObjetoGrafico mapa_col;
-        private List<ObjetoGrafico> postes;
         private ObjetoGrafico esferaLuces;
 
         //Texturas
@@ -167,7 +167,6 @@ namespace cg2016
                 if (mapa.Meshes[i].Name!="Ground_Plane")
                     fisica.addMesh(mapa.getMeshVertices(i), mapa.getIndicesDeMesh(i));
             fisica.addMeshTank(tanque_col.getMeshVertices(0), tanque_col.getIndicesDeMesh(0));
-            fisica.addPoste(postes[0].getMeshVertices("Cube_Cube.002"), postes[0].getIndicesDeMesh("Cube_Cube.002"), postes[0].transform.localToWorld);
 
             //Configuracion de la Camara
             camaras = new List<Camera>();
@@ -175,6 +174,11 @@ namespace cg2016
             camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.025f));
             camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
             camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.025f));
+
+            //Camera fps! 
+            FPScam= new FreeCamera(new Vector3(1, 0.2f, 0), new Vector3(-20, 0, 0), 0.025f);
+            fisica.addFPSCamera(new Vector3(1, 0.2f, 0));
+
             myCamera = camaras[0]; //Creo una camara.
             CrearCamarasFijas();
 
@@ -288,6 +292,12 @@ namespace cg2016
            
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10f);
+
+            //actualizo la posicion de la camara FPS si es necesario!
+            if (myCamera.Equals(FPScam)) {
+               myCamera.setPosition(fisica.FPSCamera.WorldTransform.ExtractTranslation());
+                
+            }
 
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
@@ -485,6 +495,12 @@ namespace cg2016
                              OnResize(null);
                          }
                          break;
+                    case Key.F:
+                        {
+                            myCamera = FPScam;
+                            OnResize(null);
+                        }
+                        break;
                     case Key.M:
                         {
                             Vector3 p = myCamera.Position();
@@ -614,19 +630,28 @@ namespace cg2016
 
         private void MoverCamara()
         {
-            if (freeOn)
+            if (myCamera == FPScam) //Estoy usando la FPS 
             {
-                if (keys[(int)Key.S]) myCamera.Alejar();
-                if (keys[(int)Key.W]) myCamera.Acercar();
-                if (keys[(int)Key.D]) myCamera.Derecha();
-                if (keys[(int)Key.A]) myCamera.Izquierda();                
+                if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = new Vector3(1, 0, 0);
+                if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(-1, 0, 0);
+                if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 0, -1);
+                if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 0, 1);
             }
-            else
-            {
-                if (keys[(int)Key.S]) myCamera.Abajo();
-                if (keys[(int)Key.W]) myCamera.Arriba();
-                if (keys[(int)Key.D]) myCamera.Izquierda();
-                if (keys[(int)Key.A]) myCamera.Derecha();
+            else {
+                if (freeOn)
+                {
+                    if (keys[(int)Key.S]) myCamera.Alejar();
+                    if (keys[(int)Key.W]) myCamera.Acercar();
+                    if (keys[(int)Key.D]) myCamera.Derecha();
+                    if (keys[(int)Key.A]) myCamera.Izquierda();
+                }
+                else
+                {
+                    if (keys[(int)Key.S]) myCamera.Abajo();
+                    if (keys[(int)Key.W]) myCamera.Arriba();
+                    if (keys[(int)Key.D]) myCamera.Izquierda();
+                    if (keys[(int)Key.A]) myCamera.Derecha();
+                }
             }
         }
 
@@ -1007,10 +1032,6 @@ namespace cg2016
                     m.Dibujar(sProgram);
             if (toggleNormals) mapa.DibujarNormales(sProgram);
 
-            //Postes!
-
-            postes[0].transform.localToWorld = fisica.postesRB[0].WorldTransform;
-            postes[0].Dibujar(sProgram);
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
             //SHADER ANIMADO (Para dibujar texturas animadas)
@@ -1351,13 +1372,6 @@ namespace cg2016
             aviones.objetos[1].Build(sProgram, mShadowProgram);
             aviones.objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
             aviones.objetos[2].Build(sProgram, mShadowProgram);
-
-            //Postes
-            postes = new List<ObjetoGrafico>();
-            postes.Add(new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/poste.obj"));
-            postes[0].transform.Translate(new Vector3(1f, 0, 0));
-
-            postes[0].Build(sProgram, mShadowProgram);
 
             tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tanktest.obj");
             tanque_col.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.

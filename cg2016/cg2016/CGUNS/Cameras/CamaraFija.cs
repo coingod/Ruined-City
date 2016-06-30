@@ -87,6 +87,10 @@ namespace CGUNS.Cameras
             return Matrix4.LookAt(eye, target, up);
         }
 
+        public override void setPosition(Vector3 pos)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Retorna la Posicion de la camara.

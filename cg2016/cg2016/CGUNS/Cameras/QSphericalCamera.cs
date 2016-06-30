@@ -66,7 +66,13 @@ namespace CGUNS.Cameras
                   Vector4.Dot(viewToWorld.Column2, eyePos)
                 );
         }
-    
+
+
+        public override void setPosition(Vector3 pos)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Retorna la Matriz de Vista que representa esta camara.
         /// </summary>
