@@ -46,6 +46,7 @@ namespace cg2016
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
         private ObjetoGrafico mapa_col;
         private List<ObjetoGrafico> postes;
+        private ObjetoGrafico esferaLuces;
 
         //Texturas
         private Dictionary<string, int> programTextures;
@@ -942,10 +943,16 @@ namespace cg2016
             sProgram.SetUniformValue("NormalMapTex", GetTextureID("Default_Normal"));
 
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
+
+            for (int i = 4; i < 8; i++)
+            {
+                esferaLuces.transform.localToWorld = Matrix4.CreateScale(0.02f)*Matrix4.CreateTranslation(new Vector3(luces[i].Position));
+                esferaLuces.Dibujar(sProgram); 
+            }
             //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
 
             //Postes!
-            
+
 
             if (toggleNormals)
             {
@@ -1065,13 +1072,14 @@ namespace cg2016
             ejes_locales.Dibujar(sProgramUnlit);
             //Dibujamos la representacion visual de la luz.
             for (int i = 0; i < luces.Length; i++)
-                luces[i].gizmo.Dibujar(sProgramUnlit);
+                ;// luces[i].gizmo.Dibujar(sProgramUnlit);
 
             //Area de clickeo para explosion
             //sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(explosiones.getCentro()));
             // aviones.DibujarCuadradosDisparos(sProgramUnlit);
             //sProgramUnlit.SetUniformValue("modelMatrix", Matrix4.CreateTranslation(new Vector3(-4.33955f, 0, 3.84812f)));
             //cubo.Dibujar(sProgramUnlit);
+            
             sProgramUnlit.Deactivate(); //Desactivamos el programa de shaders
         }
         #endregion
@@ -1175,7 +1183,6 @@ namespace cg2016
             postes[0].transform.Translate(new Vector3(3f, 0, 0));
 
             postes[0].Build(sProgram, mShadowProgram);
-        
 
             tanque_col = new ObjetoGrafico("CGUNS/ModelosOBJ/Colisiones/tanktest.obj");
             tanque_col.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
@@ -1310,7 +1317,7 @@ namespace cg2016
 
 
             luces[4] = new Light();
-            luces[4].Position = new Vector4(3.989339f, 0.4525427f, -1.422041f, 1.0f);
+            luces[4].Position = new Vector4(4.003f, 0.4025427f, -1.430041f, 1.0f);
             luces[4].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[4].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[4].ConeAngle = 40.0f;
@@ -1319,7 +1326,7 @@ namespace cg2016
             luces[4].updateGizmo(sProgramUnlit);
 
             luces[5] = new Light(); 
-            luces[5].Position = new Vector4(-4.262742f, 0.5476834f, 0.8232488f, 1.0f);
+            luces[5].Position = new Vector4(-4.2691f, 0.4356834f, 0.8632488f, 1.0f);
             luces[5].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[5].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[5].ConeAngle = 40.0f;
@@ -1329,7 +1336,7 @@ namespace cg2016
                        
 
             luces[6] = new Light(); 
-            luces[6].Position = new Vector4(-4.249861f, 0.4671507f, -3.822614f, 1.0f);
+            luces[6].Position = new Vector4(-4.265f, 0.4131507f, -3.87614f, 1.0f);
             luces[6].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[6].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[6].ConeAngle = 40.0f;
@@ -1338,13 +1345,17 @@ namespace cg2016
             luces[6].updateGizmo(sProgramUnlit);
             
             luces[7] = new Light();
-            luces[7].Position = new Vector4(1.325436f, 0.4659932f, -6.855546f, 1.0f);
+            luces[7].Position = new Vector4(1.315436f, 0.4659932f, -6.858546f, 1.0f);
             luces[7].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[7].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[7].ConeAngle = 40.0f;
             luces[7].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[7].Enabled = 1;
             luces[7].updateGizmo(sProgramUnlit);
+
+
+            esferaLuces = new ObjetoGrafico("CGUNS/ModelosOBJ/Stuff/sphere_flat.obj");
+            esferaLuces.Build(sProgram, mShadowProgram);
         }
 
         private void SetupShaders(String vShaderName, String fShaderName, out ShaderProgram sProgram)
