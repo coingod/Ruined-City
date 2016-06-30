@@ -49,22 +49,31 @@ uniform int shadowsOn;
 uniform sampler2D uShadowSampler;
 // Posicion del fragmento en el espacio de la luz.
 in vec4 fragPosLightSpace;
+
 // Calcula la visibilidad del fragmento respecto la luz.
 // Retorna 1 si es visible y 0 si no lo es.
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
 	//Por ahora tenemos una luz direccional. [1].
-	vec3 lightDir = normalize(allLights[1].position.xyz - fragPosLightSpace.xyz);
-	//float bias    = max(0.05 * (1.0 - dot(fragNormal, lightDir)), 0.005);
-	float bias    = max(0.005 * (1.0 - dot(fnormal, lightDir)), 0.0005);
+	vec3 lightDir = normalize(allLights[0].position.xyz - fragPosLightSpace.xyz);
+	float bias    = max(0.0001 * (1.0 - dot(fnormal, lightDir)), 0.00001);
 	float shadowDepth = texture(uShadowSampler, fragPosLightSpace.xy).z;
 	float fragDepth   = fragPosLightSpace.z;
 
+	float shadow = 0.0;
+	vec2 texelSize = 1.0/textureSize(uShadowSampler, 0);
+	for (int x = -1; x <= 1; ++x){
+		for (int y = -1; y <= 1; ++y){
+			float pcfDepth = texture( uShadowSampler, fragPosLightSpace.xy + vec2(x, y) * texelSize).z;
+			shadow += fragDepth - bias > pcfDepth ? 1.0f : 0.0f;
+		}
+	}
+	shadow /= 9;
 	// Si el fragmento esta fuera del alcance del shadow map entonces es visible.
 	if (fragDepth > 1.0)
-		return 1.0;
+		shadow = 0.0;
 
-	return fragDepth - bias <= shadowDepth ? 1.0f : 0.0f;
+	return shadow;
 }
 
 float beckmannDistribution(float x, float roughness) 
@@ -129,7 +138,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 	float fAtt = 1.0;
 	vec3 LightPos;
 	float falloff = 1.0;
-	float visibility = 1;
+	float shadow = 0;
 	//vec3 fPos_CS = (viewMatrix * vec4(fPos_WS, 1.0)).xyz;
 
 	if(light.position.w == 0)
@@ -137,7 +146,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 		LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
 		//LightPos = normalize( transpose(inverse(TBN)) * (-light.position).xyz);
 		if(shadowsOn == 1)
-			visibility = ShadowCalculation(fragPosLightSpace); 
+			shadow = ShadowCalculation(fragPosLightSpace); 
 	}
 	else
 	{
@@ -185,7 +194,7 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 	//spec *= blinnPhongSpecular(LightPos, ViewDir, norm, material.Shininess * 4);
 
 	//Retorna el color final con conservacion de energia
-	return (ambient + fAtt * visibility * falloff * (diffuse * 0.6 + spec * 0.4) ) * light.enabled;
+	return (ambient + fAtt * (1 - shadow) * falloff * (diffuse * 0.6 + spec * 0.4) ) * light.enabled;
 }
 
 void main() 

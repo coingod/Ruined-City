@@ -328,8 +328,8 @@ namespace cg2016
                  10,
                 -10,
                  10,
-                 1f,
-                 10f);
+                 0.1f,
+                 20f);
 
             // --- VIEW PROJECTION ---
             // La matrix de modelado es la identidad.
