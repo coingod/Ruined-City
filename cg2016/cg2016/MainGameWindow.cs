@@ -1151,6 +1151,9 @@ namespace cg2016
             CargarTextura("Wall_Bunker", "files/Texturas/Map/Wall_Bunker.png");
             CargarTextura("Column_Marble", "files/Texturas/Map/Column_Marble.png");
             CargarTextura("Fence_Marble", "files/Texturas/Map/Fence_Marble.png");
+            CargarTextura("Wall_Brick", "files/Texturas/Map/Wall_Brick.png");
+            CargarTextura("Wall_Plaster", "files/Texturas/Map/Wall_Plaster.png");
+            CargarTextura("Copper", "files/Texturas/Map/Copper.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
@@ -1181,7 +1184,20 @@ namespace cg2016
                         m.AddTexture(GetTextureID("AMB_Ruins"));
                         m.Build(sProgram, mShadowProgram);
                         break;
+                    case "Wall_Plaster":
+                        m.AddTexture(GetTextureID("Wall_Plaster"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Ruins_Copper":
+                        m.AddTexture(GetTextureID("Copper"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "Ruins_Brick":
+                        m.AddTexture(GetTextureID("Wall_Brick"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
                     case "Wood":
+                    case "Telepole":
                         m.AddTexture(GetTextureID("Wood"));
                         m.Build(sProgram, mShadowProgram);
                         break;
@@ -1192,6 +1208,7 @@ namespace cg2016
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Plaza2":
+                    case "Opera_Fence":
                         m.AddTexture(GetTextureID("Fence_Marble"));
                         m.Build(sProgram, mShadowProgram);
                         break;
@@ -1205,6 +1222,8 @@ namespace cg2016
                     case "Plaza_Wall":
                     case "Plaza_Ruins":
                     case "Fountain":
+                    case "Ruins_Marble":
+                    case "Opera_Marble":
                         m.AddTexture(GetTextureID("Wall_Marble"));
                         m.Build(sProgram, mShadowProgram);
                         break;
