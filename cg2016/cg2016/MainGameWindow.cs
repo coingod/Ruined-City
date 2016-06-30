@@ -1282,6 +1282,7 @@ namespace cg2016
             CargarTextura("Opera_Header", "files/Texturas/Map/Opera_Header.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             CargarTextura("Angel", "files/Texturas/Map/Angel_Z.png");
+            CargarTextura("Anti_Tank", "files/Texturas/Map/Anti_Tank.png");
             CargarTextura("Ground_Grass", "files/Texturas/Map/Ground_Grass.png");
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
@@ -1314,6 +1315,10 @@ namespace cg2016
                 {
                     case "Background_Cube":
                         m.AddTexture(GetTextureID("AMB_Ruins"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
+                    case "AntiTank":
+                        m.AddTexture(GetTextureID("Anti_Tank"));
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ground_Grass":
