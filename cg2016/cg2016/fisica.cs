@@ -47,12 +47,12 @@ namespace cg2016
 
         public void addFPSCamera(Vector3 translation) {
             DefaultMotionState myMotionState = new DefaultMotionState(Matrix4.CreateTranslation(translation));
-            CollisionShape cameraShape = new BoxShape(0.1f);
+            CollisionShape cameraShape = new BoxShape( 0.1f);
             Vector3 inertia = cameraShape.CalculateLocalInertia(100f);
             RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(100f, myMotionState, cameraShape, inertia);
             FPSCamera = new RigidBody(rbInfo);
             FPSCamera.Friction = 1;
-            FPSCamera.RollingFriction = 1;
+            FPSCamera.RollingFriction = 10;
             FPSCamera.Restitution = 0.2f;
             FPSCamera.Gravity = new Vector3(0, -30, 0);
 

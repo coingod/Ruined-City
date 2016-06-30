@@ -296,7 +296,8 @@ namespace cg2016
 
             //actualizo la posicion de la camara FPS si es necesario!
             if (myCamera.Equals(FPScam)) {
-               myCamera.setPosition(fisica.FPSCamera.WorldTransform.ExtractTranslation());
+                Vector3 aux = new Vector3(fisica.FPSCamera.WorldTransform.ExtractTranslation().X, fisica.FPSCamera.WorldTransform.ExtractTranslation().Y + 0.1f, fisica.FPSCamera.WorldTransform.ExtractTranslation().Z);
+               myCamera.setPosition(aux);
                 
             }
 
