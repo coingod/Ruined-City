@@ -61,7 +61,7 @@ namespace cg2016
         private int materialIndex = 0;
 
         //Efectos de Particulas
-        private ParticleEmitter[] particleEffects = new ParticleEmitter[8];
+        private ParticleEmitter[] particleEffects = new ParticleEmitter[10];
 
         private Aviones aviones;
 
@@ -1201,7 +1201,7 @@ namespace cg2016
             sProgramParticles.SetUniformValue("animated", 0);
             sProgramParticles.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             //Dibujamos los sistemas de particulas
-            //Console.WriteLine(myCamera.Position());
+            Console.WriteLine(myCamera.Position());
             if (toggleParticles)
             {
                 //Recorro la lista de Efectos de Particulas y las dibujo.
@@ -1361,6 +1361,10 @@ namespace cg2016
                         m.AddTexture(GetTextureID("Ground_Marble"));
                         m.Build(sProgram, mShadowProgram);
                         break;
+                    case "Column_Marble":
+                        m.AddTexture(GetTextureID("Column_Marble"));
+                        m.Build(sProgram, mShadowProgram);
+                        break;
                     case "Estatua":
                         m.AddTexture(GetTextureID("Angel"));
                         m.Build(sProgram, mShadowProgram);
@@ -1375,6 +1379,7 @@ namespace cg2016
                         break;
                     case "Opera_Marble":
                     case "Ruins_Marble2":
+                    case "Reich_Wall":
                         m.AddTexture(GetTextureID("Wall_Marble_2"));
                         m.Build(sProgram, mShadowProgram);
                         break;
@@ -1524,7 +1529,7 @@ namespace cg2016
             //Direccional blanca
             luces[0] = new Light();
             //luces[0].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
-            luces[0].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
+            luces[0].Position = new Vector4(-2.5f, -5.0f, 3.5f, 0.0f);
             luces[0].Iambient = new Vector3(0.5f, 0.5f, 0.5f);
             luces[0].Ipuntual = new Vector3(1f, 1f, 1f);
             luces[0].ConeAngle = 180.0f;
@@ -1609,19 +1614,25 @@ namespace cg2016
             particleEffects[3] = new Smoke(new Vector3(6.5f, 0f, 1.3f) * 2);
             particleEffects[3].Texture = GetTextureID("FX_Smoke");
 
-            particleEffects[4] = new Fire(new Vector3(-4.6f, 0.65f, -1.1f) * 2);
-            particleEffects[4].Texture = GetTextureID("FX_Fire");
+            particleEffects[4] = new Smoke(new Vector3(2.12f, 1f, 10.34f) * 2);
+            particleEffects[4].Texture = GetTextureID("FX_Smoke");
 
-            particleEffects[5] = new Fire(new Vector3(-2.0f, 0.2f, -5.1f) * 2);
-            particleEffects[5].Texture = GetTextureID("FX_Fire");
+            particleEffects[5] = new Smoke(new Vector3(-3.21f, 1f, 8.29f) * 2);
+            particleEffects[5].Texture = GetTextureID("FX_Smoke");
 
-            particleEffects[6] = new Fire(new Vector3(-5.2f, 0.53f, 2.22f) * 2);
+            particleEffects[6] = new Fire(new Vector3(-4.6f, 0.65f, -1.1f) * 2);
             particleEffects[6].Texture = GetTextureID("FX_Fire");
 
-            particleEffects[7] = new Fire(new Vector3(-0.52f, 0.52f, 2.40f) * 2);
+            particleEffects[7] = new Fire(new Vector3(-2.0f, 0.2f, -5.1f) * 2);
             particleEffects[7].Texture = GetTextureID("FX_Fire");
-            particleEffects[7].maxSize = 0.3f;
-            particleEffects[7].worldVelocity *= 0.5f;
+
+            particleEffects[8] = new Fire(new Vector3(-5.2f, 0.53f, 2.22f) * 2);
+            particleEffects[8].Texture = GetTextureID("FX_Fire");
+
+            particleEffects[9] = new Fire(new Vector3(-0.52f, 0.52f, 2.40f) * 2);
+            particleEffects[9].Texture = GetTextureID("FX_Fire");
+            particleEffects[9].maxSize = 0.3f;
+            particleEffects[9].worldVelocity *= 0.5f;
 
             foreach (ParticleEmitter p in particleEffects)
                 p.Build(sProgramParticles);
