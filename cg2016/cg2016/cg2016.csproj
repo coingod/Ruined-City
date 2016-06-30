@@ -295,15 +295,6 @@
     <Content Include="files\Texturas\Map\Angel_Z.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\Building_Wall.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Map\Building_Wall2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Map\Building_Wall3.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="files\Texturas\Map\Column_Marble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -463,6 +454,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Skybox\top.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\Anti_Tank.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Vehicles\b17.png">
