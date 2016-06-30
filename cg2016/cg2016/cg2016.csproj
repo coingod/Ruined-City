@@ -292,35 +292,53 @@
     <Content Include="files\Texturas\FX\smoke.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ambientruins.png">
+    <Content Include="files\Texturas\Map\Ambient_Ruins.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\bricks2.jpg">
+    <Content Include="files\Texturas\Map\Column_Marble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\bricks2_disp.jpg">
+    <Content Include="files\Texturas\Map\Fence_Marble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\bricks2_normal.jpg">
+    <Content Include="files\Texturas\Map\Ground_Marble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\brickwall.jpg" />
-    <Content Include="files\Texturas\Map\BrickWallHD_d.png">
+    <Content Include="files\Texturas\Map\Wall_Bunker.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\BrickWallHD_n.png">
+    <Content Include="files\Texturas\Map\Wall_Marble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\BrickWallHD_s.png">
+    <Content Include="files\Texturas\Map\Wood.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\BrickWallHD_g.png">
+    <Content Include="files\Texturas\Unused\bricks2.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\BrickWallHD_h.png">
+    <Content Include="files\Texturas\Unused\bricks2_disp.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\brickwall_normal.jpg" />
+    <Content Include="files\Texturas\Unused\bricks2_normal.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Unused\brickwall.jpg" />
+    <Content Include="files\Texturas\Unused\BrickWallHD_d.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Unused\BrickWallHD_n.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Unused\BrickWallHD_s.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Unused\BrickWallHD_g.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Unused\BrickWallHD_h.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Unused\brickwall_normal.jpg" />
     <Content Include="files\Texturas\Helper\checker.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -342,31 +360,34 @@
     <Content Include="files\Texturas\Helper\no_s.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\distantbuilding.png">
+    <Content Include="files\Texturas\Map\Building_Facade.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\distantroof.png">
+    <Content Include="files\Texturas\Map\Building_Roof.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ground.png">
+    <Content Include="files\Texturas\Map\Ground_Cobble.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ladrillos_d.png">
+    <Content Include="files\Texturas\Map\Ground_Debris.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\Map\Ground_Bricks.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\ladrillos_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ruble_d.png">
+    <Content Include="files\Texturas\Unused\ruble_d.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ruble_h.png">
+    <Content Include="files\Texturas\Unused\ruble_h.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\ruble_n.png">
+    <Content Include="files\Texturas\Unused\ruble_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Map\splatmap.png">
+    <Content Include="files\Texturas\Map\Terrain_Splatmap.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Skybox\back.png">
