@@ -189,7 +189,7 @@ namespace cg2016
 
             // Setup OpenGL capabilities
             gl.Enable(EnableCap.DepthTest);
-            //gl.Enable(EnableCap.CullFace);
+            gl.Enable(EnableCap.CullFace);
 
             SetupEjes();
 
@@ -299,12 +299,6 @@ namespace cg2016
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
             fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
 
-            //Animacion de una luz
-            float blend = ((float)Math.Sin(timeSinceStartup / 2) + 1) / 2;
-            //float blend = (float)timeSinceStartup % 1 ;
-            Vector3 pos = Vector3.Lerp(new Vector3(-4f, 1f, 0.0f), new Vector3(4f, 1f, 0.0f), blend);
-            luces[0].Position = new Vector4(pos, 1.0f);
-
             //Actualizo los sistemas de particulas
             foreach (ParticleEmitter p in particleEffects)
                 p.Update();
@@ -329,7 +323,7 @@ namespace cg2016
         {
             // Calculo la matrix MVP desde el punto de vista de la luz.
             // Ojo con el up, debe estar mirando correctamente al target.
-            Vector3 lightEye = -luces[1].Position.Xyz;
+            Vector3 lightEye = -luces[0].Position.Xyz;
             //Console.WriteLine();
             //Vector3 lightEye = new Vector3(7.0f, 10f, 7.0f);
             Vector3 lightUp = new Vector3(0, 1, 0);
@@ -374,7 +368,8 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                WindowState = WindowState.Maximized;//WindowState.Normal;
+                //WindowState = WindowState.Maximized;
+                WindowState = WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -828,7 +823,8 @@ namespace cg2016
         {
             // --- SETEO EL ESTADO ---
             GL.Enable(EnableCap.DepthTest);
-            GL.Viewport(mShadowViewport);
+            GL.Viewport(mShadowViewport);            
+            GL.CullFace(CullFaceMode.Front);
 
             // Limpio el framebuffer el contenido de la pasada anterior.
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
@@ -851,8 +847,18 @@ namespace cg2016
                 //if (m.Name != "Ground_Plane")
                     m.DibujarShadows(mShadowProgram);
 
+            // --- AVIONES ---
+            ObjetoGrafico[] avionesArray = aviones.getAviones();
+            for (int i = 0; i < avionesArray.Length; i++)
+            {
+                mShadowProgram.SetUniformValue("uModelMatrix", avionesArray[i].transform.localToWorld);
+                avionesArray[i].DibujarShadows(mShadowProgram);
+            }
+
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             mShadowProgram.Deactivate();
+
+            GL.CullFace(CullFaceMode.Back);
         }
 
         private void DibujarSkyBox()
@@ -985,7 +991,7 @@ namespace cg2016
 
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
 
-            for (int i = 4; i < 8; i++)
+            for (int i = 1; i < luces.Length; i++)
             {
                 esferaLuces.transform.localToWorld = Matrix4.CreateScale(0.02f)*Matrix4.CreateTranslation(new Vector3(luces[i].Position));
                 esferaLuces.Dibujar(sProgram); 
@@ -1060,7 +1066,6 @@ namespace cg2016
                 sProgramTerrain.SetUniformValue("allLights[" + i + "].coneAngle", luces[i].ConeAngle);
                 sProgramTerrain.SetUniformValue("allLights[" + i + "].coneDirection", luces[i].ConeDirection);
                 sProgramTerrain.SetUniformValue("allLights[" + i + "].enabled", luces[i].Enabled);
-                //sProgram.SetUniformValue("allLights[" + i + "].direccional", luces[i].Direccional);
             }
             //Para sombras
             sProgramTerrain.SetUniformValue("shadowsOn", iShadowsOn);
@@ -1335,18 +1340,19 @@ namespace cg2016
             mSkyBox = new Skybox();
             mSkyBox.Build(mSkyBoxProgram);
             //Importa el orden, ver crearTexturaSkybox
+            //right, left, top, bottom, back, front. Ver referencia learnopengl
             mSkyboxTextureId = CrearTexturaSkybox(
                 new string[]
                 {
-                    "files/Texturas/Skybox/right.png",
-                    "files/Texturas/Skybox/left.png",
-                    "files/Texturas/Skybox/top.png",
-                    "files/Texturas/Skybox/bottom.png",
-                    "files/Texturas/Skybox/back.png",
-                    "files/Texturas/Skybox/front.png",
+                    "files/Texturas/SkyboxBerlin/Sky_Berlin_02.png",
+                    "files/Texturas/SkyboxBerlin/Sky_Berlin_04.png",
+                    "files/Texturas/SkyboxBerlin/Sky_Berlin_05.png",
+                    "files/Texturas/SkyboxBerlin/Sky_Berlin_06.png",
+                    "files/Texturas/SkyboxBerlin/Sky_Berlin_03.png",
+                    "files/Texturas/SkyboxBerlin/Sky_Berlin_01.png",
                 });
         }
-
+        //4132
         private int CrearTexturaSkybox(string[] paths)
         {
             int textId = GL.GenTexture();
@@ -1417,83 +1423,55 @@ namespace cg2016
 
         protected void SetupLights()
         {
-            luces = new Light[8];
-            //Roja
-            luces[0] = new Light();
-            luces[0].Position = new Vector4(0.0f, 0.0f, 10.0f, 1.0f);
-            luces[0].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
-            luces[0].Ipuntual = new Vector3(1.0f, 0.0f, 0.0f);
-            luces[0].ConeAngle = 180.0f;
-            luces[0].ConeDirection = new Vector3(0.0f, 0.0f, -1.0f);
-            luces[0].Enabled = 0;
-            luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
+            luces = new Light[5];
+
             //Direccional blanca
+            luces[0] = new Light();
+            //luces[0].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
+            luces[0].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
+            luces[0].Iambient = new Vector3(0.25f, 0.25f, 0.25f);
+            luces[0].Ipuntual = new Vector3(1f, 1f, 1f);
+            luces[0].ConeAngle = 180.0f;
+            luces[0].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[0].Enabled = 1;
+            luces[0].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
+
             luces[1] = new Light();
-            //luces[1].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
-            luces[1].Position = new Vector4(3.5f, -5.0f, -2.5f, 0.0f);
-            luces[1].Iambient = new Vector3(0.25f, 0.25f, 0.25f);
-            luces[1].Ipuntual = new Vector3(1f, 1f, 1f);
-            luces[1].ConeAngle = 180.0f;
-            luces[1].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
+            luces[1].Position = new Vector4(4.003f, 0.4025427f, -1.430041f, 1.0f);
+            luces[1].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
+            luces[1].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[1].ConeAngle = 40.0f;
+            luces[1].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[1].Enabled = 1;
-            luces[1].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
-            //Amarilla
-            luces[2] = new Light();
-            luces[2].Position = new Vector4(3.84812f, 0, 4.33955f, 1.0f);//(0.0f, 10.0f, 0.0f, 1.0f);
+            luces[1].updateGizmo(sProgramUnlit);
+
+            luces[2] = new Light(); 
+            luces[2].Position = new Vector4(-4.2691f, 0.4356834f, 0.8632488f, 1.0f);
             luces[2].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[2].Ipuntual = new Vector3(1f, 1f, 0.0f);
-            luces[2].ConeAngle = 10.0f;
-            luces[2].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
-            luces[2].Enabled = 0;
-            luces[2].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
-            //Azul
-            luces[3] = new Light();
-            luces[3].Position = new Vector4(0.0f, 0.0f, -3.0f, 1.0f);
+            luces[2].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[2].ConeAngle = 40.0f;
+            luces[2].ConeDirection = new Vector3(0f, -1.0f, 0f);
+            luces[2].Enabled = 1;
+            luces[2].updateGizmo(sProgramUnlit);
+                       
+
+            luces[3] = new Light(); 
+            luces[3].Position = new Vector4(-4.265f, 0.4131507f, -3.87614f, 1.0f);
             luces[3].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[3].Ipuntual = new Vector3(0.0f, 0.0f, 0.5f);
-            luces[3].ConeAngle = 20.0f;
-            luces[3].ConeDirection = new Vector3(0.0f, 0.0f, 1.0f);
-            luces[3].Enabled = 0;
-            luces[3].updateGizmo(sProgramUnlit);    //Representacion visual de la luz
-
-
-
+            luces[3].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[3].ConeAngle = 40.0f;
+            luces[3].ConeDirection = new Vector3(0f, -1.0f, 0f);
+            luces[3].Enabled = 1;
+            luces[3].updateGizmo(sProgramUnlit);
+            
             luces[4] = new Light();
-            luces[4].Position = new Vector4(4.003f, 0.4025427f, -1.430041f, 1.0f);
+            luces[4].Position = new Vector4(1.315436f, 0.4659932f, -6.858546f, 1.0f);
             luces[4].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
             luces[4].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
             luces[4].ConeAngle = 40.0f;
             luces[4].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[4].Enabled = 1;
             luces[4].updateGizmo(sProgramUnlit);
-
-            luces[5] = new Light(); 
-            luces[5].Position = new Vector4(-4.2691f, 0.4356834f, 0.8632488f, 1.0f);
-            luces[5].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[5].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
-            luces[5].ConeAngle = 40.0f;
-            luces[5].ConeDirection = new Vector3(0f, -1.0f, 0f);
-            luces[5].Enabled = 1;
-            luces[5].updateGizmo(sProgramUnlit);
-                       
-
-            luces[6] = new Light(); 
-            luces[6].Position = new Vector4(-4.265f, 0.4131507f, -3.87614f, 1.0f);
-            luces[6].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[6].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
-            luces[6].ConeAngle = 40.0f;
-            luces[6].ConeDirection = new Vector3(0f, -1.0f, 0f);
-            luces[6].Enabled = 1;
-            luces[6].updateGizmo(sProgramUnlit);
-            
-            luces[7] = new Light();
-            luces[7].Position = new Vector4(1.315436f, 0.4659932f, -6.858546f, 1.0f);
-            luces[7].Iambient = new Vector3(0.1f, 0.1f, 0.1f);
-            luces[7].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
-            luces[7].ConeAngle = 40.0f;
-            luces[7].ConeDirection = new Vector3(0f, -1.0f, 0f);
-            luces[7].Enabled = 1;
-            luces[7].updateGizmo(sProgramUnlit);
 
 
             esferaLuces = new ObjetoGrafico("CGUNS/ModelosOBJ/Stuff/sphere_flat.obj");

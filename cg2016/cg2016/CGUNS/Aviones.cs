@@ -281,5 +281,10 @@ namespace CGUNS
              tiempoInicios.Add(timeSinceStartup);
 
         }
+
+        public ObjetoGrafico[] getAviones()
+        {
+            return objetos;
+        }
     }
 }

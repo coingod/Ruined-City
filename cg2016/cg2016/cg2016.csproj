@@ -340,6 +340,24 @@
     <Content Include="files\Texturas\Map\Wood.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_01.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_02.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_03.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_04.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_05.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_06.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\Unused\bricks2.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
