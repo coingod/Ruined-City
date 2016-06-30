@@ -67,8 +67,9 @@ namespace cg2016
 
         //BulletSharp
         private fisica fisica;
-        private int crash = 0;
+        private int jumpingSeconds = 0;
         private int tankMoving = 0;
+        private bool isJumping = false;
 
         //Irrklang. Para audio
         ISoundEngine engine;
@@ -639,26 +640,43 @@ namespace cg2016
         {
             if (myCamera == FPScam) //Estoy usando la FPS 
             {
-                if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -FPScam.Front();
-                if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = FPScam.Front();
-                if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = FPScam.Side();
-                if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -FPScam.Side();
-                if (keys[(int)Key.Space]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 1, 0);
-            }
-            else {
-                if (freeOn)
+                
+                if (keys[(int)Key.Space])
                 {
-                    if (keys[(int)Key.S]) myCamera.Alejar();
-                    if (keys[(int)Key.W]) myCamera.Acercar();
-                    if (keys[(int)Key.D]) myCamera.Derecha();
-                    if (keys[(int)Key.A]) myCamera.Izquierda();
+                    if (jumpingSeconds == 0 && !isJumping)
+                    {
+                        fisica.FPSCamera.LinearVelocity = new Vector3(0, 2, 0);
+                        jumpingSeconds++;
+                        isJumping = true;
+                    }
+                    if (isJumping)
+                        jumpingSeconds++;
+                    if (jumpingSeconds == 30)
+                    {
+                        isJumping = false;
+                        jumpingSeconds = 0;
+                    }
                 }
-                else
-                {
-                    if (keys[(int)Key.S]) myCamera.Abajo();
-                    if (keys[(int)Key.W]) myCamera.Arriba();
-                    if (keys[(int)Key.D]) myCamera.Izquierda();
-                    if (keys[(int)Key.A]) myCamera.Derecha();
+                if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
+                if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z);
+                if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
+                if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z);
+                
+                else {
+                    if (freeOn)
+                    {
+                        if (keys[(int)Key.S]) myCamera.Alejar();
+                        if (keys[(int)Key.W]) myCamera.Acercar();
+                        if (keys[(int)Key.D]) myCamera.Derecha();
+                        if (keys[(int)Key.A]) myCamera.Izquierda();
+                    }
+                    else
+                    {
+                        if (keys[(int)Key.S]) myCamera.Abajo();
+                        if (keys[(int)Key.W]) myCamera.Arriba();
+                        if (keys[(int)Key.D]) myCamera.Izquierda();
+                        if (keys[(int)Key.A]) myCamera.Derecha();
+                    }
                 }
             }
         }
