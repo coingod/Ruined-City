@@ -58,6 +58,11 @@ namespace CGUNS.Cameras
         public Vector3 Front() {
             return front;
         }
+
+        public Vector3 Side()
+        {
+            return Vector3.Cross(front, up);
+        }
         /// <summary>
         /// Returns view matrix.
         /// </summary>

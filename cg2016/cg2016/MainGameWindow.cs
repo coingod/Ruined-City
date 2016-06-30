@@ -641,6 +641,8 @@ namespace cg2016
             {
                 if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -FPScam.Front();
                 if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = FPScam.Front();
+                if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = FPScam.Side();
+                if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -FPScam.Side();
                 if (keys[(int)Key.Space]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 1, 0);
             }
             else {
