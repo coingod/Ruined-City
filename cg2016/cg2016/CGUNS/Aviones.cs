@@ -19,9 +19,11 @@ namespace CGUNS
 
         private ObjetoGrafico[] objetos;
         private ISound[] sonidoAviones; //uno para cada uno por si se quiere usar distintos o en momentos diferentes
+
+        //Variables utilizadas para los aviones con animacion en linea recta
         private static Vector3 origen = new Vector3(-75.0f, 5.0f, 0.0f); //de donde sale el avion y fin hasta donde llega
         private Vector3 fin = new Vector3(75.0f, 2.0f, 0.0f);
-        private Vector3 posicion = origen;
+        private Vector3 posicion = origen;      //posicion del avion delantero
         private Vector3 desplazamiento1 = new Vector3(-2.0f, 0.0f, 4.0f) ; //utilizados para los otros dos aviones
         private Vector3 desplazamiento2 = new Vector3(-2.0f, 0.0f, -4.0f);
 
@@ -31,13 +33,13 @@ namespace CGUNS
         private Vector3 posPerseguido, posPerseguidor;
         private static float retraso = pi/ 6; //Se utiliza para posicionar a un avion tanto mas atras que otro
                 
-        private Boolean disparar = true;        
-        List<Vector3> posicionesDisparos = new List<Vector3>();
-        private float rotX = 0f; //usado en el avion perseguido para girar sobre si mismo
+        private Boolean disparar = true; //rotar y disparar se ponen en true para habilitar los disparos y el rol en la persecucion
         private Boolean rotar = true;
-        private static int MAXDisparos = 40; //maxima cantidad de disparon que se van a dibujar
-
-        // private static double inclinacion = 0.5f; //usado para que el circulo quede inclinado
+        private float rotX = 0f; //usado en el avion perseguido para girar sobre si mismo
+        private static int MAXDisparos = 30; //maxima cantidad de disparon que se van a dibujar
+        
+        //las siguientes listas se usan para guardar informacion sobre los disparos (posicion, tiempo y particulas involucradas)
+        List<Vector3> posicionesDisparos = new List<Vector3>();
         List<Smoke> list = new List<Smoke>();
         List<double> tiempoInicios = new List<double>(); //Se guarda en que momento comienzan los disparos en cada posicion
 
@@ -54,6 +56,10 @@ namespace CGUNS
         private Boolean dibPersecucion;
 
 
+        /// <summary>
+        /// Se crean los objetos e inicializan las posiciones y sonidos
+        /// </summary>
+        /// <returns></returns>
         public Aviones(ShaderProgram sProgram1, ShaderProgram sProgram2, ISoundEngine engine, ShaderProgram sProgramUnlit, int cantAviones = 5)
         {
             int cantObj = 3;            
@@ -96,6 +102,10 @@ namespace CGUNS
 
     }
 
+        /// <summary>
+        /// Se dibujan tanto los aviones en linea recta como los de la persecucion. Se dibujan solo si corresponde de acuerdo al tiempo actual de la animacion
+        /// </summary>
+        /// <returns></returns>
         public void Dibujar(ShaderProgram sProgram, ShaderProgram sProgramParticles, Double timeSinceStartup )
         {
             
@@ -143,6 +153,10 @@ namespace CGUNS
             }
         }
 
+        /// <summary>
+        ///Se dibujan los disparos si corresponde
+        /// </summary>
+        /// <returns></returns>
         public void DibujarDisparos(ShaderProgram sProgramParticles)
         {
             if (dibPersecucion)
@@ -156,6 +170,10 @@ namespace CGUNS
             }
         }
 
+        /// <summary>
+        /// Se actualiza la posicion de los aviones y disparos si hace falta, además de los sonidos
+        /// </summary>
+        /// <returns></returns>
         public void Actualizar(Double timeSinceStartup, ShaderProgram sProgramParticles ) {
 
             //Se calcula la nueva posicion del 1ro que va en linea recta. En Dibujar se actualiza la posicion de los 3 aviones
@@ -174,49 +192,51 @@ namespace CGUNS
             {
                 inicioPersecucion = inicioPersecucion + esperaPersecucion;
                 dibPersecucion = true;
+                rotar = true;
+                disparar = true;
             }
 
             double avance = (timeSinceStartup - inicioPersecucion) / 2;
             if (avance > 2 * pi)
+            {
                 dibPersecucion = false; //significa que ya dio la vuelta entera. Se deja de dibujar hasta pasar el tiempo de espera
+                list = new List<Smoke>();
+                tiempoInicios = new List<double>();
+                posicionesDisparos = new List<Vector3>(); //Se crean las listas nuevas. Es el equivalente a borrar los elementos que tenian todas. 
+                                    // Quedan listas para los proximos disparos, en la posicion y tiempo que sea 
+            }
             else {  //todavia no dio la vuelta. Se sigue calculando y dibujando
-                    double angulo = pi / 2 + avance;
+                double angulo = pi / 2 + avance;
 
-                    posPerseguido = centroPerseguido + new Vector3(radio * (float)Math.Cos(angulo), radio * (float)Math.Sin(angulo), 0);
-                    posPerseguidor = centroPerseguido + new Vector3(radio * (float)Math.Cos(angulo - retraso), radio * (float)Math.Sin(angulo - retraso), 0);
+                posPerseguido = centroPerseguido + new Vector3(radio * (float)Math.Cos(angulo), radio * (float)Math.Sin(angulo), 0);
+                posPerseguidor = centroPerseguido + new Vector3(radio * (float)Math.Cos(angulo - retraso), radio * (float)Math.Sin(angulo - retraso), 0);
 
-                    if (angulo > 9 && angulo < 9.2f)
-                    { //es despues de q haya dado una vuelta y media respecto al 0
-                        disparar = true;
-                        rotar = true;
-                    }
-                    else if (angulo > 12)
-                        disparar = false;
 
-                    //Solo dispara y rola cuando esta en la region del principio del semicirculo de abajo
-                    if (disparar)
-                        if (angulo % (pi * 2) > 4.0f && angulo % (pi * 2) < 4.6f && posicionesDisparos.Count < MAXDisparos)
-                        {
-                            Disparar(sProgramParticles, timeSinceStartup - inicioPersecucion);
-                        }
-
-                    if (rotar)
+                //Solo dispara y rola cuando esta en la region del principio del semicirculo de abajo
+                if (disparar)
+                    if (angulo % (pi * 2) > 4.0f && angulo % (pi * 2) < 4.6f && posicionesDisparos.Count < MAXDisparos)
                     {
-                        if (angulo % (pi * 2) > 3.8f)
-                            rotX += 0.1f;    //usada para rotar el avion de adelante
-                        if (rotX > (pi * 2))
-                        { rotX = 0;      //vuelve a la posicion original despues de dar 2 vueltas
-                            rotar = false;
-                        }
+                        Disparar(sProgramParticles, timeSinceStartup - inicioPersecucion);
                     }
 
-                    //Se actualizan los disparos si es necesario            
-                    for (int i = 0; i < list.Count; i++)
+                if (rotar)
+                {
+                    if (angulo % (pi * 2) > 3.8f)
+                        rotX += 0.1f;    //usada para rotar el avion de adelante
+                    if (rotX > (pi * 2))
                     {
-                        if (timeSinceStartup - inicioPersecucion - tiempoInicios[i] > 0.15)
-                            list[i].enabled = false;
-                        else list[i].Update();
+                        rotX = 0;      //vuelve a la posicion original despues de dar 2 vueltas
+                        rotar = false;
                     }
+                }
+
+                //Se actualizan los disparos si es necesario            
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (timeSinceStartup - inicioPersecucion - tiempoInicios[i] > 0.15)
+                        list[i].enabled = false;
+                    else list[i].Update();
+                }
 
             }
             //Actualizacion de la posicion de los sonidos
@@ -232,6 +252,11 @@ namespace CGUNS
             
         }
 
+
+        /// <summary>
+        /// Crea un nuevo sistema de particulas que representa un disparo de un avion a otro. Se utiliza la posicion de estos ultimos para calcular la ubicacion de los disparos 
+        /// </summary>
+        /// <returns></returns>
         private void Disparar(ShaderProgram sProgramParticles, double timeSinceStartup)
         {   //origen es perseguidor. Dir es perseguido
             Vector3 pendiente = posPerseguido - posPerseguidor;
@@ -250,7 +275,6 @@ namespace CGUNS
             else posicionesDisparos.Add(posDisparo);
 
             Vector3 cor = new Vector3(-3, 0, 0);
-            //Vector3 cor = new Vector3(0, 0, 0);
             Smoke smokeParticles = new Smoke(posDisparo+cor,2);
              smokeParticles.Build(sProgramParticles);
              list.Add(smokeParticles);
