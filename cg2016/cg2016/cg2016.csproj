@@ -168,10 +168,13 @@
     <None Include="CGUNS\ModelosOBJ\Vehicles\b17.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\Vehicles\tiger.obj">
+    <None Include="CGUNS\ModelosOBJ\Vehicles\left_track.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CGUNS\ModelosOBJ\Vehicles\tracks.obj">
+    <None Include="CGUNS\ModelosOBJ\Vehicles\right_track.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CGUNS\ModelosOBJ\Vehicles\tiger.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ClassDiagram1.cd" />

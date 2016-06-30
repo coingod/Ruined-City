@@ -42,6 +42,7 @@ namespace CGUNS
         List<Vector3> posicionesDisparos = new List<Vector3>();
         List<Smoke> list = new List<Smoke>();
         List<double> tiempoInicios = new List<double>(); //Se guarda en que momento comienzan los disparos en cada posicion
+        int texturaDisparos;
 
         Cube cubo = new Cube(0.04f, 0.04f, 0.04f);
 
@@ -60,20 +61,12 @@ namespace CGUNS
         /// Se crean los objetos e inicializan las posiciones y sonidos
         /// </summary>
         /// <returns></returns>
-        public Aviones(ShaderProgram sProgram1, ShaderProgram sProgram2, ISoundEngine engine, ShaderProgram sProgramUnlit, int cantAviones = 5)
+        public Aviones(ShaderProgram sProgram1, ShaderProgram sProgram2, ISoundEngine engine, ShaderProgram sProgramUnlit, int texturaDisparos, int cantAviones = 5)
         {
             int cantObj = 3;            
             objetos = new ObjetoGrafico[cantObj];
             sonidoAviones = new ISound[cantAviones];
-
-
-            //objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
-            //objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
-            //objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
-
-            //for (int i = 0; i < cantObj; i++)            
-                //objetos[i].Build(sProgram1, sProgram2);
-            
+            this.texturaDisparos = texturaDisparos;
 
             //Se calcula y setea la posicion inicial de todos los aviones
             posPerseguido = centroPerseguido + new Vector3(radio * (float)Math.Cos(pi), radio * (float)Math.Sin(pi), 0);
@@ -276,10 +269,10 @@ namespace CGUNS
 
             Vector3 cor = new Vector3(-3, 0, 0);
             Smoke smokeParticles = new Smoke(posDisparo+cor,2);
-             smokeParticles.Build(sProgramParticles);
-             list.Add(smokeParticles);
-             tiempoInicios.Add(timeSinceStartup);
-
+            smokeParticles.Texture = texturaDisparos;
+            smokeParticles.Build(sProgramParticles);
+            list.Add(smokeParticles);
+            tiempoInicios.Add(timeSinceStartup);
         }
     }
 }
