@@ -1226,6 +1226,8 @@ namespace cg2016
             CargarTextura("Tiger_Normal", "files/Texturas/Vehicles/tiger_n.png");
             CargarTextura("Tracks_Diffuse", "files/Texturas/Vehicles/track_d.png");
             CargarTextura("Tracks_Normal", "files/Texturas/Vehicles/track_n.png");
+            //Aviones
+            CargarTextura("B17", "files/Texturas/Vehicles/b17.png");
         }
 
         protected void SetupObjects()
@@ -1346,10 +1348,13 @@ namespace cg2016
             //Aviones
             aviones = new Aviones(sProgram, mShadowProgram, engine, sProgramUnlit, GetTextureID("FX_Smoke"));
             aviones.objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
+            aviones.objetos[0].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[0].Build(sProgram, mShadowProgram);
             aviones.objetos[1] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de adelante de los que van en circulo
+            aviones.objetos[1].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[1].Build(sProgram, mShadowProgram);
             aviones.objetos[2] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Es el de atras de los que van en circulo
+            aviones.objetos[2].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[2].Build(sProgram, mShadowProgram);
 
             //Postes

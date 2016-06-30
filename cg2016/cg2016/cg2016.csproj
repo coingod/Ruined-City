@@ -465,6 +465,9 @@
     <Content Include="files\Texturas\Skybox\top.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="files\Texturas\Vehicles\b17.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\Texturas\Vehicles\tiger_d.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
