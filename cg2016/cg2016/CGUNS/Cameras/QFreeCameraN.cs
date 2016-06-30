@@ -12,7 +12,7 @@ namespace cg2016.CGUNS.Cameras
     /// <summary>
     /// Camara estilo FPS. 
     /// </summary>
-    class QFreeCamera : Camera
+    class QFreeCameraN : Camera
     {
         private Vector3 eye;
         private Vector3 front;        
@@ -37,7 +37,7 @@ namespace cg2016.CGUNS.Cameras
         /// <param name="start"> Posicion inicial</param>
         /// <param name="target"> Posicion hacia donde mira la camara</param>
         /// <param name="speed"> 0.05 por defecto</param>
-        public QFreeCamera(Vector3 start, Vector3 target, float speed = 0.05f, float sensitivity = 0.3f) : base()
+        public QFreeCameraN(Vector3 start, Vector3 target, float speed = 0.05f, float sensitivity = 0.3f) : base()
         {
             eye = new Vector3(0, 0, 20);
             target = new Vector3(0, 0, 0);

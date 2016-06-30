@@ -12,7 +12,7 @@ namespace CGUNS.Cameras
     class FreeCamera : Camera
     {
         private Vector3 eye;
-        private Quaternion front;
+        private Vector3 front;
         private Vector3 up;
         private float speed;
         private float sensitivity;
@@ -33,8 +33,7 @@ namespace CGUNS.Cameras
             : base ()
         {
             eye = start;
-            //front = Vector3.Normalize(target - eye);
-            front = Quaternion.FromAxisAngle(target-eye, 1);
+            front = Vector3.Normalize(target - eye);
             up = Vector3.UnitY;
             this.speed = speed;
             this.sensitivity = sensitivity;
@@ -57,12 +56,12 @@ namespace CGUNS.Cameras
         }
 
         public Vector3 Front() {
-            return front.Xyz;
+            return front;
         }
 
         public Vector3 Side()
         {
-            return Vector3.Cross(front.Xyz, up);
+            return Vector3.Cross(front, up);
         }
         /// <summary>
         /// Returns view matrix.
@@ -70,7 +69,7 @@ namespace CGUNS.Cameras
         /// <returns></returns>
         public override Matrix4 ViewMatrix()
         {
-            return Matrix4.LookAt(eye, eye + front.Xyz, up);
+            return Matrix4.LookAt(eye, eye + front, up);
         }
         
         /// <summary>
@@ -78,7 +77,7 @@ namespace CGUNS.Cameras
         /// </summary>
         public override void Acercar()
         {
-            eye += speed * front.Xyz;
+            eye += speed * front;
         }
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace CGUNS.Cameras
         /// </summary>
         public override void Alejar()
         {
-            eye -= speed * front.Xyz;
+            eye -= speed * front;
         }
 
         /// <summary>
@@ -94,8 +93,7 @@ namespace CGUNS.Cameras
         /// </summary>
         public override void Izquierda()
         {
-
-            eye -= speed * Vector3.Normalize(Vector3.Cross(front.Xyz, up));
+            eye -= speed * Vector3.Normalize(Vector3.Cross(front, up));
         }
 
         /// <summary>
@@ -103,7 +101,7 @@ namespace CGUNS.Cameras
         /// </summary>
         public override void Derecha()
         {
-            eye += speed * Vector3.Normalize(Vector3.Cross(front.Xyz, up));
+            eye += speed * Vector3.Normalize(Vector3.Cross(front, up));
         }
 
         /// <summary>
@@ -163,18 +161,18 @@ namespace CGUNS.Cameras
             yaw += dx;
             pitch += dy;
 
-            //if (pitch > 89.0f) pitch = 89.0f;
-            //if (pitch < -89.0f) pitch = -89.0f;
+            if (pitch > 89.0f) pitch = 89.0f;
+            if (pitch < -89.0f) pitch = -89.0f;
 
-//            if (yaw > 179.0f) yaw = 179.0f;
-//            if (yaw < -179.0f) yaw = -179.0f;
+            if (yaw > 179.0f) yaw = 179.0f;
+            if (yaw < -179.0f) yaw = -179.0f;
 
             Vector3 aux = new Vector3();
             aux.X = (float) Math.Cos(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch));
             aux.Y = (float)Math.Sin(MathHelper.DegreesToRadians(pitch));
             aux.Z = (float)Math.Sin(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch));
 
-            front = Quaternion.FromAxisAngle(aux, 1);
+            front = Vector3.Normalize(aux);
         }
 
         /// <summary>
