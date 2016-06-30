@@ -1266,10 +1266,12 @@ namespace cg2016
                         break;
                     case "Ground_Grass":
                         m.AddTexture(GetTextureID("Ground_Grass"));
+                        m.material = Material.GreenRubber;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Wall_Plaster":
                         m.AddTexture(GetTextureID("Wall_Plaster"));
+                        m.material = Material.Silver;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Rubble_Bricks":
@@ -1291,6 +1293,7 @@ namespace cg2016
                     case "TankTrap":
                     case "Column":
                         m.AddTexture(GetTextureID("Wall_Bunker"));
+                        m.material = Material.Silver;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Plaza2":
@@ -1300,12 +1303,12 @@ namespace cg2016
                         break;
                     case "Opera_Header":
                         m.AddTexture(GetTextureID("Opera_Header"));
-                        m.material = Material.Silver;
+                        m.material = Material.Gold;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Plaza_Ground":
                     case "Plaza_Stairs":
-                    case "Opera_Ground":
+                    case "Opera_Ground":                        
                     case "Ground_Marble":
                         m.AddTexture(GetTextureID("Ground_Marble"));
                         m.Build(sProgram, mShadowProgram);
@@ -1316,7 +1319,7 @@ namespace cg2016
                         break;
                     case "Estatua":
                         m.AddTexture(GetTextureID("Angel"));
-                        m.material = Material.RedPlastic;
+                        m.material = Material.Bronze;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Plaza":
@@ -1325,34 +1328,32 @@ namespace cg2016
                     case "Fountain":
                     case "Ruins_Marble":
                         m.AddTexture(GetTextureID("Wall_Marble"));
+                        //m.material = Material.Gold;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Opera_Marble":
-                        m.material = Material.Bronze;
-                        break;
                     case "Ruins_Marble2":
                     case "Reich_Wall":
                         m.AddTexture(GetTextureID("Wall_Marble_2"));
-                        m.material = Material.Bronze;
+                        m.material = Material.Edificio1;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Facade":
                     case "Window":
                     case "Chimney":
                         m.AddTexture(GetTextureID("AMB_Building_Facade"));
-                        m.material = Material.Default;
-
+                        //m.material = Material.Emerald;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Roof":
                     case "Building_Roof":
                         m.AddTexture(GetTextureID("AMB_Building_Roof"));
-                        m.material = Material.Default;
+                       // m.material = Material.Emerald;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ground_Plane":
                         m.AddTexture(GetTextureID("Terrain_SplatMap"));
-                        m.material = Material.Default;
+                        m.material = Material.Terrain;
                         m.Build(sProgramTerrain, mShadowProgram); //El terreno usa un shader especial
                         break;
                     default:
@@ -1366,7 +1367,7 @@ namespace cg2016
             //Tanque
             tanque = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/tiger.obj");
             tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Diffuse"));
-            tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Normal"));
+            //tanque.AddTextureToAllMeshes(GetTextureID("Tiger_Normal"));
 
             foreach (Mesh m in tanque.Meshes)
                 m.material = Material.MetalTank;
@@ -1374,11 +1375,11 @@ namespace cg2016
             tanque.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
             oruga_der = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/right_track.obj");
             oruga_der.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
-            oruga_der.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
+            //oruga_der.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
             oruga_der.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
             oruga_izq = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/left_track.obj");
             oruga_izq.AddTextureToAllMeshes(GetTextureID("Tracks_Diffuse"));
-            oruga_izq.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
+            //oruga_izq.AddTextureToAllMeshes(GetTextureID("Tracks_Normal"));
             oruga_izq.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             //Aviones
@@ -1502,7 +1503,7 @@ namespace cg2016
             luces[1] = new Light();
             luces[1].Position = new Vector4(4.003f, 0.4025427f, -1.430041f, 1.0f);
             luces[1].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
-            luces[1].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[1].Ipuntual = new Vector3(0.8f, 0.8f, 0.3f);
             luces[1].ConeAngle = 40.0f;
             luces[1].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[1].Enabled = 1;
@@ -1511,7 +1512,7 @@ namespace cg2016
             luces[2] = new Light(); 
             luces[2].Position = new Vector4(-4.2691f, 0.4356834f, 0.8632488f, 1.0f);
             luces[2].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
-            luces[2].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[2].Ipuntual = new Vector3(0.8f, 0.8f, 0.3f);
             luces[2].ConeAngle = 40.0f;
             luces[2].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[2].Enabled = 1;
@@ -1521,7 +1522,7 @@ namespace cg2016
             luces[3] = new Light(); 
             luces[3].Position = new Vector4(-4.265f, 0.4131507f, -3.87614f, 1.0f);
             luces[3].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
-            luces[3].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[3].Ipuntual = new Vector3(0.8f, 0.8f, 0.3f);
             luces[3].ConeAngle = 40.0f;
             luces[3].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[3].Enabled = 1;
@@ -1530,7 +1531,7 @@ namespace cg2016
             luces[4] = new Light();
             luces[4].Position = new Vector4(1.315436f, 0.4659932f, -6.858546f, 1.0f);
             luces[4].Iambient = new Vector3(0.0f, 0.0f, 0.0f);
-            luces[4].Ipuntual = new Vector3(0.3f, 0.3f, 0.3f);
+            luces[4].Ipuntual = new Vector3(0.8f, 0.8f, 0.3f);
             luces[4].ConeAngle = 40.0f;
             luces[4].ConeDirection = new Vector3(0f, -1.0f, 0f);
             luces[4].Enabled = 1;

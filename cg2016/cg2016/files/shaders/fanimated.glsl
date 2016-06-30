@@ -188,9 +188,9 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 	vec3 diffuse = sDotN * light.Ip * material.Kd * diffR;
 
 	//Especular
-	vec3 spec = specMap;
+	//vec3 spec = specMap;
 	//spec *= cookTorranceSpecular(LightPos, ViewDir, norm, 0.25, 1);
-	spec *= phongSpecular(LightPos, ViewDir, norm, material.Shininess);
+	vec3 spec = phongSpecular(LightPos, ViewDir, norm, material.Shininess) * material.Ks;
 	//spec *= blinnPhongSpecular(LightPos, ViewDir, norm, material.Shininess * 4);
 
 	//Retorna el color final con conservacion de energia
