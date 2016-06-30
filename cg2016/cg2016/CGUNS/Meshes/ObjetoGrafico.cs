@@ -13,11 +13,12 @@ namespace CGUNS.Meshes
         List<Mesh> meshes;
         List<Vector3> meshesColor;
         Transform rootTransform;
-
+        List<Material> materiales;
         public ObjetoGrafico()
         {
             meshes = new List<Mesh>();
             transform = new Transform();
+            materiales = new List<Material>();
         }
 
         public ObjetoGrafico(string path)
@@ -162,6 +163,42 @@ namespace CGUNS.Meshes
                     return m.IndicesDeMesh();
             }
             return new List<int>();
+        }
+
+        public void addMaterial(String name, Material mat)
+        {
+            foreach (Mesh m in meshes)
+            {
+                if (m.Name == name)
+                {
+                    m.material = mat;
+                    break;                    
+                }
+            }
+        }
+
+        public void setMaterial(Material mat) {
+            foreach (Mesh m in meshes)
+                m.material = mat;
+        }
+
+        public Material getMaterial(String name) {
+            foreach (Mesh m in meshes)
+                if (m.Name == name)
+                    return m.material;
+            return Material.Default;
+        }
+
+        public Material getMaterial(int index)
+        {
+            int i = 0;
+            foreach (Mesh m in meshes)
+            {
+                if (i == index)
+                    return m.material;
+                i++;
+            }
+            return Material.Default;
         }
     }
 }

@@ -526,6 +526,10 @@ namespace CGUNS.Meshes.FaceVertexList
         public override void Dibujar(ShaderProgram sProgram)
         {
             sProgram.SetUniformValue("modelMatrix", transform.localToWorld);
+            sProgram.SetUniformValue("material.Ka", material.Kambient);
+            sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
+            sProgram.SetUniformValue("material.Shininess", material.Shininess);
+            //sProgram.SetUniformValue("material.Ks", material.Kambient);
             //sProgram.SetUniformValue("normalMatrix", Matrix3.Transpose(Matrix3.Invert(new Matrix3(transform.localToWorld * viewMatrix))));
 
             //Si tiene una textura especial, asignarla

@@ -12,12 +12,14 @@ namespace CGUNS.Meshes
         protected Transform transform;
         //Indices de las texturas (Diffuse, Normal, Specular)
         public List<int> textures;
-
+        protected Material mat;
+        
         public Mesh(string name)
         {
             this.name = name;
             transform = new Transform();
             textures = new List<int>();
+            mat = Material.Default;
         }
 
         public Mesh()
@@ -25,6 +27,8 @@ namespace CGUNS.Meshes
             name = "Mesh";
             transform = new Transform();
             textures = new List<int>();
+            mat = Material.Default;
+
         }
 
         public string Name
@@ -33,6 +37,11 @@ namespace CGUNS.Meshes
             set { name = value; }
         }
 
+        public Material material
+        {
+            get { return mat; }
+            set { mat = value; }
+        }
         public Transform Transform
         {
             get { return transform; }
