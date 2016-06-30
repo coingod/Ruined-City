@@ -314,6 +314,20 @@ namespace cg2016
             Vector3 tankPos = tanque.transform.position;
             sonidoTanque.Position = new Vector3D(tankPos.X, tankPos.Y, tankPos.Z);
 
+            //Se hace que las luces de los postes parpadeen
+            double tiempo = timeSinceStartup % 3;
+            if ((tiempo > 0.5f && tiempo < 0.7f))
+                {
+                    luces[2].Enabled = 0;
+                    luces[4].Enabled = 0;
+                }
+            else if (tiempo > 0.8f && tiempo < 1.0f)
+                {
+                    luces[2].Enabled = 1;
+                    luces[4].Enabled = 1;
+                }
+
+
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
         }
