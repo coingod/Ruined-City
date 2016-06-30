@@ -54,6 +54,10 @@ namespace CGUNS.Cameras
         {
             eye = pos;
         }
+
+        public Vector3 Front() {
+            return front;
+        }
         /// <summary>
         /// Returns view matrix.
         /// </summary>

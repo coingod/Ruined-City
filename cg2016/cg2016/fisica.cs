@@ -53,6 +53,7 @@ namespace cg2016
             FPSCamera = new RigidBody(rbInfo);
             FPSCamera.Friction = 1;
             FPSCamera.RollingFriction = 1;
+            FPSCamera.Restitution = 0.2f;
             FPSCamera.ForceActivationState(ActivationState.DisableDeactivation);
             dynamicsWor.AddRigidBody(FPSCamera);
         }

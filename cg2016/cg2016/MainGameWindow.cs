@@ -420,6 +420,9 @@ namespace cg2016
             {
                 switch (e.Key)
                 {
+                    case Key.Space:
+                        keys[(int)Key.Space] = true;
+                        break;
                     case Key.Down:
                         keys[(int)Key.Down] = true;
                         if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
@@ -497,6 +500,7 @@ namespace cg2016
                          break;
                     case Key.F:
                         {
+                            freeOn = true;
                             myCamera = FPScam;
                             OnResize(null);
                         }
@@ -600,6 +604,9 @@ namespace cg2016
                 case Key.Right:
                     keys[(int)Key.Right] = false;
                     break;
+                case Key.Space:
+                    keys[(int)Key.Space] = false;
+                    break;
 
             }
             //Todavia se esta moviendo el tanque?
@@ -632,10 +639,9 @@ namespace cg2016
         {
             if (myCamera == FPScam) //Estoy usando la FPS 
             {
-                if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = new Vector3(1, 0, 0);
-                if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(-1, 0, 0);
-                if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 0, -1);
-                if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 0, 1);
+                if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -FPScam.Front();
+                if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = FPScam.Front();
+                if (keys[(int)Key.Space]) fisica.FPSCamera.LinearVelocity = new Vector3(0, 1, 0);
             }
             else {
                 if (freeOn)
