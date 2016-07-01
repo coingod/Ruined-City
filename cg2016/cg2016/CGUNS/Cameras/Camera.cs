@@ -79,5 +79,7 @@ namespace CGUNS.Cameras
         public abstract void GirarIzquierda();
 
         public abstract void GirarDerecha();
+
+        public abstract void MouseCoords(float x, float y);
     }
 }

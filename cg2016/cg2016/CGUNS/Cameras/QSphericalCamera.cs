@@ -141,5 +141,9 @@ namespace CGUNS.Cameras
         {
             throw new NotImplementedException("No tiene sentido girar derecha con esta camara, es para mouse");
         }
+
+        public override void MouseCoords(float x, float y) {
+
+        }
     }
 }

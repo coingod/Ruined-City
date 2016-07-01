@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="CGUNS\Aviones.cs" />
     <Compile Include="CGUNS\Cameras\CamaraFija.cs" />
+    <Compile Include="CGUNS\Cameras\CamaraTanque.cs" />
     <Compile Include="CGUNS\Cameras\Camera.cs" />
     <Compile Include="CGUNS\Cameras\FreeCamera.cs" />
     <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />

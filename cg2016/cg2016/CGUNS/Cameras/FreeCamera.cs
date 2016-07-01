@@ -11,16 +11,16 @@ namespace CGUNS.Cameras
     /// </summary>
     class FreeCamera : Camera
     {
-        private Vector3 eye;
-        private Vector3 front;
-        private Vector3 up;
-        private float speed;
-        private float sensitivity;
-        private float yaw;
-        private float pitch;
-        private bool firstMouse;
-        private float lastX;
-        private float lastY;
+        protected Vector3 eye;
+        protected Vector3 front;
+        protected Vector3 up;
+        protected float speed;
+        protected float sensitivity;
+        protected float yaw;
+        protected float pitch;
+        protected bool firstMouse;
+        protected float lastX;
+        protected float lastY;
 
         private float fovReal;
 
@@ -141,7 +141,7 @@ namespace CGUNS.Cameras
         /// </summary>
         /// <param name="x">X del mouse</param>
         /// <param name="y">Y del mouse</param>
-        public void MouseCoords(float x, float y)
+        public override void MouseCoords(float x, float y)
         {
             if (firstMouse)
             {
@@ -163,10 +163,10 @@ namespace CGUNS.Cameras
 
             if (pitch > 89.0f) pitch = 89.0f;
             if (pitch < -89.0f) pitch = -89.0f;
-
+            /*
             if (yaw > 179.0f) yaw = 179.0f;
             if (yaw < -179.0f) yaw = -179.0f;
-
+            */
             Vector3 aux = new Vector3();
             aux.X = (float) Math.Cos(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch));
             aux.Y = (float)Math.Sin(MathHelper.DegreesToRadians(pitch));

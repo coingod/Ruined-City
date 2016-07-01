@@ -15,6 +15,7 @@ using CGUNS.Particles;
 using IrrKlang;
 using BulletSharp;
 using System.Collections.Generic;
+using cg2016.CGUNS.Cameras;
 
 namespace cg2016
 {
@@ -28,7 +29,8 @@ namespace cg2016
         private Rectangle viewport; //Viewport a utilizar.
         private List<CamaraFija> camarasFijas;
         bool freeOn;
-        int indiceFija=0; //
+        int indiceFija=0;
+        private CamaraTanque camamaraTanque;
 
         //Shaders
         private ShaderProgram sProgram; //Nuestro programa de shaders.
@@ -110,6 +112,9 @@ namespace cg2016
         private ShaderProgram mShadowViewportProgram; //Nuestro programa de shaders.
         private ViewportQuad mShadowViewportQuad;
 
+        //Ventana
+        private Vector2 center = new Vector2();
+
         #endregion
 
         #region Funciones de GameWindow (por eventos)
@@ -171,14 +176,15 @@ namespace cg2016
 
             //Configuracion de la Camara
             camaras = new List<Camera>();
-            camaras.Add(new QSphericalCamera(5, 45, 30, 0.01f, 250));
-            camaras.Add(new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.025f));
-            camaras.Add(new QSphericalCamera(5, 45, 30, 0.1f, 250));
-            camaras.Add(new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.025f));
+            camaras.Insert(0, new QSphericalCamera(5, 45, 30, 0.01f, 250));
+            camaras.Insert(1, new FreeCamera(camaras[0].Position(), new Vector3(0, 0, 0), 0.025f));
+            camaras.Insert(2, new QSphericalCamera(5, 45, 30, 0.1f, 250));
+            camaras.Insert(3, new FreeCamera(new Vector3(-5, 5, 0), new Vector3(-20, 0, 0), 0.025f));
 
             //Camera fps! 
             FPScam= new FreeCamera(new Vector3(1, 0.2f, 0), new Vector3(-20, 0, 0), 0.025f);
             fisica.addFPSCamera(new Vector3(1, 0.2f, 0));
+
 
             myCamera = camaras[0]; //Creo una camara.
             CrearCamarasFijas();
@@ -380,8 +386,8 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                WindowState = WindowState.Maximized;
-                //WindowState = WindowState.Normal;
+                //WindowState = WindowState.Maximized;
+                WindowState = WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -392,7 +398,7 @@ namespace cg2016
             Vector3D posOyente = new Vector3D(myCamera.Position().X, myCamera.Position().Y, myCamera.Position().Z);
             engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
 
-            DibujarEscena(lightSpaceMatrix, toggleNormals);
+            DibujarEscena(lightSpaceMatrix);
 
             DibujarParticles();                                   
 
@@ -404,6 +410,15 @@ namespace cg2016
 
             //Actualizamos la informacion de debugeo
             updateDebugInfo();
+
+            center.X = X + Width / 2;
+            center.Y = Y + Height / 2;
+
+            if (camamaraTanque != null)
+            {
+                camamaraTanque.setPosition(-tanque.transform.position + new Vector3(0.0f, -0.8f, 1.5f));
+                //camamaraTanque.rotar(tanque.transform.localToWorld.ExtractRotation());
+            }
 
             // Display the new frame
             SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering
@@ -555,12 +570,15 @@ namespace cg2016
                                 freeOn = true;                                
                                 myCamera = camaras[1];
                                 OnResize(null);
+                                OpenTK.Input.Mouse.SetPosition(center.X, center.Y);
+                                CursorVisible = false;
                             }
                             else
                             {
                                 freeOn = false;
                                 myCamera = camaras[0];//Inicial.
                                 OnResize(null);
+                                CursorVisible = true;
                             }                            
                         }
                         break;
@@ -570,18 +588,26 @@ namespace cg2016
                     case Key.B:
                         shadowsOn = !shadowsOn;
                         break;
+                    case Key.T:
+                        freeOn = true;
+                        OpenTK.Input.Mouse.SetPosition(center.X, center.Y);
+                        Vector3 pCam = tanque.transform.position + new Vector3(0.0f, -0.8f, 1.5f);
+                        camamaraTanque = new CamaraTanque(pCam , -tanque.transform.forward);
+                        camaras.Add(camamaraTanque);
+                        myCamera = camamaraTanque;
+                        break;
                 }
             }
         }
 
         protected override void OnMouseEnter(EventArgs e)
-        {
+        {            
             CursorVisible = false;
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            CursorVisible = true;
+            CursorVisible = true; 
         }
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
@@ -627,7 +653,7 @@ namespace cg2016
                 sonidoTanque.Stop();
             }
         }
-
+        
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
             if (freeOn)
@@ -898,11 +924,12 @@ namespace cg2016
                     m.DibujarShadows(mShadowProgram);
 
             // --- AVIONES ---
-            ObjetoGrafico[] avionesArray = aviones.getAviones();
-            for (int i = 0; i < avionesArray.Length; i++)
+            Matrix4[] models = aviones.getModelMatrix(timeSinceStartup);
+            ObjetoGrafico avion = aviones.getAvion();
+            for (int i = 0; i < models.Length; i++)
             {
-                mShadowProgram.SetUniformValue("uModelMatrix", avionesArray[i].transform.localToWorld);
-                avionesArray[i].DibujarShadows(mShadowProgram);
+                mShadowProgram.SetUniformValue("uModelMatrix", models[i]);
+                avion.DibujarShadows(mShadowProgram);
             }
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -938,7 +965,7 @@ namespace cg2016
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
         }
 
-        private void DibujarEscena(Matrix4 lightSpaceMatrix, bool normals)
+        private void DibujarEscena(Matrix4 lightSpaceMatrix)
         {
             GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.DepthBufferBit);
@@ -954,12 +981,6 @@ namespace cg2016
                 0.5f, 0.5f, 0.5f, 1.0f);
             Matrix4 lightBiasMatrix = lightSpaceMatrix * biasMatrix;
 
-            Matrix4 modelMatrix = Matrix4.Identity; //Por ahora usamos la identidad.
-            Matrix4 mvMatrix = Matrix4.Mult(myCamera.ViewMatrix(), modelMatrix);
-            //Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(mvMatrix)));
-            Matrix3 normalMatrix = Matrix3.Transpose(Matrix3.Invert(new Matrix3(modelMatrix)));
-            Matrix4 MVP = Matrix4.Mult(mvMatrix, myCamera.ProjectionMatrix());
-
             //FIRST SHADER (Para dibujar objetos)
             sProgram.Activate(); //Activamos el programa de shaders
 
@@ -969,7 +990,7 @@ namespace cg2016
             
             //Configuracion de los valores uniformes del shader
             sProgram.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
-            sProgram.SetUniformValue("modelMatrix", modelMatrix);
+            sProgram.SetUniformValue("modelMatrix", Matrix4.Identity);
             //sProgram.SetUniformValue("normalMatrix", normalMatrix);
             sProgram.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             //sProgram.SetUniformValue("cameraPosition", myCamera.Position());
@@ -1042,7 +1063,7 @@ namespace cg2016
             //Configuracion de las transformaciones del objeto en espacio de mundo
             
             sProgramAnimated.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
-            sProgramAnimated.SetUniformValue("modelMatrix", modelMatrix);
+            sProgramAnimated.SetUniformValue("modelMatrix", Matrix4.Identity);
             //sProgramAnimated.SetUniformValue("normalMatrix", normalMatrix);
             sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             //sProgramAnimated.SetUniformValue("cameraPosition", myCamera.Position());
@@ -1092,7 +1113,7 @@ namespace cg2016
             // TERRAIN MULTIPLES LUCES
             //Configuracion de los valores uniformes del shader
             sProgramTerrain.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
-            sProgramTerrain.SetUniformValue("modelMatrix", modelMatrix);
+            sProgramTerrain.SetUniformValue("modelMatrix", Matrix4.Identity);
             //sProgramTerrain.SetUniformValue("normalMatrix", normalMatrix);
             sProgramTerrain.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
             //sProgramTerrain.SetUniformValue("cameraPosition", myCamera.Position());

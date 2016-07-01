@@ -287,9 +287,13 @@ namespace CGUNS
             tiempoInicios.Add(timeSinceStartup);
         }
 
-        public ObjetoGrafico[] getAviones()
+        /// <summary>
+        /// Devuelve un objeto grafico avion cualquiera, solo me interesa usar su metodo DibujarShadowMesh
+        /// </summary>
+        /// <returns></returns>
+        public ObjetoGrafico getAvion()
         {
-            return objetos;
+            return objetos[0];
         }
 
 
