@@ -23,7 +23,7 @@ namespace cg2016
         #region Variables de clase
         //Camaras
         private Camera myCamera;
-        private FreeCamera FPScam;
+        private FreeCamera FPScam, tankCam;
         private List<Camera> camaras;
         private Rectangle viewport; //Viewport a utilizar.
         private List<CamaraFija> camarasFijas;
@@ -183,6 +183,8 @@ namespace cg2016
             FPScam= new FreeCamera(new Vector3(1, 0.2f, 0), new Vector3(-20, 0, 0), 0.025f);
             fisica.addFPSCamera(new Vector3(1, 0.2f, 0));
 
+            //Camera tank!
+            tankCam = new FreeCamera(new Vector3(0, 1, 0), tanque.transform.forward, 0.025f);
 
             myCamera = camaras[0]; //Creo una camara.
             CrearCamarasFijas();
@@ -298,8 +300,13 @@ namespace cg2016
             //actualizo la posicion de la camara FPS si es necesario!
             if (myCamera.Equals(FPScam)) {
                 Vector3 aux = new Vector3(fisica.FPSCamera.WorldTransform.ExtractTranslation().X, fisica.FPSCamera.WorldTransform.ExtractTranslation().Y + 0.1f, fisica.FPSCamera.WorldTransform.ExtractTranslation().Z);
-               myCamera.setPosition(aux);
-                
+               myCamera.setPosition(aux);                
+            }
+
+            if (myCamera.Equals(tankCam)) {
+                Vector3 aux = new Vector3(fisica.tank.WorldTransform.ExtractTranslation().X, fisica.tank.WorldTransform.ExtractTranslation().Y +0.3f , fisica.tank.WorldTransform.ExtractTranslation().Z );
+                tankCam.setFront(tanque.transform.forward);
+                myCamera.setPosition(aux);
             }
 
             //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
@@ -517,6 +524,13 @@ namespace cg2016
                         {
                             freeOn = true;
                             myCamera = FPScam;
+                            OnResize(null);
+                        }
+                        break;
+                    case Key.T:
+                        {
+                            freeOn = true;
+                            myCamera = tankCam;
                             OnResize(null);
                         }
                         break;

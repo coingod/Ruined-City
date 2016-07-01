@@ -47,9 +47,11 @@ namespace CGUNS.Cameras
         public override Vector3 Position()
         {
            return eye;         
-        }   
+        }
 
-
+        public void setFront(Vector3 f) {
+            front = f;
+        }
         public override void setPosition(Vector3 pos)
         {
             eye = pos;
