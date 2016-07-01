@@ -20,13 +20,13 @@ namespace CGUNS
         new Vector3(0.3f, 0.3f, 0.3f),
         new Vector3(0.45f, 0.45f, 0.45f),
         new Vector3(1, 1, 1),
-        0.9f * gloss);
+        0.5f * gloss);
 
         public static Material Terrain = new Material(
         new Vector3(0.5f, 0.5f, 0.5f),
         new Vector3(0.5f, 0.5f, 0.5f),
-        new Vector3(0.2f, 0.2f, 0.2f),
-        0.03f * gloss);
+        new Vector3(1f, 1f, 1f),
+        0.25f * gloss);
 
         public static Material Edificio1 = new Material(
         new Vector3(0.6f, 0.6f, 0.6f),

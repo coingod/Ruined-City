@@ -380,8 +380,8 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                //WindowState = WindowState.Maximized;
-                WindowState = WindowState.Normal;
+                WindowState = WindowState.Maximized;
+                //WindowState = WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -1150,7 +1150,6 @@ namespace cg2016
             sProgramParticles.SetUniformValue("animated", 0);
             sProgramParticles.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             //Dibujamos los sistemas de particulas
-            Console.WriteLine(myCamera.Position());
             if (toggleParticles)
             {
                 //Recorro la lista de Efectos de Particulas y las dibujo.
@@ -1269,7 +1268,7 @@ namespace cg2016
                         break;
                     case "Ground_Grass":
                         m.AddTexture(GetTextureID("Ground_Grass"));
-                        m.material = Material.GreenRubber;
+                        //m.material = Material.GreenRubber;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Wall_Plaster":
@@ -1503,7 +1502,7 @@ namespace cg2016
             luces[0] = new Light();
             //luces[0].Position = new Vector4(1.0f, -2.0f, -1.0f, 0.0f);
             luces[0].Position = new Vector4(-2.5f, -5.0f, 3.5f, 0.0f);
-            luces[0].Iambient = new Vector3(0.8f, 0.8f, 0.7f);
+            luces[0].Iambient = new Vector3(0.6f, 0.6f, 0.5f);
             luces[0].Ipuntual = new Vector3(1f, 1f, 0.8f);
             luces[0].ConeAngle = 180.0f;
             luces[0].ConeDirection = new Vector3(0.0f, -1.0f, 0.0f);
