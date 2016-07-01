@@ -79,8 +79,8 @@ namespace cg2016
         //Opciones
         private bool toggleNormals = false;
         private bool toggleWires = false;
-        private bool drawGizmos = true;
-        private bool toggleParticles = true;
+        private bool drawGizmos = false;
+        private bool toggleParticles = false;
         private bool toggleFullScreen = false;
 
         //Debug y helpers
@@ -380,8 +380,8 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                WindowState = WindowState.Maximized;
-                //WindowState = WindowState.Normal;
+                //WindowState = WindowState.Maximized;
+                WindowState = WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -1225,7 +1225,7 @@ namespace cg2016
             CargarTextura("Opera_Header", "files/Texturas/Map/Opera_Header.png");
             CargarTextura("Wood", "files/Texturas/Map/Wood.png");
             CargarTextura("Angel", "files/Texturas/Map/Angel_Z.png");
-          //  CargarTextura("Anti_Tank", "files/Texturas/Map/Anti_Tank.png");
+            CargarTextura("Anti_Tank", "files/Texturas/Map/Anti_Tank.png");
             CargarTextura("Ground_Grass", "files/Texturas/Map/Ground_Grass.png");
             //Terreno
             CargarTextura("Terrain_SplatMap", "files/Texturas/Map/Terrain_Splatmap.png");
@@ -1259,12 +1259,14 @@ namespace cg2016
                 {
                     case "Background_Cube":
                         m.AddTexture(GetTextureID("AMB_Ruins"));
+                        m.material = Material.Edificio2;
                         m.Build(sProgram, mShadowProgram);
                         break;
-                /*    case "AntiTank":
+                    case "AntiTank":
                         m.AddTexture(GetTextureID("Anti_Tank"));
+                        m.material = Material.MetalTank;
                         m.Build(sProgram, mShadowProgram);
-                        break;*/
+                        break;
                     case "Ground_Grass":
                         m.AddTexture(GetTextureID("Ground_Grass"));
                         m.material = Material.GreenRubber;
@@ -1277,10 +1279,13 @@ namespace cg2016
                         break;
                     case "Rubble_Bricks":
                         m.AddTexture(GetTextureID("Terrain_Diffuse_3"));
+                        m.material = Material.Edificio2;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ruins_Brick":
                         m.AddTexture(GetTextureID("Wall_Brick"));
+                        m.material = Material.Edificio2;
+
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Wood":
@@ -1300,6 +1305,8 @@ namespace cg2016
                     case "Plaza2":
                     case "Opera_Fence":
                         m.AddTexture(GetTextureID("Fence_Marble"));
+                        m.material = Material.Edificio2;
+
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Opera_Header":
@@ -1312,10 +1319,14 @@ namespace cg2016
                     case "Opera_Ground":                        
                     case "Ground_Marble":
                         m.AddTexture(GetTextureID("Ground_Marble"));
+                        m.material = Material.Edificio1;
+
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Column_Marble":
                         m.AddTexture(GetTextureID("Column_Marble"));
+                        m.material = Material.Edificio2;
+
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Estatua":
@@ -1329,7 +1340,8 @@ namespace cg2016
                     case "Fountain":
                     case "Ruins_Marble":
                         m.AddTexture(GetTextureID("Wall_Marble"));
-                        //m.material = Material.Gold;
+                        m.material = Material.Edificio1;
+
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Opera_Marble":
@@ -1343,13 +1355,11 @@ namespace cg2016
                     case "Window":
                     case "Chimney":
                         m.AddTexture(GetTextureID("AMB_Building_Facade"));
-                        //m.material = Material.Emerald;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Roof":
                     case "Building_Roof":
                         m.AddTexture(GetTextureID("AMB_Building_Roof"));
-                       // m.material = Material.Emerald;
                         m.Build(sProgram, mShadowProgram);
                         break;
                     case "Ground_Plane":

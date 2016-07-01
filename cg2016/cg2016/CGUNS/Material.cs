@@ -17,15 +17,15 @@ namespace CGUNS
         0.07f * gloss);
 
         public static Material MetalTank = new Material(
-        new Vector3(0.2f, 0.2f, 0.2f),
         new Vector3(0.3f, 0.3f, 0.3f),
+        new Vector3(0.45f, 0.45f, 0.45f),
         new Vector3(1, 1, 1),
         0.9f * gloss);
 
         public static Material Terrain = new Material(
         new Vector3(0.5f, 0.5f, 0.5f),
         new Vector3(0.5f, 0.5f, 0.5f),
-        new Vector3(1, 1, 1),
+        new Vector3(0.2f, 0.2f, 0.2f),
         0.03f * gloss);
 
         public static Material Edificio1 = new Material(
@@ -34,30 +34,11 @@ namespace CGUNS
         new Vector3(0.04f, 0.07f, 0.07f),
         0.078125f * gloss);
 
-
-        public static Material Emerald = new Material(
-        new Vector3(0.0215f, 0.1745f, 0.0215f),
-        new Vector3(0.07568f, 0.61424f, 0.07568f),
-        new Vector3(0.633f, 0.727811f, 0.633f),
-        0.6f * gloss);
-
-        public static Material Jade = new Material(
-        new Vector3(0.135f, 0.2225f, 0.1575f),
-        new Vector3(0.54f, 0.89f, 0.63f),
-        new Vector3(0.316228f, 0.316228f, 0.316228f),
-        0.1f * gloss);
-
-        public static Material Obsidian = new Material(
-        new Vector3(0.05375f, 0.05f, 0.06625f),
-        new Vector3(0.18275f, 0.17f, 0.22525f),
-        new Vector3(0.332741f, 0.328634f, 0.346435f),
-        0.3f * gloss);
-
-        public static Material Pearl = new Material(
-        new Vector3(0.25f, 0.20725f, 0.20725f),
-        new Vector3(1f, 0.829f, 0.829f),
-        new Vector3(0.296648f, 0.296648f, 0.296648f),
-        0.088f * gloss);
+        public static Material Edificio2 = new Material(
+        new Vector3(0.3f, 0.3f, 0.3f),
+        new Vector3(0.5f, 0.5f, 0.5f),
+        new Vector3(0.04f, 0.07f, 0.07f),
+        0.078125f * gloss);
 
         public static Material Ruby = new Material(
         new Vector3(0.1745f, 0.01175f, 0.01175f),
@@ -65,12 +46,7 @@ namespace CGUNS
         new Vector3(0.727811f, 0.626959f, 0.626959f),
         0.6f * gloss);
 
-        public static Material Turquoise = new Material(
-        new Vector3(0.1f, 0.18725f, 0.1745f),
-        new Vector3(0.396f, 0.74151f, 0.69102f),
-        new Vector3(0.297254f, 0.30829f, 0.306678f),
-        0.1f * gloss);
-
+    
         public static Material Brass = new Material(
         new Vector3(0.329412f, 0.223529f, 0.027451f),
         new Vector3(0.780392f, 0.568627f, 0.113725f),
@@ -78,10 +54,10 @@ namespace CGUNS
         0.21794872f * gloss);
 
         public static Material Bronze = new Material(
-        new Vector3(0.2125f, 0.1275f, 0.054f),
+        new Vector3(0.3125f, 0.2275f, 0.154f),
         new Vector3(0.714f, 0.4284f, 0.18144f),
-        new Vector3(0.393548f, 0.271906f, 0.166721f),
-        0.2f * gloss);
+        new Vector3(0.5f, 0.4f, 0.1f),
+        0.5f * gloss);
 
         public static Material Chrome = new Material(
         new Vector3(0.25f, 0.25f, 0.25f),

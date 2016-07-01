@@ -126,15 +126,9 @@ namespace CGUNS
                 float aumento = 0.3f; //usado para que en determinado momento el de atras aumente la rotacion y apunte al otro avion
                 Matrix4 acomodar = Matrix4.CreateRotationX(pi); //debido a que el obj  esta dado vuelta
 
-                objetos[1].transform.localToWorld = escala *acomodar* Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
-                objetos[2].transform.localToWorld = escala *acomodar* Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
+                objetos[1].transform.localToWorld = escala *Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
+                objetos[2].transform.localToWorld = escala * Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
 
-                /* foreach (Mesh m in objetos[1].Meshes)
-                     if (m.Name == "helice_main_body")                          
-                         {
-                             m.Transform.localToWorld = Matrix4.CreateRotationX(rotHelice) * m.Transform.localToWorld;
-                         }*/
-                //objetos[1].Meshes[1].Transform.localToWorld = Matrix4.CreateRotationZ(rotHelice) * objetos[1].Meshes[1].Transform.localToWorld;
                 for (int i = 1; i < 3; i++)
                 {
                     objetos[i].Dibujar(sProgram);
@@ -307,8 +301,10 @@ namespace CGUNS
 
 
             //matrices de los dos aviones que se persiguen
-            matricesModelado[3] = escala * acomodar * Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
-            matricesModelado[4] = escala * acomodar * Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
+            //matricesModelado[3] = escala * acomodar * Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationZ(pi + angulo) * Matrix4.CreateTranslation(posPerseguido);
+            //matricesModelado[4] = escala * acomodar * Matrix4.CreateRotationZ(pi + angulo - retraso + aumento) * Matrix4.CreateTranslation(posPerseguidor);
+            matricesModelado[3] = objetos[1].transform.localToWorld;
+            matricesModelado[4] = objetos[2].transform.localToWorld;
 
             return matricesModelado;
         }
