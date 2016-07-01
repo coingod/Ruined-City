@@ -15,7 +15,6 @@ using CGUNS.Particles;
 using IrrKlang;
 using BulletSharp;
 using System.Collections.Generic;
-using cg2016.CGUNS.Cameras;
 
 namespace cg2016
 {
@@ -30,7 +29,6 @@ namespace cg2016
         private List<CamaraFija> camarasFijas;
         bool freeOn;
         int indiceFija=0;
-        private CamaraTanque camamaraTanque;
 
         //Shaders
         private ShaderProgram sProgram; //Nuestro programa de shaders.
@@ -414,12 +412,6 @@ namespace cg2016
             center.X = X + Width / 2;
             center.Y = Y + Height / 2;
 
-            if (camamaraTanque != null)
-            {
-                camamaraTanque.setPosition(-tanque.transform.position + new Vector3(0.0f, -0.8f, 1.5f));
-                //camamaraTanque.rotar(tanque.transform.localToWorld.ExtractRotation());
-            }
-
             // Display the new frame
             SwapBuffers(); //Intercambiamos buffers frontal y trasero, para evitar flickering
         }        
@@ -587,14 +579,6 @@ namespace cg2016
                         break;
                     case Key.B:
                         shadowsOn = !shadowsOn;
-                        break;
-                    case Key.T:
-                        freeOn = true;
-                        OpenTK.Input.Mouse.SetPosition(center.X, center.Y);
-                        Vector3 pCam = tanque.transform.position + new Vector3(0.0f, -0.8f, 1.5f);
-                        camamaraTanque = new CamaraTanque(pCam , -tanque.transform.forward);
-                        camaras.Add(camamaraTanque);
-                        myCamera = camamaraTanque;
                         break;
                 }
             }
