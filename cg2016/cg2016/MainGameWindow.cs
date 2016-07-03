@@ -666,10 +666,10 @@ namespace cg2016
                     if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity += -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) / 20;
                 }
                 else {
-                    if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z)* corre;
-                    if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z) * corre;
-                    if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) * corre;
-                    if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) * corre;
+                    if (keys[(int)Key.S]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Front().X, 0, FPScam.Front().Z)* corre * 0.5f;
+                    if (keys[(int)Key.W]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Front().X, 0, FPScam.Front().Z) * corre * 0.5f;
+                    if (keys[(int)Key.D]) fisica.FPSCamera.LinearVelocity = new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) * corre * 0.5f;
+                    if (keys[(int)Key.A]) fisica.FPSCamera.LinearVelocity = -new Vector3(FPScam.Side().X, 0, FPScam.Side().Z) * corre * 0.5f;
                 }
                 if (jumpingSeconds == 30)
                 {
