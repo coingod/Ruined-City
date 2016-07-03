@@ -63,16 +63,6 @@ namespace cg2016.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap battlefield {
-            get {
-                object obj = ResourceManager.GetObject("battlefield", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap distantbuilding {
             get {
                 object obj = ResourceManager.GetObject("distantbuilding", resourceCulture);

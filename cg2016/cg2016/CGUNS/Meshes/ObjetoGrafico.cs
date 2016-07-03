@@ -10,10 +10,13 @@ namespace CGUNS.Meshes
 {
     public class ObjetoGrafico
     {
+        //Submeshes
         List<Mesh> meshes;
-        List<Vector3> meshesColor;
+        //Transformaciones compartidas por todos las meshes
         Transform rootTransform;
+        //Materiales
         List<Material> materiales;
+
         public ObjetoGrafico()
         {
             meshes = new List<Mesh>();
@@ -25,14 +28,6 @@ namespace CGUNS.Meshes
         {
             meshes = CGUNS.Parsers.ObjFileParser.parseFile(path).Cast<Mesh>().ToList();
             transform = new Transform();
-
-            //Setup random colors
-            meshesColor = new List<Vector3>();
-            Random rand2 = new Random();
-            foreach (Mesh m in meshes)
-            {
-                meshesColor.Add(new Vector3((float)rand2.NextDouble(), (float)rand2.NextDouble(), (float)rand2.NextDouble()));
-            }
         }
 
         public Transform transform
@@ -45,6 +40,7 @@ namespace CGUNS.Meshes
             }
         }
 
+        //A todas las Mesh le asigna el transform del ObjetoGrafico.
         private void UpdateAllTransforms()
         {
             foreach (Mesh m in meshes)

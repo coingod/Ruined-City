@@ -1,4 +1,4 @@
-﻿// FRAGMENT SHADER. TEXTURE + BUMP + SPECULAR
+﻿// FRAGMENT SHADER. TEXTURE + BUMP
 
 #version 330
 #define maxLights 10
@@ -133,18 +133,16 @@ float blinnPhongSpecular(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNo
 }
 
 //Calculo de la iluminacion por metodo de Phong
-vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir) 
+vec3 phongModel( vec3 norm, vec3 diffR, Light light, vec3 ViewDir) 
 {
 	float fAtt = 1.0;
 	vec3 LightPos;
 	float falloff = 1.0;
 	float shadow = 0;
-	//vec3 fPos_CS = (viewMatrix * vec4(fPos_WS, 1.0)).xyz;
 
 	if(light.position.w == 0)
 	{ 
 		LightPos = normalize( transpose(inverse(TBN)) * ( (transpose(inverse(viewMatrix)) * -light.position).xyz) );
-		//LightPos = normalize( transpose(inverse(TBN)) * (-light.position).xyz);
 		if(shadowsOn == 1)
 			shadow = ShadowCalculation(fragPosLightSpace); 
 	}
@@ -152,11 +150,9 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 	{
 		//Transformar POSICION de la Luz de CameraSpace a TangentSpace
 		LightPos = normalize( TBN * ( (viewMatrix * light.position).xyz - fPos_CS) );
-		//LightPos = normalize( TBN * ((light.position).xyz - fPos_WS));
 
 		//Restricciones del cono de luz
 		vec3 coneDirection = normalize(TBN * (mat3(viewMatrix) * light.coneDirection) );
-		//vec3 coneDirection = normalize(TBN * (light.coneDirection).xyz );
 		vec3 rayDirection = -LightPos;
 		float lightToSurfaceAngle = degrees(acos(dot(rayDirection, coneDirection)));
 		//Dentro del cono
@@ -176,9 +172,6 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 		else 
 			fAtt = 0.0;
 	}
-	
-	//Normal real del obj (WS -> TS) (Para testear el shader sin NormalMap)
-	//norm = normalize( transpose(inverse(TBN)) * vec3(( (transpose(inverse(viewMatrix)) * vec4(fnormal,1.0)).xyz)) );
 
 	//Ambiente
 	vec3 ambient = material.Ka * light.Ia * diffR;
@@ -188,10 +181,9 @@ vec3 phongModel( vec3 norm, vec3 diffR, vec3 specMap, Light light, vec3 ViewDir)
 	vec3 diffuse = sDotN * light.Ip * material.Kd * diffR;
 
 	//Especular
-	//vec3 spec = specMap;
-	//spec *= cookTorranceSpecular(LightPos, ViewDir, norm, 0.25, 1);
+	//vec3 spec = cookTorranceSpecular(LightPos, ViewDir, norm, 0.25, 1) * material.Ks;;
 	vec3 spec = phongSpecular(LightPos, ViewDir, norm, material.Shininess) * material.Ks;
-	//spec *= blinnPhongSpecular(LightPos, ViewDir, norm, material.Shininess * 4);
+	//vec3 spec = blinnPhongSpecular(LightPos, ViewDir, norm, material.Shininess * 4) * material.Ks;;
 
 	//Retorna el color final con conservacion de energia
 	return (ambient + fAtt * (1 - shadow) * falloff * (diffuse * 0.6 + spec * 0.4) ) * light.enabled;
@@ -209,17 +201,13 @@ void main()
 	// Lookup the normal from the normal map
 	vec4 normal = 2.0*texture2D( NormalMapTex, f_TexCoord ) - 1;
 
-	// The specular texture is used as the spec intensity
-	//vec4 specular = texture2D( SpecularMapTex, f_TexCoord ) ;
-	vec4 specular = vec4(1);
-
 	//Transformar Posicion de CameraSpace a TangentSpace
 	vec3 ViewDir = TBN * normalize(-fPos_CS);
 
 	//Acumular iluminacion de cada fuente de luz
 	vec3 linearColor=vec3(0);
 	for(int i=0; i<numLights; i++)
-		linearColor += phongModel(normal.xyz, texColor.rgb, specular.rgb, allLights[i], ViewDir);
+		linearColor += phongModel(normal.xyz, texColor.rgb, allLights[i], ViewDir);
 
 	FragColor = vec4( linearColor, 1.0 );
 }

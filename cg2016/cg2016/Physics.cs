@@ -9,7 +9,7 @@ using BulletSharp;
 namespace cg2016
 {
    
-    class fisica
+    class Physics
     {
         private BroadphaseInterface broadphase;
         private DefaultCollisionConfiguration collisionConfiguration;
@@ -28,7 +28,7 @@ namespace cg2016
 
         //CONSTRUCTOR
 
-        public fisica() {
+        public Physics() {
             inicializarMundo();
         }
 

@@ -68,7 +68,6 @@
     <Compile Include="CGUNS\Cameras\FreeCamera.cs" />
     <Compile Include="CGUNS\Cameras\QSphericalCamera.cs" />
     <Compile Include="CGUNS\Cameras\SphericalCamera.cs" />
-    <Compile Include="CGUNS\Explosiones.cs" />
     <Compile Include="CGUNS\GLControl3.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -95,16 +94,10 @@
     <Compile Include="CGUNS\Particles\ParticleEmitter.cs" />
     <Compile Include="CGUNS\Particles\Smoke.cs" />
     <Compile Include="CGUNS\Transform.cs" />
-    <Compile Include="fisica.cs" />
+    <Compile Include="Physics.cs" />
     <Compile Include="MainGameWindow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Splash.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Splash.Designer.cs">
-      <DependentUpon>Splash.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="CGUNS\GLControl3.resx">
       <DependentUpon>GLControl3.cs</DependentUpon>
     </EmbeddedResource>
@@ -118,9 +111,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Splash.resx">
-      <DependentUpon>Splash.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="App.config" />
     <None Include="CGUNS\ModelosOBJ\Colisiones\mapcoll.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -208,9 +198,6 @@
     <None Include="files\shaders\fbumpedterrain.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="files\shaders\fbumpedspecularphong2.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="files\shaders\fparticles.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -218,9 +205,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fSkybox.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\fterrain.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fViewport.glsl">
@@ -232,16 +216,13 @@
     <None Include="files\shaders\vbumpedterrain.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="files\shaders\vbumpedspecularphong2.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="files\shaders\vparticles.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="files\shaders\vbumpedspecularphong.glsl">
+    <None Include="files\shaders\vbumpedphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="files\shaders\fbumpedspecularphong.glsl">
+    <None Include="files\shaders\fbumpedphong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\fmultiplesluces.glsl">
@@ -257,9 +238,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vSkyBox.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="files\shaders\vterrain.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="files\shaders\vunlit.glsl">
@@ -282,10 +260,6 @@
     <Content Include="files\audio\bell.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\audio\explosion.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\battlefield.jpg" />
     <Content Include="files\Texturas\FX\fire.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -364,32 +338,6 @@
     <Content Include="files\Texturas\SkyboxBerlin\Sky_Berlin_06.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Texturas\Unused\bricks2.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\bricks2_disp.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\bricks2_normal.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\brickwall.jpg" />
-    <Content Include="files\Texturas\Unused\BrickWallHD_d.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\BrickWallHD_n.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\BrickWallHD_s.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\BrickWallHD_g.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\BrickWallHD_h.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\brickwall_normal.jpg" />
     <Content Include="files\Texturas\Helper\checker.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -427,15 +375,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\ladrillos_n.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\ruble_d.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\ruble_h.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Texturas\Unused\ruble_n.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\Texturas\Map\Terrain_Splatmap.png">

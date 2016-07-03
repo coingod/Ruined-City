@@ -31,12 +31,12 @@ namespace cg2016
         int indiceFija=0;
 
         //Shaders
-        private ShaderProgram sProgram; //Nuestro programa de shaders.
-        private ShaderProgram sProgramAnimated;
-        private ShaderProgram sProgramUnlit; //Nuestro programa de shaders.
-        private ShaderProgram sProgramParticles; //Nuestro programa de shaders.
-        private ShaderProgram sProgramTerrain; //Nuestro programa de shaders.
-        private ShaderProgram mSkyBoxProgram;
+        private ShaderProgram sProgram; //Shader de objetos.
+        private ShaderProgram sProgramAnimated; //Shader con texturas animadas.
+        private ShaderProgram sProgramUnlit; //Shader basico sin iluminacion.
+        private ShaderProgram sProgramParticles; //Shader para las particulas.
+        private ShaderProgram sProgramTerrain; //Shader especial del terreno.
+        private ShaderProgram mSkyBoxProgram; //Shader especial del Skybox
 
         //Modelos
         private Ejes ejes_globales; // Ejes de referencia globales
@@ -48,31 +48,25 @@ namespace cg2016
         private ObjetoGrafico mapa; //Nuestro objeto a dibujar.
         private ObjetoGrafico mapa_col;
         private ObjetoGrafico esferaLuces;
+        private Aviones aviones;
 
         //Texturas
         private Dictionary<string, int> programTextures;
 
         //Iluminacion
         private Light[] luces;
-        /*
-        //Materiales
-        private Material[] materiales = new Material[] { Material.Default, Material.Metal, Material.WhiteRubber, Material.Obsidian, Material.Bronze, Material.Gold, Material.Jade, Material.Brass };
-        private Material material;
-        private int materialIndex = 0;
-        */
+
         //Efectos de Particulas
         private ParticleEmitter[] particleEffects = new ParticleEmitter[10];
 
-        private Aviones aviones;
-
         //BulletSharp
-        private fisica fisica;
+        private Physics fisica;
         private int jumpingSeconds = 0;
         private int tankMoving = 0;
         private bool isJumping = false;
 
         //Irrklang. Para audio
-        ISoundEngine engine;
+        ISoundEngine soundEngine;
         ISound sonidoAmbiente;
         ISound sonidoTanque;
 
@@ -80,8 +74,8 @@ namespace cg2016
         private bool toggleNormals = false;
         private bool toggleWires = false;
         private bool drawGizmos = false;
-        private bool toggleParticles = false;
-        private bool toggleFullScreen = false;
+        private bool toggleParticles = true;
+        private bool toggleFullScreen = true;
 
         //Debug y helpers
         private int loaded = 0;
@@ -124,31 +118,25 @@ namespace cg2016
             logContextInfo(); //Mostramos info de contexto.
 
             //Configuracion de Audio
-            engine = new ISoundEngine();
-            sonidoAmbiente = engine.Play2D("files/audio/ambience.ogg", true);
+            soundEngine = new ISoundEngine();
+            sonidoAmbiente = soundEngine.Play2D("files/audio/ambience.ogg", true);
             sonidoAmbiente.Volume = 0.5f;
-
-            sonidoTanque = engine.Play2D("files/audio/bell.wav", false);
+            sonidoTanque = soundEngine.Play2D("files/audio/bell.wav", false);
             sonidoTanque.Stop();
-
-            loaded += 10;
 
             //Creo el contenedor de texturas
             programTextures = new Dictionary<string, int>();
 
             //Creamos los shaders y el programa de shader
             SetupShaders("vunlit.glsl", "funlit.glsl", out sProgramUnlit);
-            SetupShaders("vbumpedspecularphong.glsl", "fbumpedspecularphong.glsl", out sProgram);
+            SetupShaders("vbumpedphong.glsl", "fbumpedphong.glsl", out sProgram);
             //SetupShaders("vmultiplesluces.glsl", "fmultiplesluces.glsl", out sProgram);
             SetupShaders("vanimated.glsl", "fanimated.glsl", out sProgramAnimated);
-            //SetupShaders("vterrain.glsl", "fterrain.glsl", out sProgramTerrain);
             SetupShaders("vbumpedterrain.glsl", "fbumpedterrain.glsl", out sProgramTerrain);
             SetupShaders("vparticles.glsl", "fparticles.glsl", out sProgramParticles);
             SetupShaders("vSkyBox.glsl", "fSkyBox.glsl", out mSkyBoxProgram);
             SetupShaders("vShadow.glsl", "fShadow.glsl", out mShadowProgram);
             SetupShaders("vViewport.glsl", "fViewport.glsl", out mShadowViewportProgram);
-
-            loaded += 50;
 
             //Carga de Texturas
             SetupTextures();
@@ -156,15 +144,14 @@ namespace cg2016
             //Configuracion de los sistemas de particulas
             SetupParticles();
 
-            loaded += 39;
-
             //Carga y configuracion de Objetos
             SetupObjects();
 
+            //Configuracion del ShadowMap
             CrearShadowTextures();
 
             //Arrancamos la clase fisica
-            fisica = new fisica();
+            fisica = new Physics();
             //Meshes Convex Fisica 
             fisica.addMeshMap(mapa.getMeshVertices("Ground_Plane"), mapa.getIndicesDeMesh("Ground_Plane"));
             for (int i=0; i<mapa.Meshes.Count; i++)
@@ -195,12 +182,11 @@ namespace cg2016
             gl.Enable(EnableCap.DepthTest);
             gl.Enable(EnableCap.CullFace);
 
+            //Creacion de los ejes.
             SetupEjes();
 
             //Configuracion de las Luces
             SetupLights();
-            
-            loaded += 1;
         }
 
 
@@ -244,21 +230,6 @@ namespace cg2016
 
         }
 
-
-        //El THREAD de la pantalla de carga consulta aca cuanto se ha cargado.
-        public int UpdateLoadScreen()
-        {
-            Console.WriteLine("##########     LOADING: " + loaded);
-
-            //Aqui dibujaria la pantalla de carga en esta ventana
-            //El thread de carga solo se encargaria de llamar a esta funcion.
-
-            //Actualizo el viewport
-            SwapBuffers();
-
-            return loaded;
-        }
-
         /// <summary>
         /// Game window sizing and 3D projection setup
         /// </summary>
@@ -291,11 +262,21 @@ namespace cg2016
             timeSinceStartup += this.RenderTime;
             //Console.WriteLine(timeSinceStartup);
 
+            //Actualizamos la posicion de la camara.
             MoverCamara();
+
+            //Actualizamos la posicion del tanque.
             MoverTanque();
            
             //Simular la fisica
             fisica.dynamicsWorld.StepSimulation(10f);
+            //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
+            fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
+            //Actualizamos la amtris de transformacion de los objetos con fisica.
+            tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            oruga_der.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            oruga_izq.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
+            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
 
             //actualizo la posicion de la camara FPS si es necesario!
             if (myCamera.Equals(FPScam)) {
@@ -308,9 +289,6 @@ namespace cg2016
                 tankCam.setFront(tanque.transform.forward);
                 myCamera.setPosition(aux);
             }
-
-            //para que el giro sea más manejable, sería un efecto de rozamiento con el aire.
-            fisica.tank.AngularVelocity = fisica.tank.AngularVelocity / 10;
 
             //Actualizo los sistemas de particulas
             foreach (ParticleEmitter p in particleEffects)
@@ -391,8 +369,8 @@ namespace cg2016
             else
             {
                 WindowBorder = WindowBorder.Resizable;
-                //WindowState = WindowState.Maximized;
-                WindowState = WindowState.Normal;
+                WindowState = WindowState.Maximized;
+                //WindowState = WindowState.Normal;
             }
 
             gl.Viewport(viewport); //Especificamos en que parte del glControl queremos dibujar.            
@@ -401,7 +379,7 @@ namespace cg2016
             
             //audio
             Vector3D posOyente = new Vector3D(myCamera.Position().X, myCamera.Position().Y, myCamera.Position().Z);
-            engine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
+            soundEngine.SetListenerPosition(posOyente, new Vector3D(0, 0, 0));
 
             DibujarEscena(lightSpaceMatrix);
 
@@ -452,27 +430,27 @@ namespace cg2016
                         break;
                     case Key.Down:
                         keys[(int)Key.Down] = true;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        if (!soundEngine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = soundEngine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Up:
                         keys[(int)Key.Up] = true;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        if (!soundEngine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = soundEngine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Right:
                         keys[(int)Key.Right] = true;
                         fisica.tank.AngularVelocity = -(new Vector3(0, 1f, 0)) ;
                         tankMoving = 1;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        if (!soundEngine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = soundEngine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.Left:
                         keys[(int)Key.Left] = true;
                         fisica.tank.AngularVelocity = (new Vector3(0, 1f, 0)) ;
                         tankMoving = 1;
-                        if (!engine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
-                            sonidoTanque = engine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
+                        if (!soundEngine.IsCurrentlyPlaying("files/audio/tiger_moving.ogg"))
+                            sonidoTanque = soundEngine.Play3D("files/audio/tiger_moving.ogg", tanque.transform.position.X, tanque.transform.position.Y, tanque.transform.position.Z, true);
                         break;
                     case Key.S:
                         keys[(int)Key.S] = true;
@@ -561,14 +539,6 @@ namespace cg2016
                             OnResize(null);
                         }
                         break;
-                    /*case Key.N:
-                        Vector3D pos = musicAmbiente.Position + new Vector3D(0, 1, 0) ;
-                        musicAmbiente.Position = pos;
-                        break;
-                    case Key.M:
-                        pos = musicAmbiente.Position + new Vector3D(0, -1, 0);
-                        musicAmbiente.Position = pos;
-                        break;*/
                     case Key.C:
                         {
                             if (myCamera==camaras[0])
@@ -745,104 +715,7 @@ namespace cg2016
             }
 
         }
-
-        protected override void OnMouseDown(MouseButtonEventArgs mouse)
-        {
-            int Xopengl = mouse.X;
-            int Yopengl = this.Height - mouse.Y;
-            if (viewport.Contains(Xopengl, Yopengl))
-            { //Inside viewport?
-                int Xviewport = Xopengl - viewport.X;
-                int Yviewport = Yopengl - viewport.Y;
-               
-            }
-        }
-
-        private Vector3 getRayFromMouse(int x_viewport, int y_viewport)
-        {
-            // mouse_x, mouse_y are on screen space (viewport coordinates)
-            float x = (2.0f * x_viewport) / viewport.Width - 1.0f;
-            float y = (2.0f * y_viewport) / viewport.Height - 1.0f;
-            float z = 1.0f;
-            // normalised device space
-            Vector3 ray_nds = new Vector3(x, y, z);
-            // clip space
-            Vector4 ray_clip = new Vector4(ray_nds.X, ray_nds.Y, -1.0f, 0.0f);
-            // eye space
-            Vector4 ray_eye = Vector4.Transform(ray_clip, Matrix4.Invert(myCamera.ProjectionMatrix())); //inverse(projMat) * ray_clip
-            ray_eye = new Vector4(ray_eye.X, ray_eye.Y, -1.0f, 0.0f);
-            // world space
-            Vector4 aux = Vector4.Transform(ray_eye, Matrix4.Invert(myCamera.ViewMatrix())); //inverse(viewMat) * ray_eye
-            Vector3 ray_wor = new Vector3(aux.X, aux.Y, aux.Z);
-            ray_wor = Vector3.Normalize(ray_wor);
-            return ray_wor;
-        }
-
-        private Vector3 proyeccion(Vector3 rayOrigin, Vector3 rayDir)
-        {
-            Vector3 pendiente = rayDir - rayOrigin;
-            //recta se expresa como origen+ t*pendiente. Calculo para que valor de t va a dar y=0 (q punto esta dentro del plano)
-            // 0 = rayOrigin.Y + t * pendiente.Y            
-            float t = -rayOrigin.Y / pendiente.Y;
-            float x = rayOrigin.X + t * pendiente.X;
-            float z = rayOrigin.Z + t * pendiente.Z;
-
-
-            //return new Vector3(x,0, z);
-            return rayOrigin + t * pendiente;
-        }
-
-        /*
-        check if a ray and a sphere intersect. if not hit, returns -1. it rejects
-        intersections behind the ray caster's origin, and sets intersection_distance to
-        the closest intersection (ALL PARAMETERS ARE ON WORLD SPACE!) */
-        private float rayToSphere(Vector3 rayOrigin, Vector3 rayDir, Vector3 sphereCenter, float sphereRadius)
-        {
-            // work out components of quadratic
-            Vector3 distToSphere = rayOrigin - sphereCenter;
-            float b = Vector3.Dot(rayDir, distToSphere);
-            float c = Vector3.Dot(distToSphere, distToSphere) - sphereRadius * sphereRadius;
-            float b_2_minus_c = b * b - c;
-            // check for "imaginary" answer. == ray completely misses sphere
-            if (b_2_minus_c < 0.0f)
-            {
-                return -1;
-            }
-            // check for ray hitting twice (in and out of the sphere)
-            if (b_2_minus_c > 0.0f)
-            {
-                // get the 2 intersection distances along ray
-                float t_a = -b + (float)Math.Sqrt(b_2_minus_c);
-                float t_b = -b - (float)Math.Sqrt(b_2_minus_c);
-                float result = t_b;
-                // if behind viewer, throw one or both away
-                if (t_a < 0.0)
-                {
-                    if (t_b < 0.0)
-                    {
-                        return -1;
-                    }
-                }
-                else if (t_b < 0.0)
-                {
-                    result = t_a;
-                }
-                return result;
-            }
-            // check for ray hitting once (skimming the surface)
-            if (0.0f == b_2_minus_c)
-            {
-                // if behind viewer, throw away
-                float t = -b + (float)Math.Sqrt(b_2_minus_c);
-                if (t < 0.0f)
-                {
-                    return -1;
-                }
-                return t;
-            }
-            return -1;
-        }
-
+        
         //OnClosed debe finalizar la simulacion de BulletSharp
         protected override void OnClosed(EventArgs e)
         {
@@ -910,12 +783,10 @@ namespace cg2016
             mShadowProgram.SetUniformValue("uLightSpaceMatrix", lightSpaceMatrix);
 
             // --- TANQUE -----            
-            tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
             mShadowProgram.SetUniformValue("uModelMatrix", tanque.transform.localToWorld);
             tanque.DibujarShadows(mShadowProgram);
 
             // --- MAPA ---
-            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
             mShadowProgram.SetUniformValue("uModelMatrix", mapa.transform.localToWorld);
             foreach (Mesh m in mapa.Meshes)
                 //if (m.Name != "Ground_Plane")
@@ -984,25 +855,18 @@ namespace cg2016
 
             #region Configuracion de Uniforms
              
-            /// BUMPED SCPECULAR PHONG
-            
-            //Configuracion de los valores uniformes del shader
+            /// BUMPED PHONG
+            //Configuracion de los valores uniformes del shader compartidos por todos
+            //El resto de los valores que varian por objeto son seteados por cada objeto
+            //en el momento de Dibujar.
             sProgram.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
-            sProgram.SetUniformValue("modelMatrix", Matrix4.Identity);
-            //sProgram.SetUniformValue("normalMatrix", normalMatrix);
             sProgram.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
-            //sProgram.SetUniformValue("cameraPosition", myCamera.Position());
             sProgram.SetUniformValue("A", 0.3f);
             sProgram.SetUniformValue("B", 0.007f);
             sProgram.SetUniformValue("C", 0.00008f);
-            //sProgram.SetUniformValue("material.Ka", material.Kambient);
-            //sProgram.SetUniformValue("material.Kd", material.Kdiffuse);
-            //sProgram.SetUniformValue("material.Ks", material.Kspecular);
-            //sProgram.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             sProgram.SetUniformValue("NormalMapTex", GetTextureID("Default_Normal"));
-            //sProgram.SetUniformValue("SpecularMapTex", 0);
-            
+                        
             sProgram.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
             {
@@ -1021,60 +885,45 @@ namespace cg2016
             sProgram.SetUniformValue("uShadowSampler", GetTextureID("ShadowMap"));
             #endregion
 
-
-            //Dibujamos el Objeto
+            //Dibujamos el Tanque
             sProgram.SetUniformValue("NormalMapTex", GetTextureID("Tiger_Normal"));
             tanque.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            tanque_col.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-          
-
+            tanque_col.transform.localToWorld = fisica.tank.MotionState.WorldTransform; //Colision
             tanque.Dibujar(sProgram);
-           
             sProgram.SetUniformValue("NormalMapTex", GetTextureID("Default_Normal"));
-
+            //Dibujamos los aviones
             aviones.Dibujar(sProgram, sProgramParticles, timeSinceStartup);
-
+            //Dibujamos los focos de las luces.
             for (int i = 1; i < luces.Length; i++)
             {
                 esferaLuces.transform.localToWorld = Matrix4.CreateScale(0.02f)*Matrix4.CreateTranslation(new Vector3(luces[i].Position));
                 esferaLuces.Dibujar(sProgram); 
             }
-            //if (toggleNormals) objeto.DibujarNormales(sProgram, viewMatrix);
-
-
-            if (toggleNormals)
-            {
-                tanque_col.Dibujar(sProgram);//tanque.DibujarNormales(sProgram);
-            }
-            //Dibujamos el Mapa
-            mapa.transform.localToWorld = fisica.map.MotionState.WorldTransform;
-            
+            //Dibujamos el Mapa (Menos el Terreno que usa un shader especial)
             foreach (Mesh m in mapa.Meshes)
                 if (m.Name != "Ground_Plane")
                     m.Dibujar(sProgram);
-            if (toggleNormals) mapa.DibujarNormales(sProgram);
+
+            //Dibujamos las Normales de todos los objetos, si esta activado.
+            if (toggleNormals)
+            {
+                mapa.DibujarNormales(sProgram);
+                tanque.DibujarNormales(sProgram);
+            }
 
             sProgram.Deactivate(); //Desactivamos el programa de shader.
 
             //SHADER ANIMADO (Para dibujar texturas animadas)
             sProgramAnimated.Activate(); //Activamos el programa de shaders
-            //Configuracion de las transformaciones del objeto en espacio de mundo
-            
+
             sProgramAnimated.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramAnimated.SetUniformValue("modelMatrix", Matrix4.Identity);
-            //sProgramAnimated.SetUniformValue("normalMatrix", normalMatrix);
             sProgramAnimated.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
-            //sProgramAnimated.SetUniformValue("cameraPosition", myCamera.Position());
             sProgramAnimated.SetUniformValue("A", 0.3f);
             sProgramAnimated.SetUniformValue("B", 0.007f);
             sProgramAnimated.SetUniformValue("C", 0.00008f);
-            //sProgramAnimated.SetUniformValue("material.Ka", material.Kambient);
-            //sProgramAnimated.SetUniformValue("material.Kd", material.Kdiffuse);
-            //sProgramAnimated.SetUniformValue("material.Ks", material.Kspecular);
-            //sProgramAnimated.SetUniformValue("material.Shininess", material.Shininess);
             sProgramAnimated.SetUniformValue("ColorTex", GetTextureID("Default_Diffuse"));
             sProgramAnimated.SetUniformValue("NormalMapTex", GetTextureID("Tracks_Normal"));
-            //sProgramAnimated.SetUniformValue("SpecularMapTex", 0);
 
             sProgramAnimated.SetUniformValue("numLights", luces.Length);
             for (int i = 0; i < luces.Length; i++)
@@ -1088,9 +937,6 @@ namespace cg2016
             }
 
             //Dibujamos las orugas del tanque
-            oruga_der.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-            oruga_izq.transform.localToWorld = fisica.tank.MotionState.WorldTransform;
-
             //Si el tanque gira pero no avanza/retrocede, las orugas se mueven en sentido contrario
             int izq = 1; int der = 1;
             if (keys[(int)Key.Left] && !keys[(int)Key.Up] && !keys[(int)Key.Down])
@@ -1104,24 +950,19 @@ namespace cg2016
             //Animacion de Oruga Izquierda en funcion del tiempo, traslacion y giro del tanque
             sProgramAnimated.SetUniformValue("speed", -(float)timeSinceStartup * tankMoving * izq);
             oruga_izq.Dibujar(sProgramAnimated);
+
             sProgramAnimated.Deactivate(); //Desactivamos el programa de shaders
 
             //SHADER PARA EL TERRENO
             sProgramTerrain.Activate();
-            // TERRAIN MULTIPLES LUCES
+
             //Configuracion de los valores uniformes del shader
             sProgramTerrain.SetUniformValue("projMatrix", myCamera.ProjectionMatrix());
             sProgramTerrain.SetUniformValue("modelMatrix", Matrix4.Identity);
-            //sProgramTerrain.SetUniformValue("normalMatrix", normalMatrix);
             sProgramTerrain.SetUniformValue("viewMatrix", myCamera.ViewMatrix());
-            //sProgramTerrain.SetUniformValue("cameraPosition", myCamera.Position());
             sProgramTerrain.SetUniformValue("A", 0.3f);
             sProgramTerrain.SetUniformValue("B", 0.007f);
             sProgramTerrain.SetUniformValue("C", 0.00008f);
-            //sProgramTerrain.SetUniformValue("material.Ka", material.Kambient);
-            //sProgramTerrain.SetUniformValue("material.Kd", material.Kdiffuse);
-            //sProgramTerrain.SetUniformValue("material.Ks", material.Kspecular);
-            //sProgramTerrain.SetUniformValue("material.Shininess", material.Shininess);
             sProgram.SetUniformValue("NormalMapTex", GetTextureID("Terrain_Normal_1"));
 
             //SplatMap (Para indicar que porcentaje de cada textura utilizar por fragmento)
@@ -1154,6 +995,7 @@ namespace cg2016
             foreach (Mesh m in mapa.Meshes)
                 if (m.Name == "Ground_Plane")
                     m.Dibujar(sProgramTerrain);
+
             sProgramTerrain.Deactivate();
         } 
 
@@ -1412,7 +1254,7 @@ namespace cg2016
             oruga_izq.Build(sProgram, mShadowProgram); //Construyo los buffers OpenGL que voy a usar.
 
             //Aviones
-            aviones = new Aviones(sProgram, mShadowProgram, engine, sProgramUnlit, GetTextureID("FX_Smoke"));
+            aviones = new Aviones(sProgram, mShadowProgram, soundEngine, sProgramUnlit, GetTextureID("FX_Smoke"));
             aviones.objetos[0] = new ObjetoGrafico("CGUNS/ModelosOBJ/Vehicles/b17.obj"); //Se utiliza para los primeros 3 aviones. Los que van en linea recta
             aviones.objetos[0].AddTextureToAllMeshes(GetTextureID("B17"));
             aviones.objetos[0].Build(sProgram, mShadowProgram);
@@ -1733,18 +1575,9 @@ namespace cg2016
         private void updateDebugInfo()
         {
             //Muestro informacion de Debugeo en el titulo de la ventana
-            int vertCount = 0, faceCount = 0, normalCount = 0, objCount = tanque.Meshes.Count;
-            foreach (FVLMesh m in tanque.Meshes)
-            {
-                vertCount += m.VertexCount;
-                faceCount += m.FaceCount;
-                normalCount += m.VertexNormalList.Count;
-            }
-
             DisplayFPS();
 
-            String title = "CGProy2016 [FPS:" + fps + "] [Verts:" + vertCount + " - Normals:" + normalCount + " - Faces:" + faceCount + " - Objects:" + objCount  +
-                "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos +
+            String title = "CGProy2016[Ruined City] [FPS:" + fps + "] [DebugNormals: " + toggleNormals + " - Wireframe: " + toggleWires + " - DrawGizmos: " + drawGizmos +
                 "] [Lights: ";
 
             for (int i = 0; i < luces.Length; i++)
